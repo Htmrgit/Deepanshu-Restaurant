@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>Deepanshu Restaurant | Best Multi-Cuisine Restaurant in Indirapuram, Ghaziabad</title>
+    <meta name="description" content="Enjoy authentic North Indian and Chinese flavors at Deepanshu Restaurant. Swiggy/Zomato style menu with live updates. Best dining in Ghaziabad.">
+    <meta name="keywords" content="Deepanshu Restaurant, Indirapuram, Menu, Online Food, Ghaziabad">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .nav-glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        .category-sidebar::-webkit-scrollbar {
+            width: 0px;
+        }
+
+        .active-category-link {
+            color: #ea580c;
+            border-left: 4px solid #ea580c;
+            background: linear-gradient(to right, rgba(234, 88, 12, 0.08), transparent);
+            font-weight: 700;
+        }
+
+        .menu-item-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .menu-item-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #ea580c;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .sticky-category {
+            position: sticky;
+            top: 100px;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-white text-slate-900">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 nav-glass shadow-sm border-b border-orange-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex-shrink-0 flex items-center">
+                    <div class="bg-orange-600 p-2 rounded-lg mr-2 text-white">
+                        <i class="fas fa-utensils text-xl"></i>
+                    </div>
+                    <span class="text-xl md:text-2xl font-black tracking-tighter text-slate-800 uppercase">DEEPANSHU <span class="text-orange-600">RESTAURANT</span></span>
+                </div>
+                
+                <div class="hidden md:flex space-x-8 text-[11px] font-bold uppercase tracking-[0.2em]">
+                    <a href="#home" class="text-orange-600">Home</a>
+                    <a href="#about" class="hover:text-orange-600">About</a>
+                    <a href="#menu" class="hover:text-orange-600">Menu</a>
+                    <a href="#contact" class="hover:text-orange-600">Contact</a>
+                </div>
+
+                <div class="hidden md:block">
+                    <a href="tel:+919268004475" class="bg-orange-600 text-white px-6 py-2.5 rounded-full font-bold shadow-lg shadow-orange-100 text-[10px] uppercase">
+                        Call Now
+                    </a>
+                </div>
+
+                <div class="md:hidden">
+                    <button id="menu-btn" class="p-2 text-slate-800"><i class="fas fa-bars text-2xl"></i></button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Nav Menu -->
+        <div id="mobile-menu" class="hidden bg-white border-b border-slate-100 px-4 pb-4 shadow-xl">
+            <a href="#home" class="block py-4 border-b border-slate-50 font-semibold" onclick="toggleMenu()">Home</a>
+            <a href="#about" class="block py-4 border-b border-slate-50 font-semibold" onclick="toggleMenu()">About</a>
+            <a href="#menu" class="block py-4 border-b border-slate-50 font-semibold" onclick="toggleMenu()">Menu</a>
+            <a href="#contact" class="block py-4 font-semibold" onclick="toggleMenu()">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="pt-32 pb-12 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <span class="text-orange-600 font-bold text-xs uppercase tracking-widest mb-4 block">Indirapuram's Finest</span>
+                <h1 class="text-4xl md:text-6xl font-black text-slate-800 leading-tight mb-6 tracking-tight">Food you love, <br><span class="text-orange-600">delivered fresh.</span></h1>
+                <p class="text-slate-500 text-lg mb-8 max-w-lg">Experience the Swiggy-style digital menu with real-time updates from our kitchen. Quality dining since 2014.</p>
+                <div class="flex gap-4">
+                    <a href="#menu" class="bg-orange-600 text-white px-8 py-4 rounded-xl font-bold shadow-lg shadow-orange-200">Browse Menu</a>
+                    <a href="#contact" class="bg-white border border-slate-200 px-8 py-4 rounded-xl font-bold">Contact Us</a>
+                </div>
+            </div>
+            <div class="hidden lg:block relative">
+                <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=1000" class="rounded-[40px] shadow-2xl" alt="Hero">
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section (Different Color: Soft Amber/Orange) -->
+    <section id="about" class="py-24 bg-orange-50/50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="relative">
+                    <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&q=80&w=1000" alt="Interior" class="rounded-3xl shadow-2xl relative z-10 w-full object-cover aspect-video lg:aspect-auto">
+                    <div class="absolute -bottom-6 -right-6 w-48 h-48 bg-orange-200/50 rounded-full -z-0"></div>
+                </div>
+                <div>
+                    <h2 class="text-orange-600 font-bold tracking-widest uppercase mb-4 text-xs">Our Heritage</h2>
+                    <h3 class="text-4xl font-bold mb-6 text-slate-800 leading-tight tracking-tight">Authentic Flavors, <br>Fresh Ingredients</h3>
+                    <p class="text-slate-600 leading-relaxed mb-8 text-lg">
+                        Deepanshu Restaurant has been serving the Indirapuram community with passion. We focus on traditional cooking methods and the freshest locally sourced ingredients to bring you a taste that feels like home. Our party hall can accommodate up to 70 guests for your special events.
+                    </p>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="border-l-4 border-orange-500 pl-4">
+                            <h4 class="font-bold text-2xl text-slate-800">100%</h4>
+                            <p class="text-slate-500 text-xs uppercase font-bold tracking-tighter">Fresh Preparation</p>
+                        </div>
+                        <div class="border-l-4 border-orange-500 pl-4">
+                            <h4 class="font-bold text-2xl text-slate-800">Best</h4>
+                            <p class="text-slate-500 text-xs uppercase font-bold tracking-tighter">Service in Town</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search & Menu Section (Clean White) -->
+    <section id="menu" class="py-12 bg-white">
+        <div class="max-w-7xl mx-auto px-4 md:px-8">
+            
+            <!-- Floating Search Bar -->
+            <div class="sticky top-20 z-40 py-4 bg-white/80 backdrop-blur-md">
+                <div class="relative max-w-2xl mx-auto">
+                    <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="menu-search" oninput="handleSearch()" placeholder="Search for dishes (e.g. Paneer, Chicken, Chowmein...)" 
+                           class="w-full pl-14 pr-6 py-4 bg-slate-100 border-none rounded-2xl focus:ring-2 focus:ring-orange-600 outline-none transition-all shadow-sm">
+                </div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-8 mt-8">
+                
+                <!-- Category Sidebar (Left - Zomato/Swiggy Style) -->
+                <div class="hidden lg:block w-72">
+                    <div class="sticky-category">
+                        <h4 class="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-6 px-4">Categories</h4>
+                        <div id="sidebar-categories" class="flex flex-col space-y-1 border-l border-slate-100">
+                            <!-- Category links injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Category Strip (Visible on mobile only) -->
+                <div class="lg:hidden sticky top-[154px] z-30 bg-white py-3 border-b border-slate-100 overflow-x-auto whitespace-nowrap category-sidebar">
+                    <div id="mobile-categories" class="flex gap-2 px-2">
+                        <!-- Mobile category pills injected here -->
+                    </div>
+                </div>
+
+                <!-- Main Menu Column (Right) -->
+                <div class="flex-1" id="menu-list-container-top">
+                    <!-- Loader -->
+                    <div id="loader-box" class="flex flex-col items-center justify-center py-20">
+                        <div class="loader mb-4"></div>
+                        <p class="text-slate-400 text-sm italic">Syncing with our kitchen data...</p>
+                    </div>
+
+                    <!-- Items Container -->
+                    <div id="menu-list-container" class="space-y-12">
+                        <!-- Dynamic content injected here -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Inquiry Form -->
+    <section id="contact" class="py-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16">
+            <div>
+                <h3 class="text-3xl font-bold mb-6 text-slate-800">Contact & Location</h3>
+                <div class="space-y-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-orange-600"><i class="fas fa-map-marker-alt"></i></div>
+                        <p class="text-slate-600 text-sm">387/1, Shakti Khand 1st, Indirapuram, Ghaziabad, UP - 201014</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-orange-600"><i class="fas fa-phone-alt"></i></div>
+                        <p class="text-slate-600 text-sm">+91 9268004475, 9910109626</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-orange-600"><i class="fas fa-clock"></i></div>
+                        <p class="text-slate-600 text-sm">Everyday: 11:00 AM - 11:00 PM</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-[32px] shadow-xl border border-slate-100">
+                <form id="contact-form" class="space-y-4">
+                    <input type="text" id="form-name" placeholder="Full Name" required class="w-full p-4 bg-slate-50 rounded-xl outline-none border-none focus:ring-2 focus:ring-orange-600 transition">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="email" id="form-email" placeholder="Email" required class="w-full p-4 bg-slate-50 rounded-xl outline-none border-none focus:ring-2 focus:ring-orange-600 transition">
+                        <input type="tel" id="form-phone" placeholder="Phone" required class="w-full p-4 bg-slate-50 rounded-xl outline-none border-none focus:ring-2 focus:ring-orange-600 transition">
+                    </div>
+                    <select id="form-purpose" required class="w-full p-4 bg-slate-50 rounded-xl outline-none border-none focus:ring-2 focus:ring-orange-600 transition">
+                        <option value="Table Booking" selected>Table Booking</option>
+                        <option value="Party Query">Party Query</option>
+                        <option value="Feedback">Feedback</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <textarea id="form-message" placeholder="Your Message" required rows="3" class="w-full p-4 bg-slate-50 rounded-xl outline-none border-none focus:ring-2 focus:ring-orange-600 transition"></textarea>
+                    <button type="submit" id="submit-btn" class="w-full py-4 bg-orange-600 text-white font-bold rounded-xl shadow-lg shadow-orange-100 uppercase tracking-widest text-xs flex items-center justify-center gap-2">
+                        <span id="btn-text">Send Message</span>
+                        <div id="btn-loader" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    </button>
+                    <p id="form-status" class="text-center text-xs mt-4 hidden"></p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (Dark Theme Update) -->
+    <footer class="bg-slate-950 py-16 border-t border-slate-900 text-white">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <p class="text-2xl font-black uppercase mb-4 tracking-tighter italic">DEEPANSHU <span class="text-orange-500">RESTAURANT</span></p>
+            <div class="flex justify-center gap-8 mb-10 text-slate-500">
+                <a href="#" class="hover:text-orange-500 transition-colors text-xl"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="hover:text-orange-500 transition-colors text-xl"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="hover:text-orange-500 transition-colors text-xl"><i class="fab fa-whatsapp"></i></a>
+            </div>
+            <p class="text-[10px] text-slate-600 uppercase tracking-[0.4em] mb-6">&copy; 2026 Deepanshu Restaurant. All Rights Reserved.</p>
+            
+            <div class="flex flex-col items-center gap-3 mt-10">
+                <p class="text-[11px] text-slate-700 tracking-widest uppercase font-bold">Project Architecture & Development</p>
+                <a href="https://www.linkedin.com/in/thakurmanojrajput/" target="_blank" class="group flex items-center gap-3 bg-slate-900 hover:bg-orange-600 px-6 py-3 rounded-full transition-all duration-500 border border-slate-800 hover:border-orange-500 shadow-2xl">
+                    <i class="fab fa-linkedin text-orange-500 group-hover:text-white text-xl transition-colors"></i>
+                    <span class="text-slate-300 group-hover:text-white font-black text-xs tracking-[0.15em] uppercase">Thakur Manoj Rajput</span>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const MENU_URL = "https://script.google.com/macros/s/AKfycbwsljkDbxPr9vZISpFIGk8ZvxheQ5l6LD_VVWTkVau7K0Ta51aDIiQ-QzIeoMOIZeg0/exec"; 
+        const CONTACT_URL = "https://script.google.com/macros/s/AKfycbxy7-RzigDKDqiYvr6g3IDw8LRPXoE-ZJBQPfCZUt5oRIVl4e3ZKJSgJHPuu0P5h550/exec"; 
+        
+        let allMenuItems = [];
+        let categories = [];
+
+        async function init() {
+            try {
+                const res = await fetch(MENU_URL);
+                const data = await res.json();
+                allMenuItems = data;
+                
+                // Get unique categories and normalize
+                categories = [...new Set(data.map(i => i.category?.toString().trim()))].filter(Boolean);
+                
+                generateNavigation();
+                renderMenu();
+                document.getElementById('loader-box').classList.add('hidden');
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loader-box').innerHTML = "Failed to load menu. Please refresh.";
+            }
+        }
+
+        function generateNavigation() {
+            const sidebar = document.getElementById('sidebar-categories');
+            const mobileStrip = document.getElementById('mobile-categories');
+            
+            const navItems = categories.map(cat => {
+                const catSlug = cat.toLowerCase().replace(/\s+/g, '-');
+                return { name: cat, slug: catSlug };
+            });
+
+            // Add "All" option to the beginning
+            const allOptionDesktop = `
+                <a href="#menu-list-container-top" class="category-link px-4 py-3 text-sm font-medium text-slate-500 hover:text-orange-600 transition-all block active-category-link">
+                    All Items
+                </a>
+            `;
+            const allOptionMobile = `
+                <a href="#menu-list-container-top" class="px-4 py-2 bg-orange-600 text-white rounded-full text-xs font-bold transition-all inline-block border border-transparent">
+                    All Items
+                </a>
+            `;
+
+            // Desktop Sidebar
+            sidebar.innerHTML = allOptionDesktop + navItems.map(nav => `
+                <a href="#section-${nav.slug}" class="category-link px-4 py-3 text-sm font-medium text-slate-500 hover:text-orange-600 transition-all block">
+                    ${nav.name}
+                </a>
+            `).join('');
+
+            // Mobile Strip
+            mobileStrip.innerHTML = allOptionMobile + navItems.map(nav => `
+                <a href="#section-${nav.slug}" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-full text-xs font-bold transition-all inline-block border border-transparent">
+                    ${nav.name}
+                </a>
+            `).join('');
+        }
+
+        function renderMenu(searchTerm = "") {
+            const container = document.getElementById('menu-list-container');
+            let html = "";
+
+            categories.forEach(cat => {
+                const catSlug = cat.toLowerCase().replace(/\s+/g, '-');
+                const itemsInCat = allMenuItems.filter(i => 
+                    i.category?.toString().trim() === cat && 
+                    (i.name.toLowerCase().includes(searchTerm.toLowerCase()) || i.desc?.toLowerCase().includes(searchTerm.toLowerCase()))
+                );
+
+                if (itemsInCat.length > 0) {
+                    html += `
+                        <div id="section-${catSlug}" class="menu-section scroll-mt-32">
+                            <h2 class="text-2xl font-black text-slate-800 mb-6 px-2 flex items-center gap-3">
+                                ${cat}
+                                <span class="text-xs font-bold text-orange-600 bg-orange-50 px-3 py-1 rounded-full">${itemsInCat.length} Items</span>
+                            </h2>
+                            <div class="grid grid-cols-1 gap-4">
+                                ${itemsInCat.map(item => renderItemCard(item)).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            if (html === "") {
+                container.innerHTML = `<div class="text-center py-20 text-slate-400">No dishes found matching "${searchTerm}"</div>`;
+            } else {
+                container.innerHTML = html;
+            }
+        }
+
+        function renderItemCard(item) {
+            const variants = item.variants || {};
+            const variantHtml = Object.entries(variants).map(([vName, vPrice]) => `
+                <div class="flex justify-between items-center py-1.5 border-b border-slate-50 last:border-0">
+                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">${vName}</span>
+                    <span class="text-sm font-black text-orange-600 ml-4">${vPrice}</span>
+                </div>
+            `).join('');
+
+            return `
+                <div class="menu-item-card bg-white p-6 rounded-3xl border border-slate-100 flex flex-col md:flex-row justify-between gap-6 group">
+                    <div class="flex-1 text-left">
+                        <h4 class="font-bold text-lg group-hover:text-orange-600 transition-colors mb-1 uppercase tracking-tight">${item.name}</h4>
+                        <p class="text-slate-400 text-xs leading-relaxed max-w-lg">${item.desc || 'A signature recipe prepared with care and fresh spices.'}</p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-2xl min-w-[170px] self-start md:self-center border border-slate-100">
+                        <p class="text-[9px] font-black text-slate-300 uppercase mb-2 tracking-widest border-b border-slate-100 pb-1">Price List</p>
+                        ${variantHtml || '<span class="text-xs text-slate-400 italic">See Menu</span>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleSearch() {
+            const query = document.getElementById('menu-search').value;
+            renderMenu(query);
+        }
+
+        function toggleMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        // Contact Form Handling
+        document.getElementById('contact-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const status = document.getElementById('form-status');
+            
+            btn.disabled = true;
+            document.getElementById('btn-loader').classList.remove('hidden');
+            document.getElementById('btn-text').textContent = "Sending...";
+
+            const payload = {
+                name: document.getElementById('form-name').value,
+                email: document.getElementById('form-email').value,
+                phone: document.getElementById('form-phone').value,
+                purpose: document.getElementById('form-purpose').value,
+                message: document.getElementById('form-message').value
+            };
+
+            try {
+                const response = await fetch(CONTACT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const result = await response.json();
+                if (result.status === "success") {
+                    status.textContent = `Success! Request ID: ${result.id}`;
+                    status.className = "text-center text-xs mt-4 text-green-600 block";
+                    e.target.reset();
+                }
+            } catch (err) {
+                status.textContent = "Error sending message. Please try again.";
+                status.className = "text-center text-xs mt-4 text-red-600 block";
+            } finally {
+                btn.disabled = false;
+                document.getElementById('btn-loader').classList.add('hidden');
+                document.getElementById('btn-text').textContent = "Send Message";
+            }
+        });
+
+        // ScrollSpy logic to highlight active category
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('.menu-section');
+            const links = document.querySelectorAll('.category-link');
+            let current = "";
+
+            // Check if we are at the top (All Items)
+            if (window.scrollY < (sections[0]?.offsetTop || 0) - 200) {
+                current = "menu-list-container-top";
+            } else {
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 200) {
+                        current = section.getAttribute('id');
+                    }
+                });
+            }
+
+            links.forEach(link => {
+                link.classList.remove('active-category-link');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active-category-link');
+                }
+            });
+        });
+
+        init();
+    </script>
+</body>
+</html>
