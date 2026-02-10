@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- SEO Meta Tags -->
+    <!-- SEO & SITEMAP START (Prioritized for Search Engines) -->
     <title>Deepanshu Restaurant | Best Multi-Cuisine Restaurant in Indirapuram, Ghaziabad</title>
     <meta name="description" content="Enjoy authentic North Indian and Chinese flavors at Deepanshu Restaurant. Swiggy/Zomato style menu with live updates. Best dining in Ghaziabad.">
     <meta name="keywords" content="Deepanshu Restaurant, Indirapuram, Menu, Online Food, Ghaziabad, Best North Indian food, Party Hall Indirapuram">
     <meta name="author" content="Deepanshu Restaurant">
     <link rel="canonical" href="https://deepanshurestaurant.com/" />
     
-    <!-- JSON-LD Structured Data for Restaurant (SEO Sitemap) -->
+    <!-- JSON-LD Structured Data (Hidden Sitemap for Google) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -32,23 +32,11 @@
       },
       "openingHoursSpecification": {
         "@type": "OpeningHoursSpecification",
-        "dayOfWeek": [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-          "Sunday"
-        ],
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
         "opens": "11:00",
         "closes": "23:00"
       },
-      "servesCuisine": [
-        "North Indian",
-        "Chinese",
-        "South Indian"
-      ]
+      "servesCuisine": ["North Indian", "Chinese", "South Indian"]
     }
     </script>
     
@@ -58,12 +46,7 @@
     <meta property="og:title" content="Deepanshu Restaurant | Authentic Taste in Indirapuram">
     <meta property="og:description" content="Experience the best North Indian and Chinese cuisine with real-time menu updates. Visit us in Indirapuram today!">
     <meta property="og:image" content="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://deepanshurestaurant.com/">
-    <meta property="twitter:title" content="Deepanshu Restaurant | Live Digital Menu">
-    <meta property="twitter:description" content="Best food in Indirapuram, Ghaziabad. Check our live menu now!">
+    <!-- SEO & SITEMAP END -->
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -91,8 +74,7 @@
         }
 
         .cooking-container {
-            width: 100px;
-            height: 100px;
+            width: 100px; height: 100px;
             position: relative;
         }
 
@@ -119,10 +101,7 @@
             animation: food-toss 0.5s infinite alternate;
         }
 
-        @keyframes pan-move {
-            to { transform: translateX(5px) rotate(2deg); }
-        }
-
+        @keyframes pan-move { to { transform: translateX(5px) rotate(2deg); } }
         @keyframes food-toss {
             0% { transform: translateY(0); }
             100% { transform: translateY(-40px) rotate(360deg); }
@@ -138,12 +117,34 @@
             animation: pulse 1.5s infinite;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        /* --- WhatsApp Floating Button --- */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #25d366;
+            color: #FFF;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            transition: all 0.3s ease;
         }
 
-        /* --- Page Animations --- */
+        .whatsapp-float:hover {
+            transform: scale(1.1);
+            background-color: #128c7e;
+        }
+
+        /* --- UI Components --- */
         .nav-glass {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -176,15 +177,11 @@
             border: 3px solid #f3f3f3;
             border-top: 3px solid #ea580c;
             border-radius: 50%;
-            width: 32px;
-            height: 32px;
+            width: 32px; height: 32px;
             animation: spin 1s linear infinite;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .sticky-category {
             position: sticky;
@@ -205,6 +202,11 @@
         </div>
         <p class="loading-text">Looking & Cooking...</p>
     </div>
+
+    <!-- WhatsApp Chat Feature -->
+    <a href="https://wa.me/919910109626?text=Hi%20Deepanshu%20Restaurant,%20I%20want%20to%20place%20an%20order." class="whatsapp-float" target="_blank" aria-label="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
 
     <!-- Navigation -->
     <nav class="fixed top-0 w-full z-50 nav-glass shadow-sm border-b border-orange-100">
@@ -252,7 +254,7 @@
             <div>
                 <span class="text-orange-600 font-bold text-xs uppercase tracking-widest mb-4 block">Indirapuram's Finest</span>
                 <h1 class="text-4xl md:text-6xl font-black text-slate-800 leading-tight mb-6 tracking-tight">Food you love, <br><span class="text-orange-600">delivered fresh.</span></h1>
-                <p class="text-slate-500 text-lg mb-8 max-w-lg">“जो अच्छे खाने के शौकीन हैं, उनके दीपांशु पर यक़ीन है। ”    We Serve You Delicious Food Since 2002.</p>
+                <p class="text-slate-500 text-lg mb-8 max-w-lg">“जो अच्छे खाने के शौकीन हैं, उनके दीपांशु पर यक़ीन है।” We Serve You Delicious Food Since 2002.</p>
                 <div class="flex gap-4">
                     <a href="#menu" class="bg-orange-600 text-white px-8 py-4 rounded-xl font-bold shadow-lg shadow-orange-200">Browse Menu</a>
                     <a href="#contact" class="bg-white border border-slate-200 px-8 py-4 rounded-xl font-bold">Contact Us</a>
@@ -385,12 +387,10 @@
     <footer class="bg-slate-950 py-16 border-t border-slate-900 text-white">
         <div class="max-w-7xl mx-auto px-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-12 text-left mb-16">
-                <!-- Brand -->
                 <div class="md:col-span-1 text-center md:text-left">
                     <p class="text-2xl font-black uppercase mb-4 tracking-tighter italic">DEEPANSHU <span class="text-orange-500">RESTAURANT</span></p>
-                    <p class="text-slate-500 text-sm leading-relaxed">Providing high-quality multi-cuisine dining experiences in Indirapuram since 2014. Taste that feels like home.</p>
+                    <p class="text-slate-500 text-sm leading-relaxed">Providing high-quality multi-cuisine dining experiences in Indirapuram since 2002. Taste that feels like home.</p>
                 </div>
-                <!-- Sitemap Section 1 -->
                 <div>
                     <h4 class="text-orange-500 font-bold uppercase tracking-widest text-xs mb-6">Navigation</h4>
                     <ul class="space-y-4 text-slate-400 text-sm">
@@ -400,7 +400,6 @@
                         <li><a href="#contact" class="hover:text-white transition">Contact Us</a></li>
                     </ul>
                 </div>
-                <!-- Sitemap Section 2 -->
                 <div>
                     <h4 class="text-orange-500 font-bold uppercase tracking-widest text-xs mb-6">Cuisines</h4>
                     <ul class="space-y-4 text-slate-400 text-sm">
@@ -410,15 +409,18 @@
                         <li>South Indian</li>
                     </ul>
                 </div>
-                <!-- Support -->
                 <div>
                     <h4 class="text-orange-500 font-bold uppercase tracking-widest text-xs mb-6">Connect</h4>
                     <div class="flex gap-4 mb-6">
                         <a href="#" class="w-10 h-10 bg-slate-900 flex items-center justify-center rounded-lg hover:bg-orange-600 transition"><i class="fab fa-facebook-f text-white"></i></a>
                         <a href="#" class="w-10 h-10 bg-slate-900 flex items-center justify-center rounded-lg hover:bg-orange-600 transition"><i class="fab fa-instagram text-white"></i></a>
-                        <a href="#" class="w-10 h-10 bg-slate-900 flex items-center justify-center rounded-lg hover:bg-orange-600 transition"><i class="fab fa-whatsapp text-white"></i></a>
+                        <a href="https://wa.me/919910109626" class="w-10 h-10 bg-slate-900 flex items-center justify-center rounded-lg hover:bg-orange-600 transition"><i class="fab fa-whatsapp text-white"></i></a>
                     </div>
-                    <p class="text-slate-500 text-xs uppercase tracking-widest">Call for Orders:<br>+91 9268004475</p>
+                    <p class="text-slate-500 text-xs uppercase tracking-widest">Call for Orders:<br>+919268004475</p>
+					<p class="text-slate-500 text-xs uppercase tracking-widest"><br>+919268004475</p>
+					<p class="text-slate-500 text-xs uppercase tracking-widest"><br>+919953808031</p>
+					<p class="text-slate-500 text-xs uppercase tracking-widest"><br>+919910109626</p>
+					
                 </div>
             </div>
             
@@ -427,7 +429,7 @@
                 
                 <div class="flex flex-col items-center gap-3 mt-10">
                     <p class="text-[11px] text-slate-700 tracking-widest uppercase font-bold">Project Architecture & Development</p>
-                    <a href="https://www.linkedin.com/in/thakurmanojrajput/" target="_blank" class="group flex items-center gap-3 bg-slate-900 hover:bg-orange-600 px-6 py-3 rounded-full transition-all duration-500 border border-slate-800 hover:border-orange-500 shadow-2xl">
+                    <a href="https://in.linkedin.com/in/thakurmanorajput?trk=people-guest_people_search-card" target="_blank" class="group flex items-center gap-3 bg-slate-900 hover:bg-orange-600 px-6 py-3 rounded-full transition-all duration-500 border border-slate-800 hover:border-orange-500 shadow-2xl">
                         <i class="fab fa-linkedin text-orange-500 group-hover:text-white text-xl transition-colors"></i>
                         <span class="text-slate-300 group-hover:text-white font-black text-xs tracking-[0.15em] uppercase">Thakur Manoj Rajput</span>
                     </a>
@@ -443,15 +445,12 @@
         let allMenuItems = [];
         let categories = [];
 
-        // Hide preloader when everything is loaded
         window.addEventListener('load', () => {
             const preloader = document.getElementById('preloader');
             setTimeout(() => {
                 preloader.style.opacity = '0';
-                setTimeout(() => {
-                    preloader.style.visibility = 'hidden';
-                }, 500);
-            }, 1500); // Minimum 1.5s splash
+                setTimeout(() => { preloader.style.visibility = 'hidden'; }, 500);
+            }, 1500); 
         });
 
         async function init() {
@@ -473,10 +472,8 @@
             const sidebar = document.getElementById('sidebar-categories');
             const mobileStrip = document.getElementById('mobile-categories');
             const navItems = categories.map(cat => ({ name: cat, slug: cat.toLowerCase().replace(/\s+/g, '-') }));
-
             const allOptionDesktop = `<a href="#menu-list-container-top" class="category-link px-4 py-3 text-sm font-medium text-slate-500 hover:text-orange-600 transition-all block active-category-link">All Items</a>`;
             const allOptionMobile = `<a href="#menu-list-container-top" class="px-4 py-2 bg-orange-600 text-white rounded-full text-xs font-bold transition-all inline-block border border-transparent">All Items</a>`;
-
             sidebar.innerHTML = allOptionDesktop + navItems.map(nav => `<a href="#section-${nav.slug}" class="category-link px-4 py-3 text-sm font-medium text-slate-500 hover:text-orange-600 transition-all block">${nav.name}</a>`).join('');
             mobileStrip.innerHTML = allOptionMobile + navItems.map(nav => `<a href="#section-${nav.slug}" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-full text-xs font-bold transition-all inline-block border border-transparent">${nav.name}</a>`).join('');
         }
@@ -484,11 +481,9 @@
         function renderMenu(searchTerm = "") {
             const container = document.getElementById('menu-list-container');
             let html = "";
-
             categories.forEach(cat => {
                 const catSlug = cat.toLowerCase().replace(/\s+/g, '-');
                 const itemsInCat = allMenuItems.filter(i => i.category?.toString().trim() === cat && (i.name.toLowerCase().includes(searchTerm.toLowerCase()) || i.desc?.toLowerCase().includes(searchTerm.toLowerCase())));
-
                 if (itemsInCat.length > 0) {
                     html += `
                         <div id="section-${catSlug}" class="menu-section scroll-mt-32">
@@ -499,19 +494,13 @@
                             <div class="grid grid-cols-1 gap-4">
                                 ${itemsInCat.map(item => renderItemCard(item)).join('')}
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 }
             });
-
             container.innerHTML = html || `<div class="text-center py-20 text-slate-400">No dishes found matching "${searchTerm}"</div>`;
-            
-            // Trigger Fade-in Animation
             setTimeout(() => {
                 const cards = document.querySelectorAll('.menu-item-card');
-                cards.forEach((card, index) => {
-                    setTimeout(() => card.classList.add('show'), index * 100);
-                });
+                cards.forEach((card, index) => { setTimeout(() => card.classList.add('show'), index * 100); });
             }, 50);
         }
 
@@ -521,7 +510,6 @@
                     <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">${vName}</span>
                     <span class="text-sm font-black text-orange-600 ml-4">${vPrice}</span>
                 </div>`).join('');
-
             return `
                 <div class="menu-item-card bg-white p-6 rounded-3xl border border-slate-100 flex flex-col md:flex-row justify-between gap-6 group">
                     <div class="flex-1 text-left">
@@ -535,16 +523,9 @@
                 </div>`;
         }
 
-        function handleSearch() {
-            const query = document.getElementById('menu-search').value;
-            renderMenu(query);
-        }
+        function handleSearch() { renderMenu(document.getElementById('menu-search').value); }
+        function toggleMenu() { document.getElementById('mobile-menu').classList.toggle('hidden'); }
 
-        function toggleMenu() {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
-        }
-
-        // Contact Form Logic (Preserved)
         document.getElementById('contact-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
@@ -552,7 +533,6 @@
             btn.disabled = true;
             document.getElementById('btn-loader').classList.remove('hidden');
             document.getElementById('btn-text').textContent = "Sending...";
-
             const payload = {
                 name: document.getElementById('form-name').value,
                 email: document.getElementById('form-email').value,
@@ -560,7 +540,6 @@
                 purpose: document.getElementById('form-purpose').value,
                 message: document.getElementById('form-message').value
             };
-
             try {
                 const response = await fetch(CONTACT_URL, { method: 'POST', body: JSON.stringify(payload) });
                 const result = await response.json();
@@ -579,7 +558,6 @@
             }
         });
 
-        // Scrollspy logic
         window.addEventListener('scroll', () => {
             const sections = document.querySelectorAll('.menu-section');
             const links = document.querySelectorAll('.category-link');
