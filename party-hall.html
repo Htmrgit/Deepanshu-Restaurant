@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- ADVANCED SEO TAGS -->
+    <title>Party Hall & Birthday Bookings | Deepanshu Restaurant Indirapuram</title>
+    <meta name="description" content="Book the best party hall in Indirapuram, Ghaziabad. 70-guest capacity, fully AC, multi-cuisine catering for Birthday Parties, Kitty Parties, and Anniversaries. Get your unique DR-ID today!">
+    <meta name="keywords" content="party hall in indirapuram, birthday party venue near me, kitty party places ghaziabad, anniversary celebration venue, Deepanshu restaurant events, small gathering hall, non veg party hall">
+    <meta name="author" content="Deepanshu Restaurant">
+    <link rel="canonical" href="https://deepanshurestaurant.com/party-hall.html" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        body { font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(234, 88, 12, 0.1);
+        }
+
+        .premium-shadow {
+            box-shadow: 0 20px 40px -15px rgba(234, 88, 12, 0.2);
+        }
+
+        .modal-overlay {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+
+        /* Loading Preloader for Page Load */
+        #preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff; z-index: 9999; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+        .cooking-container { width: 100px; height: 100px; position: relative; }
+        .pan { width: 100%; height: 20%; background: #333; position: absolute; bottom: 20%; border-radius: 0 0 50px 50px; animation: pan-move 0.5s infinite alternate; }
+        .food { width: 20px; height: 20px; background: #ea580c; border-radius: 50%; position: absolute; bottom: 45%; left: 40%; animation: food-toss 0.5s infinite alternate; }
+        @keyframes pan-move { to { transform: translateX(5px); } }
+        @keyframes food-toss { 0% { transform: translateY(0); } 100% { transform: translateY(-40px); } }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #ea580c; border-radius: 10px; }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+        }
+
+        /* Slider Styles */
+        .slider-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .slider-container::-webkit-scrollbar { display: none; }
+        .slide-item {
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .slide-item.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @media (min-width: 768px) {
+            .slide-item { flex: 0 0 50%; }
+        }
+        @media (min-width: 1024px) {
+            .slide-item { flex: 0 0 33.333%; }
+        }
+
+        .gallery-image-wrapper {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .gallery-image-wrapper:hover {
+            transform: scale(1.02);
+            border-color: #ea580c;
+        }
+
+        /* API Loading Shimmer Animation */
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer-effect 1.5s infinite linear;
+        }
+        @keyframes shimmer-effect {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <div id="preloader">
+        <div class="cooking-container"><div class="food"></div><div class="pan"></div></div>
+        <p class="mt-4 font-bold text-orange-600 tracking-widest uppercase text-[10px]">Loading Best Packages...</p>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-40 bg-white/90 backdrop-blur-md border-b border-slate-100 h-20 flex items-center px-6">
+        <div class="max-w-7xl mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center text-white shadow-lg"><i class="fas fa-glass-cheers"></i></div>
+                <span class="font-extrabold text-xl tracking-tight uppercase">Deepanshu <span class="text-orange-600">Events</span></span>
+            </div>
+            <a href="index.html" class="text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-orange-600 transition flex items-center gap-2">
+                <i class="fas fa-arrow-left"></i> Back To Site
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="pt-32 pb-20 bg-slate-900 text-white text-center px-6">
+        <span class="text-orange-500 font-bold uppercase tracking-[0.3em] text-[10px] mb-4 block">Exclusive Event Catering</span>
+        <h1 class="text-4xl md:text-6xl font-black mb-6">Party Menu <span class="text-orange-500">Packages</span></h1>
+        <p class="text-slate-400 max-w-xl mx-auto text-sm italic leading-relaxed">"Jo acche khane ke shokeen hain, unhe Deepanshu pe yakeen hai."</p>
+    </section>
+
+    <!-- DYNAMIC IMAGE SLIDER ALBUM SECTION -->
+    <section class="py-12 bg-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h2 class="text-2xl font-black italic uppercase tracking-tight text-slate-800">Album Gallery</h2>
+                    <p class="text-[10px] font-bold text-orange-600 uppercase tracking-widest">Real photos from our celebration hall</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="slide('left')" class="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-orange-600 hover:text-white transition-all shadow-sm">
+                        <i class="fas fa-chevron-left text-sm"></i>
+                    </button>
+                    <button onclick="slide('right')" class="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-orange-600 hover:text-white transition-all shadow-sm">
+                        <i class="fas fa-chevron-right text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Slider Wrapper -->
+            <div id="image-slider" class="slider-container gap-6 pb-6 min-h-[300px]">
+                <!-- API LOAD HONE TAK YEH PLACEHOLDER DIKHEGA (Animation) -->
+                <div class="slide-item flex-none w-full md:w-1/2 lg:w-1/3 loaded">
+                    <div class="h-64 md:h-80 rounded-[32px] shimmer shadow-sm"></div>
+                </div>
+                <div class="slide-item flex-none hidden md:block w-full md:w-1/2 lg:w-1/3 loaded">
+                    <div class="h-64 md:h-80 rounded-[32px] shimmer shadow-sm"></div>
+                </div>
+                <div class="slide-item flex-none hidden lg:block w-full md:w-1/2 lg:w-1/3 loaded">
+                    <div class="h-64 md:h-80 rounded-[32px] shimmer shadow-sm"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Plans Section -->
+    <section class="py-16 px-6 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+        <!-- 650 Plan -->
+        <div class="glass-card rounded-[40px] p-8 premium-shadow flex flex-col border-2 border-transparent hover:border-orange-500/30 transition-all group">
+            <div class="mb-6">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Veg Basic Package</h3>
+                <div class="text-4xl font-black text-slate-800">₹650<span class="text-xs text-slate-400 font-normal">/person</span></div>
+            </div>
+            <div class="flex-1 space-y-4 mb-8">
+                <div class="flex items-center gap-3 text-sm text-slate-600"><i class="fas fa-check-circle text-orange-500"></i> Select Any 1 Beverage + 1 Sweet</div>
+                <div class="flex items-center gap-3 text-sm text-slate-600"><i class="fas fa-check-circle text-orange-500"></i> Select Any 3 Veg Snacks</div>
+                <div class="flex items-center gap-3 text-sm text-slate-600"><i class="fas fa-check-circle text-orange-500"></i> Full Main Course (Select 1 Paneer)</div>
+                <button onclick="openMenu('650')" class="text-[10px] font-black text-orange-600 uppercase border-b-2 border-orange-100 hover:border-orange-600 pb-1 mt-4 transition-all inline-block">View Full Menu Items</button>
+            </div>
+            <button onclick="selectPlan('Veg Basic ₹650')" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-orange-600 transition-all shadow-xl">Select Plan</button>
+        </div>
+
+        <!-- 750 Plan -->
+        <div class="bg-white rounded-[40px] p-10 premium-shadow flex flex-col border-2 border-orange-500 transform scale-105 shadow-2xl relative">
+            <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-orange-600 text-white text-[9px] font-black px-5 py-2 rounded-full uppercase tracking-[0.2em] shadow-lg">Most Popular</div>
+            <div class="mb-6 text-center">
+                <h3 class="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-2">Veg Premium Package</h3>
+                <div class="text-5xl font-black text-slate-800">₹750<span class="text-xs text-slate-400 font-normal">/person</span></div>
+            </div>
+            <div class="flex-1 space-y-4 mb-8">
+                <div class="flex items-center gap-3 text-sm font-semibold text-slate-700"><i class="fas fa-star text-orange-500"></i> Select Any 2 Beverages + 2 Sweets</div>
+                <div class="flex items-center gap-3 text-sm font-semibold text-slate-700"><i class="fas fa-star text-orange-500"></i> Select Any 3 Premium Snacks</div>
+                <div class="flex items-center gap-3 text-sm font-semibold text-slate-700"><i class="fas fa-star text-orange-500"></i> Full Course (Select 2 Paneer Items)</div>
+                <div class="text-center">
+                    <button onclick="openMenu('750')" class="text-[10px] font-black text-orange-600 uppercase border-b-2 border-orange-100 hover:border-orange-600 pb-1 mt-4 transition-all inline-block">View Full Menu Items</button>
+                </div>
+            </div>
+            <button onclick="selectPlan('Veg Premium ₹750')" class="w-full py-5 btn-gradient text-white rounded-[24px] font-black uppercase text-[10px] tracking-widest shadow-xl shadow-orange-100 hover:scale-[1.02] transition-all">Select Best Seller</button>
+        </div>
+
+        <!-- 1150 Plan -->
+        <div class="glass-card rounded-[40px] p-8 premium-shadow flex flex-col border-2 border-transparent hover:border-orange-500/30 transition-all group">
+            <div class="mb-6">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Non-Veg Special</h3>
+                <div class="text-4xl font-black text-slate-800">₹1150<span class="text-xs text-slate-400 font-normal">/plate</span></div>
+            </div>
+            <div class="flex-1 space-y-4 mb-8">
+                <div class="flex items-center gap-3 text-sm text-slate-600"><i class="fas fa-drumstick-bite text-orange-500"></i> Select 2 Veg & 2 Non-Veg Snacks</div>
+                <div class="flex items-center gap-3 text-sm text-slate-600"><i class="fas fa-drumstick-bite text-orange-500"></i> Main (Select 2 Veg + 1 Non-Veg)</div>
+                <div class="flex items-center gap-3 text-sm text-slate-600"><i class="fas fa-check-circle text-orange-500"></i> Full Variety including Breads & Sweets</div>
+                <button onclick="openMenu('1150')" class="text-[10px] font-black text-orange-600 uppercase border-b-2 border-orange-100 hover:border-orange-600 pb-1 mt-4 transition-all inline-block">View Full Menu Items</button>
+            </div>
+            <button onclick="selectPlan('Non-Veg Special ₹1150')" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-orange-600 transition-all shadow-xl">Select Plan</button>
+        </div>
+    </section>
+
+    <!-- Booking Form -->
+    <section id="form-section" class="py-20 px-6 max-w-5xl mx-auto">
+        <div class="glass-card rounded-[50px] p-8 md:p-16 border-2 border-white shadow-2xl">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-black uppercase tracking-tight italic text-slate-800">Party Inquiry Form</h2>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.4em] mt-3">Book your date & get a unique DR-ID</p>
+                <div class="w-16 h-1.5 bg-orange-600 mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <form id="party-form" class="space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Customer Name</label>
+                        <input type="text" id="name" placeholder="Full Name" required class="w-full px-6 py-5 bg-slate-50 border border-slate-200 rounded-3xl outline-none focus:ring-4 focus:ring-orange-100 focus:border-orange-600 transition-all">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
+                        <input type="email" id="email" placeholder="Email" required class="w-full px-6 py-5 bg-slate-50 border border-slate-200 rounded-3xl outline-none focus:ring-4 focus:ring-orange-100 focus:border-orange-600 transition-all">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Phone Number</label>
+                        <input type="tel" id="phone" placeholder="Mobile No." required class="w-full px-6 py-5 bg-slate-50 border border-slate-200 rounded-3xl outline-none focus:ring-4 focus:ring-orange-100 focus:border-orange-600 transition-all">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Minimum Guests (Min 30)</label>
+                        <input type="number" id="min_guests" placeholder="Ex: 50" required class="w-full px-6 py-5 bg-slate-50 border border-slate-200 rounded-3xl outline-none focus:ring-4 focus:ring-orange-100 focus:border-orange-600 transition-all">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Preferred Time Slot</label>
+                        <select id="slot" required class="w-full px-6 py-5 bg-slate-50 border border-slate-200 rounded-3xl outline-none focus:ring-4 focus:ring-orange-100 focus:border-orange-600 transition-all">
+                            <option value="" disabled selected>Choose Slot</option>
+                            <option value="Morning (11:00 AM - 03:00 PM)">Morning (11:00 AM - 03:00 PM)</option>
+                            <option value="Evening (04:00 PM - 07:00 PM)">Evening (04:00 PM - 07:00 PM)</option>
+                            <option value="Night (07:30 PM - 10:30 PM)">Night (07:30 PM - 10:30 PM)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Chosen Package</label>
+                        <input type="text" id="selected_plan" readonly placeholder="Pick a plan from above" class="w-full px-6 py-5 bg-orange-50 border border-orange-200 rounded-3xl text-orange-700 font-bold outline-none cursor-default shadow-inner text-center">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Special Requirements (e.g. Birthday)</label>
+                        <input type="text" id="massage" placeholder="Ex: Kitty Party, Decor Needed" required class="w-full px-6 py-5 bg-slate-50 border border-slate-200 rounded-3xl outline-none focus:ring-4 focus:ring-orange-100 focus:border-orange-600 transition-all">
+                    </div>
+                </div>
+
+                <div class="pt-6">
+                    <button type="submit" id="submit-btn" class="w-full py-6 bg-slate-900 text-white rounded-[30px] font-black uppercase text-xs tracking-[0.3em] shadow-2xl hover:bg-orange-600 hover:-translate-y-1 transition-all flex items-center justify-center gap-4 group">
+                        <span id="btn-text">Confirm Booking Inquiry</span>
+                        <i class="fas fa-arrow-right group-hover:translate-x-2 transition-transform"></i>
+                        <div id="btn-loader" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    </button>
+                </div>
+                <p id="status" class="text-center text-[10px] font-black mt-6 hidden uppercase tracking-[0.2em]"></p>
+            </form>
+        </div>
+    </section>
+
+    <!-- Menu Modal -->
+    <div id="menu-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-6">
+        <div class="modal-overlay absolute inset-0" onclick="closeMenu()"></div>
+        <div class="bg-white w-full max-w-2xl rounded-[50px] p-8 md:p-14 relative shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] max-h-[90vh] overflow-y-auto border-2 border-orange-100">
+            <button onclick="closeMenu()" class="absolute top-10 right-10 text-slate-300 hover:text-orange-600 transition-colors"><i class="fas fa-times text-2xl"></i></button>
+            <div id="modal-content">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- SITEMAP & FOOTER -->
+    <footer class="bg-slate-950 py-20 text-white">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 text-left">
+            <div class="space-y-6">
+                <p class="font-black uppercase tracking-[0.3em] text-xl italic">Deepanshu <span class="text-orange-500">Events</span></p>
+                <p class="text-slate-500 text-xs leading-relaxed">Redefining celebration since 2014. Indirapuram's most trusted name for quality food and memorable gatherings.</p>
+                <div class="flex gap-4">
+                    <a href="#" class="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center hover:bg-orange-600 transition"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center hover:bg-orange-600 transition"><i class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/919910109626" class="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center hover:bg-green-600 transition"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-orange-500 font-bold uppercase tracking-widest text-[10px] mb-6">Explore</h4>
+                <ul class="space-y-4 text-xs font-medium text-slate-400">
+                    <li><a href="index.html" class="hover:text-white transition">Home</a></li>
+                    <li><a href="index.html#menu" class="hover:text-white transition">Restaurant Menu</a></li>
+                    <li><a href="#" class="text-white">Party Hall Booking</a></li>
+                    <li><a href="seo-landing.html" class="hover:text-white transition italic">SEO Landing Archive</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-orange-500 font-bold uppercase tracking-widest text-[10px] mb-6">Celebrations</h4>
+                <ul class="space-y-4 text-xs font-medium text-slate-400">
+                    <li><a href="#form-section" onclick="selectPlan('Birthday Inquiry')" class="hover:text-white transition">Birthday Parties</a></li>
+                    <li><a href="#form-section" onclick="selectPlan('Kitty Inquiry')" class="hover:text-white transition">Kitty Parties</a></li>
+                    <li><a href="#form-section" onclick="selectPlan('Anniversary Inquiry')" class="hover:text-white transition">Anniversary Celebration</a></li>
+                    <li><a href="#form-section" onclick="selectPlan('Corporate Inquiry')" class="hover:text-white transition">Corporate Small Meets</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-orange-500 font-bold uppercase tracking-widest text-[10px] mb-6">Get In Touch</h4>
+                <ul class="space-y-4 text-xs text-slate-400">
+                    <li class="flex items-start gap-3"><i class="fas fa-map-marker-alt text-orange-500 mt-1"></i> 387/1 Shakti Khand - 1, Indirapuram, Ghaziabad</li>
+                    <li class="flex items-center gap-3"><i class="fas fa-phone-alt text-orange-500"></i> +91 9910109626</li>
+                    <li class="flex items-center gap-3"><i class="fas fa-envelope text-orange-500"></i> support@deepanshurestaurant.com</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 pt-16 mt-16 border-t border-slate-900 text-center">
+            <p class="text-[9px] text-slate-700 uppercase tracking-[0.6em] mb-4">&copy; 2026 Crafted for Celebrations by Deepanshu Restaurant Group.</p>
+            <div class="flex justify-center gap-8 text-[8px] font-bold text-slate-800 uppercase tracking-widest">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms & Conditions</a>
+                <a href="index.html#contact">Site Map</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const WEB_URL = "https://script.google.com/macros/s/AKfycbzFnAU1N-2pUA2zes7XFtMq7y2N-beu9O9KTkV3vkyLdg2cA2JHbTni7-yTttjizdyu/exec";
+        const ALBUM_URL = "https://script.google.com/macros/s/AKfycbx2GSjykurTqlRvXKvvcpY8WG3DwpvfY8RIIrgwAPASCVxWwllRF5-ke8uR6gLFudU/exec";
+
+        const MENU_DATA = {
+            '650': {
+                title: "Veg Plan ₹650 Full Menu",
+                items: [
+                    "Beverages: Soft Drink, Coffee, Tea, Soup (Select Any 1)",
+                    "Snacks: Veg Spring Roll, Chilli Paneer, Chlly Potato, Chilly Soya Chap, French Fry, Mix Veg Pakora, Veg Munchurian, Paneer Tikka, Tandoori Soya Chap, Haryali Soya Chap, Veg Noodles (Select Any 3)",
+                    "Main Course (Paneer): Kadhai, Shahi, Palak, Mushroom, Muttor (Select Any 1)",
+                    "Dry Veg: Mix Veg Dry, Aloo Gobhi Dry, Aloo Mutter, Zeera Aloo, Achari Sabz Korma, Chana Masala (Select Any 1)",
+                    "Dal: Makhani, Fried, Dhabha Wali, Punjabi, Rajma, Chholle (Select Any 1)",
+                    "Rice: Veg Pulao, Mttar Pulao, Navratan Pulao, Jeera Rice, Veg Fried Rice, Paneer Fried Rice, Mutter Mashroom Fried Rice (Select Any 1)",
+                    "Sweets: Gulab Jamun, Rosogualla, Ice Cream (Select Any 1)",
+                    "Raita: Bondi Raita, Aloo Raita, Mix Raita, Pineapple Raita (Select Any 1)",
+                    "Breads: Butter Roti, Plain Roti, Butter Naan, Garlic Naan, Missi Roti, Lachha Paratha (Select Any 3)",
+                    "Complementary: Salad, Chatani, Papad"
+                ]
+            },
+            '750': {
+                title: "Veg Premium ₹750 Full Menu",
+                items: [
+                    "Beverages: Soft Drink, Coffee, Tea, Soup (Select Any 2)",
+                    "Snacks: All Veg Snacks + Tandoori Specialties (Select Any 3)",
+                    "Main Course (Paneer): Select Any 2 Varieties",
+                    "Dry Veg: Select Any 2 Varieties",
+                    "Dal: Select Any 1 Variety",
+                    "Rice: Select Any 1 Variety (All Paneer & Mushroom options available)",
+                    "Sweets: Select Any 2 Varieties",
+                    "Raita: Select Any 1 Variety",
+                    "Breads: Select Any 3 Varieties including Garlic Naan & Lachha Paratha",
+                    "Complementary: Salad, Chatani, Papad"
+                ]
+            },
+            '1150': {
+                title: "Non-Veg Special ₹1150 Full Menu",
+                items: [
+                    "Beverages: Select Any 2 Varieties",
+                    "Non-Veg Snacks: Tandoori Chicken, Afgani Chicken, Chicken Tikka, Achari Tikka, Seek Kabab, Chicken Chilly, Chicken Lollipop, Chicken Wings (Select Any 2)",
+                    "Veg Snacks: Select Any 2 Varieties",
+                    "Non-Veg Main Course: Butter Chicken, Kadhai Chicken, Chicken Masala, Chicken Curry, Rara Chicken, Chicken Do Pyaza (Select Any 1)",
+                    "Veg Main Course: Select Any 2 Paneer Varieties",
+                    "Dal & Dry Veg: (Select Any 1 Each)",
+                    "Rice & Sweets: (Select Any 1 & 2)",
+                    "Raita & Breads: Select Any 1 Raita & Any 3 Premium Breads",
+                    "Complementary: Salad, Chatani, Papad"
+                ]
+            }
+        };
+
+        window.onload = () => {
+            fetchAlbum();
+            setTimeout(() => {
+                document.getElementById('preloader').style.display = 'none';
+            }, 1200);
+        };
+
+        async function fetchAlbum() {
+            const slider = document.getElementById('image-slider');
+            // Hum pehle shimmer placeholders dikhate hain
+            try {
+                const res = await fetch(ALBUM_URL);
+                const data = await res.json();
+                
+                if (data.length > 0) {
+                    let html = "";
+                    data.forEach((item, index) => {
+                        html += `
+                        <div class="slide-item" id="slide-${index}">
+                            <div class="gallery-image-wrapper h-64 md:h-80 rounded-[32px] overflow-hidden shadow-lg border-4 border-white shimmer">
+                                <img src="${item.url}" class="w-full h-full object-cover opacity-0 transition-opacity duration-500" 
+                                     alt="${item.caption}" onload="this.classList.remove('opacity-0'); this.parentElement.classList.remove('shimmer')">
+                            </div>
+                            <p class="text-center mt-3 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] px-4">${item.caption}</p>
+                        </div>`;
+                    });
+                    slider.innerHTML = html;
+                    
+                    // API Load hone ke baad fade-in animation trigger karte hain
+                    setTimeout(() => {
+                        const slides = document.querySelectorAll('.slide-item');
+                        slides.forEach((s, i) => {
+                            setTimeout(() => s.classList.add('loaded'), i * 150);
+                        });
+                    }, 100);
+                    
+                } else {
+                    slider.innerHTML = `<p class="w-full text-center py-20 text-slate-400 text-xs font-bold uppercase tracking-widest">No images found in album.</p>`;
+                }
+            } catch (err) {
+                console.error("Gallery fetch error:", err);
+                slider.innerHTML = `<p class="w-full text-center py-20 text-red-400 text-xs font-bold uppercase tracking-widest">Failed to load gallery.</p>`;
+            }
+        }
+
+        function slide(direction) {
+            const slider = document.getElementById('image-slider');
+            const scrollAmount = slider.offsetWidth / 1.5;
+            if (direction === 'left') {
+                slider.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else {
+                slider.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+        }
+
+        function openMenu(plan) {
+            const data = MENU_DATA[plan];
+            let html = `<h2 class="text-2xl font-black mb-6 italic text-slate-800 border-b-4 border-orange-500 pb-3 inline-block">${data.title}</h2><ul class="space-y-4 mt-4">`;
+            data.items.forEach(item => {
+                html += `<li class="flex items-start gap-4 text-[12px] text-slate-600 font-medium leading-relaxed"><i class="fas fa-check-circle mt-1 text-orange-500 shadow-sm"></i> ${item}</li>`;
+            });
+            html += `</ul><div class="mt-10"><button onclick="selectPlan('Plan ₹${plan}')" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-2xl hover:bg-orange-600 transition-all">Select This Plan & Close</button></div>`;
+            document.getElementById('modal-content').innerHTML = html;
+            document.getElementById('menu-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMenu() { 
+            document.getElementById('menu-modal').classList.add('hidden'); 
+            document.body.style.overflow = 'auto';
+        }
+
+        function selectPlan(plan) {
+            document.getElementById('selected_plan').value = plan;
+            if (document.getElementById('menu-modal').classList.contains('hidden') === false) closeMenu();
+            document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' });
+            
+            const field = document.getElementById('selected_plan');
+            field.classList.add('ring-4', 'ring-orange-200');
+            setTimeout(() => field.classList.remove('ring-4', 'ring-orange-200'), 2000);
+        }
+
+        document.getElementById('party-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const plan = document.getElementById('selected_plan').value;
+            if(!plan) { alert("Please select a menu plan first!"); return; }
+
+            const btn = document.getElementById('submit-btn');
+            const status = document.getElementById('status');
+            const loader = document.getElementById('btn-loader');
+            const text = document.getElementById('btn-text');
+
+            btn.disabled = true;
+            loader.classList.remove('hidden');
+            text.textContent = "Processing Inquiry...";
+
+            const payload = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                min_guests: document.getElementById('min_guests').value,
+                slot: document.getElementById('slot').value,
+                selected_menu: plan,
+                message: document.getElementById('massage').value
+            };
+
+            try {
+                const res = await fetch(WEB_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const result = await res.json();
+
+                if(result.status === "success") {
+                    status.textContent = `SUCCESS! ID: ${result.id}. OPENING WHATSAPP...`;
+                    status.className = "text-center text-[11px] font-black mt-6 text-green-500 block animate-pulse tracking-[0.1em]";
+                    
+                    const waMsg = `✨ *NEW INQUIRY: PARTY HALL* ✨%0A%0A` +
+                                 `🆔 *Request ID:* ${result.id}%0A` +
+                                 `👤 *Host:* ${payload.name}%0A` +
+                                 `📞 *Phone:* ${payload.phone}%0A` +
+                                 `⏰ *Slot:* ${payload.slot}%0A` +
+                                 `👥 *Guests:* ${payload.min_guests}%0A` +
+                                 `🍱 *Plan:* ${plan}%0A` +
+                                 `📝 *Notes:* ${payload.message}`;
+
+                    setTimeout(() => {
+                        window.open(`https://wa.me/919910109626?text=${waMsg}`, '_blank');
+                        e.target.reset();
+                    }, 1500);
+                }
+            } catch (err) {
+                status.textContent = "SYSTEM ERROR! PLEASE CALL US DIRECTLY.";
+                status.className = "text-center text-[11px] font-black mt-6 text-red-500 block";
+            } finally {
+                btn.disabled = false;
+                loader.classList.add('hidden');
+                text.textContent = "Confirm Booking Inquiry";
+            }
+        };
+    </script>
+</body>
+</html>
