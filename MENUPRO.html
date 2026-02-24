@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Master - Google Sheet Sync</title>
+    
+    <!-- Security Guard: Redirect logic ko refine kiya gaya hai taaki invalid URL error na aaye -->
+    <script>
+        (function() {
+            const loginStatus = sessionStorage.getItem("adminLoggedIn");
+            if (loginStatus !== "true") {
+                // Location replace use kar rahe hain taaki history clear rahe aur error na aaye
+                const loginPage = "index.html";
+                if (loginPage) {
+                    window.location.replace(loginPage);
+                }
+            }
+        })();
+
+        function logout() {
+            sessionStorage.removeItem("adminLoggedIn");
+            window.location.replace("index.html");
+        }
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Okra:wght@300;400;500;600;700;800&family=Inter:wght@300;400;600;700&display=swap');
+        
+        :root { --zomato-orange: #FF5200; }
+        body { font-family: 'Inter', sans-serif; background-color: #f4f4f7; color: #1c1c1c; display: flex; flex-direction: column; min-height: 100vh; }
+        .font-okra { font-family: 'Okra', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+        .orange-btn { background-color: var(--zomato-orange); transition: all 0.2s ease; }
+        .orange-btn:hover { background-color: #e64a00; transform: translateY(-1px); }
+        .category-sidebar { position: sticky; top: 80px; height: calc(100vh - 150px); }
+        .menu-card { background: white; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.05); transition: box-shadow 0.3s ease; overflow: hidden; }
+        .menu-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .price-input { border: 1px solid #ddd; border-radius: 6px; padding: 4px 8px; width: 80px; font-weight: 700; color: var(--zomato-orange); }
+        .price-input:focus { border-color: var(--zomato-orange); outline: none; box-shadow: 0 0 0 2px rgba(255, 82, 0, 0.1); }
+        .category-header { border-left: 4px solid var(--zomato-orange); padding-left: 12px; }
+        .variant-tag { background: #fff5f0; border: 1px solid #ffdecb; color: var(--zomato-orange); }
+
+        /* Loader Styles */
+        #progressOverlay {
+            backdrop-filter: blur(4px);
+            display: none;
+        }
+        .loader-spin {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--zomato-orange);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        footer { margin-top: auto; }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Progress Loader Overlay -->
+    <div id="progressOverlay" class="fixed inset-0 bg-white/70 z-[200] flex flex-col items-center justify-center">
+        <div class="loader-spin mb-4"></div>
+        <div id="loaderStatus" class="text-[--zomato-orange] font-bold text-sm tracking-widest animate-pulse uppercase">Syncing...</div>
+        <div id="progressBarContainer" class="w-64 h-2 bg-gray-200 rounded-full mt-4 overflow-hidden">
+            <div id="progressBar" class="h-full bg-[--zomato-orange] transition-all duration-300" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <!-- Top Navigation -->
+    <nav class="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-2">
+                <div class="text-[--zomato-orange] font-black text-3xl tracking-tighter font-okra">MenuMaster</div>
+                <div class="h-6 w-[1px] bg-gray-300 mx-2"></div>
+                <div class="text-xs font-bold text-gray-500 uppercase tracking-widest">Editor Pro</div>
+                <!-- Logout Button added for security -->
+                <button onclick="logout()" class="ml-4 text-[10px] bg-gray-100 px-2 py-1 rounded hover:bg-red-50 hover:text-red-500 font-bold transition uppercase">Logout</button>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="importFromGoogleSheet()" class="bg-blue-50 hover:bg-blue-100 text-blue-600 px-4 py-2 rounded-lg text-xs font-bold border border-blue-200 transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-2h2v2zm0-4H7v-2h2v2zm0-4H7V7h2v2zm4 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2zm4 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2z"/></svg>
+                    Manual Sync
+                </button>
+
+                <button onclick="exportToGoogleSheet()" class="bg-orange-50 hover:bg-orange-100 text-[--zomato-orange] px-4 py-2 rounded-lg text-xs font-bold border border-orange-200 transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 15.5l-4.5-4.5h3V9h3v5h3L12 18.5z"/></svg>
+                    PUSH TO Website
+                </button>
+                
+                <button onclick="downloadExcel()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Excel
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-8 flex-grow">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Sidebar: Categories -->
+            <aside class="hidden lg:block lg:col-span-3 category-sidebar overflow-y-auto custom-scrollbar pr-2">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Categories</h3>
+                    <button onclick="addNewCategoryPrompt()" class="text-[--zomato-orange] text-xs font-bold hover:underline">+ New</button>
+                </div>
+                <div id="categoryList" class="space-y-1"></div>
+            </aside>
+
+            <!-- Main Content: Menu Items -->
+            <section class="lg:col-span-9 space-y-8">
+                <!-- Search & Quick Add -->
+                <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4">
+                    <div class="relative flex-grow">
+                        <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <input type="text" id="searchInput" oninput="handleSearch(this.value)" placeholder="Search dishes, categories..." class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[--zomato-orange]">
+                    </div>
+                    <button onclick="openAddItemModal()" class="orange-btn text-white px-6 py-2 rounded-lg text-sm font-bold shadow-md">
+                        + Add New Item
+                    </button>
+                </div>
+
+                <!-- Stats -->
+                <div class="flex items-center gap-4 text-xs font-bold text-gray-500">
+                    <span id="totalItemsText">0 Total Items</span>
+                    <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
+                    <span id="updatedItemsText" class="text-emerald-500">0 Updated</span>
+                </div>
+
+                <!-- Menu Sections -->
+                <div id="menuContainer" class="space-y-10 pb-20">
+                    <div class="py-20 text-center text-gray-400 italic">No items found. Sync sheet or add manually to start.</div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-6 mt-10">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <p class="text-gray-400 text-sm font-medium">Developed by <span class="text-[--zomato-orange] font-bold">Thakur Mano Rajput</span></p>
+        </div>
+    </footer>
+
+    <!-- Enhanced Add Item Modal -->
+    <div id="addItemModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
+            <div class="p-6 border-b flex justify-between items-center bg-white sticky top-0">
+                <h3 class="text-xl font-bold font-okra">Add New Item</h3>
+                <button onclick="closeAddItemModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            <div class="p-6 space-y-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Item ID</label>
+                        <input type="text" id="modalId" placeholder="e.g. 101" class="w-full px-4 py-2 border rounded-lg outline-none focus:border-[--zomato-orange]">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Dish Name</label>
+                        <input type="text" id="modalName" placeholder="e.g. Tomato Soup" class="w-full px-4 py-2 border rounded-lg outline-none focus:border-[--zomato-orange]">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Category</label>
+                        <select id="modalCategory" class="w-full px-4 py-2 border rounded-lg outline-none focus:border-[--zomato-orange]"></select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Image URL (Optional)</label>
+                        <input type="text" id="modalImage" placeholder="https://..." class="w-full px-4 py-2 border rounded-lg outline-none focus:border-[--zomato-orange]">
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase">Description</label>
+                    <input type="text" id="modalDesc" placeholder="e.g. Freshly brewed soup" class="w-full px-4 py-2 border rounded-lg outline-none focus:border-[--zomato-orange]">
+                </div>
+                <div class="p-4 bg-gray-50 rounded-xl space-y-3">
+                    <label class="text-[11px] font-black text-gray-600 uppercase tracking-wider">Variants & Pricing</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="modalVariantInput" placeholder="Variant (e.g. Full)" class="flex-grow px-3 py-2 border rounded-lg text-sm outline-none">
+                        <input type="text" id="modalPriceInput" placeholder="Price (₹)" class="w-24 px-3 py-2 border rounded-lg text-sm outline-none">
+                        <button onclick="addVariantToModal()" class="orange-btn text-white px-4 py-2 rounded-lg text-sm font-bold">Add</button>
+                    </div>
+                    <div id="modalVariantList" class="flex flex-wrap gap-2 pt-1 min-h-[30px]"></div>
+                </div>
+            </div>
+            <div class="p-6 bg-gray-50 flex justify-end gap-3 border-t">
+                <button onclick="closeAddItemModal()" class="px-4 py-2 font-bold text-gray-500">Cancel</button>
+                <button onclick="saveModalItem()" class="orange-btn text-white px-8 py-2 rounded-lg font-bold">Save Product</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full bg-gray-900 text-white text-xs font-bold shadow-2xl opacity-0 translate-y-20 transition-all pointer-events-none z-[110]"></div>
+
+    <script>
+        let menuItems = [];
+        let currentSearch = "";
+        let modalTempVariants = {};
+        
+        // --- GOOGLE SHEET CONFIGURATION ---
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwzzlyDX130O72Dw66zoqsc9gwrEHy6AZwvojEbAMk2mjtAmZj-6scqB1kmwaDy-bv0/exec";
+
+        // Startup
+        window.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem('menu_orange_v6');
+            if (saved) {
+                try {
+                    menuItems = JSON.parse(saved);
+                    renderMenu();
+                } catch(e) { menuItems = []; }
+            }
+        });
+
+        // --- PROGRESS & SYNC LOGIC ---
+        async function importFromGoogleSheet() {
+            if (!GAS_WEB_APP_URL) {
+                showToast("URL script mein daalein!", true);
+                return;
+            }
+
+            const overlay = document.getElementById('progressOverlay');
+            const pBar = document.getElementById('progressBar');
+            const status = document.getElementById('loaderStatus');
+            
+            overlay.style.display = 'flex';
+            status.innerText = "Fetching Menu...";
+            pBar.style.width = '20%';
+
+            try {
+                const response = await fetch(GAS_WEB_APP_URL);
+                pBar.style.width = '60%';
+                const data = await response.json();
+                
+                if (data.error) throw new Error(data.error);
+
+                pBar.style.width = '80%';
+                
+                const newItems = [];
+                for (let i = 1; i < data.length; i++) {
+                    const row = data[i];
+                    if (row[1]) {
+                        newItems.push({
+                            id: row[0]?.toString().trim() || "",
+                            name: row[1]?.toString().trim(),
+                            category: row[2]?.toString().trim() || "General",
+                            variants: row[3]?.toString().trim() || "{}",
+                            desc: row[4]?.toString().trim() || "",
+                            image: row[5]?.toString().trim() || "",
+                            modified: false
+                        });
+                    }
+                }
+
+                menuItems = [...newItems]; 
+                pBar.style.width = '100%';
+                
+                setTimeout(() => {
+                    persist();
+                    renderMenu();
+                    overlay.style.display = 'none';
+                    showToast(`${newItems.length} items imported!`);
+                }, 500);
+
+            } catch (err) {
+                overlay.style.display = 'none';
+                console.error(err);
+                showToast("Fetch Error: " + err.message, true);
+            }
+        }
+
+        async function exportToGoogleSheet() {
+            if (menuItems.length === 0) {
+                showToast("Data nahi hai!", true);
+                return;
+            }
+
+            const overlay = document.getElementById('progressOverlay');
+            const pBar = document.getElementById('progressBar');
+            const status = document.getElementById('loaderStatus');
+            
+            overlay.style.display = 'flex';
+            status.innerText = "Updating Sheet...";
+            pBar.style.width = '20%';
+
+            try {
+                const header = ["ID", "name", "category", "variants", "desc", "IMAGE"];
+                const rows = menuItems.map(item => [
+                    item.id, 
+                    item.name, 
+                    item.category, 
+                    item.variants, 
+                    item.desc, 
+                    item.image
+                ]);
+                const finalData = [header, ...rows];
+
+                pBar.style.width = '50%';
+
+                const response = await fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(finalData)
+                });
+
+                const result = await response.json();
+                if(!result.success) throw new Error(result.error);
+
+                pBar.style.width = '100%';
+                
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    showToast("Google Sheet updated successfully!");
+                    menuItems.forEach(i => i.modified = false);
+                    persist();
+                    renderMenu();
+                }, 800);
+
+            } catch (err) {
+                overlay.style.display = 'none';
+                showToast("Export Error: " + err.message, true);
+            }
+        }
+
+        function persist() {
+            localStorage.setItem('menu_orange_v6', JSON.stringify(menuItems));
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('totalItemsText').innerText = `${menuItems.length} Total Items`;
+            const updated = menuItems.filter(i => i.modified).length;
+            document.getElementById('updatedItemsText').innerText = `${updated} Updated`;
+        }
+
+        function handleSearch(val) {
+            currentSearch = val.toLowerCase();
+            renderMenu();
+        }
+
+        function renderMenu() {
+            const container = document.getElementById('menuContainer');
+            const sideList = document.getElementById('categoryList');
+            const modalCat = document.getElementById('modalCategory');
+
+            if (menuItems.length === 0) {
+                container.innerHTML = `<div class="py-20 text-center text-gray-400 italic">No data. Sync or Add manually.</div>`;
+                sideList.innerHTML = "";
+                return;
+            }
+
+            const filtered = menuItems.filter(item => 
+                item.name.toLowerCase().includes(currentSearch) || 
+                item.category.toLowerCase().includes(currentSearch)
+            );
+
+            const groups = {};
+            filtered.forEach(item => {
+                if (!groups[item.category]) groups[item.category] = [];
+                groups[item.category].push(item);
+            });
+
+            const allCats = [...new Set(menuItems.map(i => i.category))].sort();
+            sideList.innerHTML = allCats.map(c => `
+                <a href="#cat-${c.replace(/\s+/g, '-')}" class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-white hover:text-[--zomato-orange] transition">
+                    ${c}
+                </a>
+            `).join('');
+
+            modalCat.innerHTML = allCats.map(c => `<option value="${c}">${c}</option>`).join('') + `<option value="NEW">+ Add New Category</option>`;
+
+            let html = "";
+            Object.keys(groups).sort().forEach(cat => {
+                html += `
+                    <div id="cat-${cat.replace(/\s+/g, '-')}" class="space-y-4 scroll-mt-24">
+                        <h2 class="category-header text-xl font-black text-gray-800 font-okra uppercase tracking-tight">${cat}</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            ${groups[cat].map(item => renderItemCard(item)).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html || `<div class="py-20 text-center text-gray-400 italic">No matches for "${currentSearch}"</div>`;
+            updateStats();
+        }
+
+        function renderItemCard(item) {
+            const idx = menuItems.indexOf(item);
+            let variantHtml = "";
+            try {
+                const variants = JSON.parse(item.variants);
+                variantHtml = Object.keys(variants).map(vName => `
+                    <div class="flex items-center justify-between gap-4 mt-2">
+                        <span class="text-xs font-bold text-gray-500">${vName}</span>
+                        <div class="flex items-center gap-1">
+                            <span class="text-[10px] text-gray-400 font-bold">₹</span>
+                            <input type="text" value="${variants[vName]}" 
+                                   onchange="updatePrice(${idx}, '${vName}', this.value)"
+                                   class="price-input text-sm">
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) { variantHtml = "Error parsing variants"; }
+
+            const imageTag = item.image ? 
+                `<img src="${item.image}" class="w-20 h-20 object-cover rounded-lg ml-4" onerror="this.style.display='none'">` : '';
+
+            return `
+                <div class="menu-card p-4 relative border border-white flex">
+                    <div class="flex-grow">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[9px] bg-gray-100 px-1.5 py-0.5 rounded text-gray-400 font-bold">#${item.id || 'N/A'}</span>
+                                    <h4 class="font-bold text-gray-800 font-okra">${item.name}</h4>
+                                </div>
+                                <p class="text-[10px] text-gray-400 font-medium">${item.desc || 'No description'}</p>
+                            </div>
+                            <button onclick="deleteItem(${idx})" class="text-gray-300 hover:text-red-500 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                        <div class="space-y-1">${variantHtml}</div>
+                    </div>
+                    ${imageTag}
+                    ${item.modified ? '<div class="absolute -top-1 -right-1 bg-emerald-500 w-2.5 h-2.5 rounded-full border-2 border-white shadow-sm"></div>' : ''}
+                </div>
+            `;
+        }
+
+        function updatePrice(idx, vName, newVal) {
+            try {
+                const variants = JSON.parse(menuItems[idx].variants);
+                variants[vName] = newVal;
+                menuItems[idx].variants = JSON.stringify(variants);
+                menuItems[idx].modified = true;
+                persist();
+                renderMenu();
+            } catch(e) {}
+        }
+
+        function deleteItem(idx) {
+            if(confirm("Delete this dish?")) {
+                menuItems.splice(idx, 1);
+                persist();
+                renderMenu();
+            }
+        }
+
+        function addNewCategoryPrompt() {
+            const cat = prompt("Enter New Category Name:");
+            if (cat) showToast(`Category ${cat} added. Now add an item.`);
+        }
+
+        function openAddItemModal() {
+            modalTempVariants = {};
+            renderModalVariants();
+            document.getElementById('addItemModal').classList.remove('hidden');
+            document.getElementById('addItemModal').classList.add('flex');
+        }
+
+        function closeAddItemModal() {
+            document.getElementById('addItemModal').classList.add('hidden');
+            document.getElementById('addItemModal').classList.remove('flex');
+        }
+
+        function addVariantToModal() {
+            const nameInp = document.getElementById('modalVariantInput');
+            const priceInp = document.getElementById('modalPriceInput');
+            const name = nameInp.value.trim();
+            const price = priceInp.value.trim();
+            if (!name || !price) { showToast("Variant details bharein.", true); return; }
+            modalTempVariants[name] = price;
+            nameInp.value = ""; priceInp.value = ""; nameInp.focus();
+            renderModalVariants();
+        }
+
+        function removeModalVariant(key) {
+            delete modalTempVariants[key];
+            renderModalVariants();
+        }
+
+        function renderModalVariants() {
+            const container = document.getElementById('modalVariantList');
+            const keys = Object.keys(modalTempVariants);
+            if (keys.length === 0) {
+                container.innerHTML = '<p class="text-[10px] text-gray-400 italic">No variants added yet.</p>';
+            } else {
+                container.innerHTML = keys.map(k => `
+                    <div class="variant-tag px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-2 shadow-sm">
+                        ${k}: ₹${modalTempVariants[k]}
+                        <button onclick="removeModalVariant('${k}')" class="hover:text-red-500 text-xs">&times;</button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function saveModalItem() {
+            const id = document.getElementById('modalId').value.trim();
+            const name = document.getElementById('modalName').value.trim();
+            const image = document.getElementById('modalImage').value.trim();
+            let cat = document.getElementById('modalCategory').value;
+            const desc = document.getElementById('modalDesc').value.trim();
+            
+            if(!name || Object.keys(modalTempVariants).length === 0) {
+                showToast("Details bharna zaroori hai.", true);
+                return;
+            }
+            if(cat === "NEW") {
+                cat = prompt("New Category Name:");
+                if(!cat) return;
+            }
+            
+            menuItems.unshift({ 
+                id: id || Date.now().toString().slice(-4), 
+                name, 
+                category: cat || "General", 
+                variants: JSON.stringify(modalTempVariants), 
+                desc, 
+                image,
+                modified: true 
+            });
+            
+            persist(); renderMenu(); closeAddItemModal();
+            document.getElementById('modalId').value = "";
+            document.getElementById('modalName').value = "";
+            document.getElementById('modalImage').value = "";
+            document.getElementById('modalDesc').value = "";
+            showToast("Item added successfully!");
+        }
+
+        function downloadExcel() {
+            const sheetData = menuItems.map(i => ({ 
+                ID: i.id,
+                name: i.name, 
+                category: i.category, 
+                variants: i.variants, 
+                desc: i.desc,
+                IMAGE: i.image 
+            }));
+            const ws = XLSX.utils.json_to_sheet(sheetData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Menu");
+            XLSX.writeFile(wb, "Menu_Export_v6.xlsx");
+        }
+
+        function showToast(msg, isError = false) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.className = `fixed bottom-10 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full text-white text-xs font-bold shadow-2xl transition-all pointer-events-none z-[110] ${isError ? 'bg-red-600' : 'bg-gray-900'}`;
+            t.classList.remove('opacity-0', 'translate-y-20');
+            setTimeout(() => t.classList.add('opacity-0', 'translate-y-20'), 3000);
+        }
+    </script>
+</body>
+</html>
