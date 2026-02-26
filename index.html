@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- SEO & SITEMAP START (Prioritized for Search Engines) -->
+    <!-- SEO & SITEMAP START -->
     <title>Deepanshu Restaurant | Best Multi-Cuisine Restaurant in Indirapuram, Ghaziabad</title>
     <meta name="description" content="Deepanshu Restaurant is one of the best Veg & Non-Veg restaurants in Indirapuram, Ghaziabad offering North Indian, Chinese, Tandoor and Biryani with AC dining and party hall facility.">
     <meta name="keywords" content="Deepanshu Restaurant, Indirapuram, Menu, Online Food, Ghaziabad, Best North Indian food, Party Hall Indirapuram">
     <meta name="author" content="Deepanshu Restaurant">
     <link rel="canonical" href="https://deepanshurestaurant.com/" />
     
-    <!-- JSON-LD Structured Data (Hidden Sitemap for Google) -->
+    <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -40,13 +40,12 @@
     }
     </script>
     
-    <!-- Open Graph / Facebook -->
+    <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://deepanshurestaurant.com/">
     <meta property="og:title" content="Deepanshu Restaurant | Authentic Taste in Indirapuram">
     <meta property="og:description" content="Experience the best North Indian and Chinese cuisine with real-time menu updates. Visit us in Indirapuram today!">
     <meta property="og:image" content="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200">
-    <!-- SEO & SITEMAP END -->
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -59,7 +58,7 @@
             overflow-x: hidden;
         }
 
-        /* --- Custom Cooking Preloader Styles --- */
+        /* --- Cooking Preloader --- */
         #preloader {
             position: fixed;
             top: 0; left: 0;
@@ -189,6 +188,15 @@
             max-height: calc(100vh - 120px);
             overflow-y: auto;
         }
+
+        /* Custom scrollbar for mobile categories */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #ea580c;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body class="bg-white text-slate-900">
@@ -212,7 +220,7 @@
     <nav class="fixed top-0 w-full z-50 nav-glass shadow-sm border-b border-orange-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
-                <div class="flex-shrink-0 flex items-center">
+                <div class="flex-shrink-0 flex items-center cursor-pointer" onclick="window.location.href='#home'">
                     <div class="bg-orange-600 p-2 rounded-lg mr-2 text-white">
                         <i class="fas fa-utensils text-xl"></i>
                     </div>
@@ -220,11 +228,11 @@
                 </div>
                 
                 <div class="hidden md:flex space-x-8 text-[11px] font-bold uppercase tracking-[0.2em]">
-                    <a href="#home" class="text-orange-600">Home</a>
-					<a href="https://deepanshurestaurant.in/party-hall" class="text-orange-600">Party Hall</a>
-                    <a href="#about" class="hover:text-orange-600">About</a>
-                    <a href="#menu" class="hover:text-orange-600">Menu</a>
-                    <a href="#contact" class="hover:text-orange-600">Contact</a>
+                    <a href="#home" class="hover:text-orange-600 transition-colors">Home</a>
+                    <a href="https://deepanshurestaurant.in/party-hall" class="hover:text-orange-600 transition-colors">Party Hall</a>
+                    <a href="#about" class="hover:text-orange-600 transition-colors">About</a>
+                    <a href="#menu" class="hover:text-orange-600 transition-colors">Menu</a>
+                    <a href="#contact" class="hover:text-orange-600 transition-colors">Contact</a>
                 </div>
 
                 <div class="hidden md:block">
@@ -241,11 +249,13 @@
             </div>
         </div>
         
+        <!-- Mobile Menu Navigation -->
         <div id="mobile-menu" class="hidden bg-white border-b border-slate-100 px-4 pb-4 shadow-xl">
-            <a href="#home" class="block py-4 border-b border-slate-50 font-semibold" onclick="toggleMenu()">Home</a>
-            <a href="#about" class="block py-4 border-b border-slate-50 font-semibold" onclick="toggleMenu()">About</a>
-            <a href="#menu" class="block py-4 border-b border-slate-50 font-semibold" onclick="toggleMenu()">Menu</a>
-            <a href="#contact" class="block py-4 font-semibold" onclick="toggleMenu()">Contact</a>
+            <a href="#home" class="block py-4 border-b border-slate-50 font-semibold text-sm uppercase tracking-wider" onclick="toggleMenu()">Home</a>
+            <a href="https://deepanshurestaurant.in/party-hall" class="block py-4 border-b border-slate-50 font-semibold text-sm uppercase tracking-wider" onclick="toggleMenu()">Party Hall</a>
+            <a href="#about" class="block py-4 border-b border-slate-50 font-semibold text-sm uppercase tracking-wider" onclick="toggleMenu()">About</a>
+            <a href="#menu" class="block py-4 border-b border-slate-50 font-semibold text-sm uppercase tracking-wider" onclick="toggleMenu()">Menu</a>
+            <a href="#contact" class="block py-4 font-semibold text-sm uppercase tracking-wider" onclick="toggleMenu()">Contact</a>
         </div>
     </nav>
 
@@ -322,8 +332,8 @@
                 </div>
 
                 <!-- Mobile Category Strip -->
-                <div class="lg:hidden sticky top-[154px] z-30 bg-white py-3 border-b border-slate-100 overflow-x-auto whitespace-nowrap category-sidebar">
-                    <div id="mobile-categories" class="flex gap-2 px-2">
+                <div class="lg:hidden sticky top-[154px] z-30 bg-white py-3 border-b border-slate-100 overflow-x-auto whitespace-nowrap custom-scrollbar">
+                    <div id="mobile-categories" class="flex gap-2 px-2 pb-2">
                         <!-- Injected by JS -->
                     </div>
                 </div>
@@ -365,17 +375,17 @@
                 <form id="contact-form" class="space-y-4">
                     <input type="text" id="form-name" placeholder="Full Name" required class="w-full p-4 bg-slate-50 rounded-xl outline-none border-none focus:ring-2 focus:ring-orange-600">
                     <div class="grid grid-cols-2 gap-4">
-                        <input type="email" id="form-email" placeholder="Email" required class="w-full p-4 bg-slate-50 rounded-xl outline-none border-none focus:ring-2 focus:ring-orange-600">
                         <input type="tel" id="form-phone" placeholder="Phone" required class="w-full p-4 bg-slate-50 rounded-xl outline-none border-none focus:ring-2 focus:ring-orange-600">
+                        <select id="form-purpose" required class="w-full p-4 bg-slate-50 rounded-xl outline-none border-none focus:ring-2 focus:ring-orange-600">
+                            <option value="Home Delivery">Home Delivery</option>
+                            <option value="Table Booking">Table Booking</option>
+                            <option value="Party Query">Party Query</option>
+                            <option value="Feedback">Feedback</option>
+                        </select>
                     </div>
-                    <select id="form-purpose" required class="w-full p-4 bg-slate-50 rounded-xl outline-none border-none focus:ring-2 focus:ring-orange-600">
-                        <option value="Table Booking">Table Booking</option>
-                        <option value="Party Query">Party Query</option>
-                        <option value="Feedback">Feedback</option>
-                    </select>
-                    <textarea id="form-message" placeholder="Your Message" required rows="3" class="w-full p-4 bg-slate-50 rounded-xl outline-none border-none focus:ring-2 focus:ring-orange-600"></textarea>
+                    <textarea id="form-message" placeholder="I want to order..." required rows="3" class="w-full p-4 bg-slate-50 rounded-xl outline-none border-none focus:ring-2 focus:ring-orange-600"></textarea>
                     <button type="submit" id="submit-btn" class="w-full py-4 bg-orange-600 text-white font-bold rounded-xl shadow-lg uppercase tracking-widest text-xs flex items-center justify-center gap-2">
-                        <span id="btn-text">Send Message</span>
+                        <span id="btn-text">Send Message to WhatsApp</span>
                         <div id="btn-loader" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     </button>
                     <p id="form-status" class="text-center text-xs mt-4 hidden"></p>
@@ -384,7 +394,7 @@
         </div>
     </section>
 
-    <!-- Dark Footer with Sitemap -->
+    <!-- Dark Footer -->
     <footer class="bg-slate-950 py-16 border-t border-slate-900 text-white">
         <div class="max-w-7xl mx-auto px-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-12 text-left mb-16">
@@ -396,6 +406,7 @@
                     <h4 class="text-orange-500 font-bold uppercase tracking-widest text-xs mb-6">Navigation</h4>
                     <ul class="space-y-4 text-slate-400 text-sm">
                         <li><a href="#home" class="hover:text-white transition">Home</a></li>
+                        <li><a href="https://deepanshurestaurant.in/party-hall" class="hover:text-white transition">Party Hall</a></li>
                         <li><a href="#about" class="hover:text-white transition">Our Story</a></li>
                         <li><a href="#menu" class="hover:text-white transition">Live Menu</a></li>
                         <li><a href="#contact" class="hover:text-white transition">Contact Us</a></li>
@@ -417,11 +428,7 @@
                         <a href="#" class="w-10 h-10 bg-slate-900 flex items-center justify-center rounded-lg hover:bg-orange-600 transition"><i class="fab fa-instagram text-white"></i></a>
                         <a href="https://wa.me/919910109626" class="w-10 h-10 bg-slate-900 flex items-center justify-center rounded-lg hover:bg-orange-600 transition"><i class="fab fa-whatsapp text-white"></i></a>
                     </div>
-                    <p class="text-slate-500 text-xs uppercase tracking-widest">Call for Orders:<br>+919268004475</p>
-					<p class="text-slate-500 text-xs uppercase tracking-widest"><br>+919268004475</p>
-					<p class="text-slate-500 text-xs uppercase tracking-widest"><br>+919953808031</p>
-					<p class="text-slate-500 text-xs uppercase tracking-widest"><br>+919910109626</p>
-					
+                    <p class="text-slate-500 text-xs uppercase tracking-widest">Order Numbers:<br>+919268004475<br>+919910109626</p>
                 </div>
             </div>
             
@@ -430,7 +437,7 @@
                 
                 <div class="flex flex-col items-center gap-3 mt-10">
                     <p class="text-[11px] text-slate-700 tracking-widest uppercase font-bold">Project Architecture & Development</p>
-                    <a href="https://htmrgit.github.io/MANOHARRAYRESUME/"_blank" class="group flex items-center gap-3 bg-slate-900 hover:bg-orange-600 px-6 py-3 rounded-full transition-all duration-500 border border-slate-800 hover:border-orange-500 shadow-2xl">
+                    <a href="https://htmrgit.github.io/MANOHARRAYRESUME/" target="_blank" class="group flex items-center gap-3 bg-slate-900 hover:bg-orange-600 px-6 py-3 rounded-full transition-all duration-500 border border-slate-800 hover:border-orange-500 shadow-2xl">
                         <i class="fab fa-linkedin text-orange-500 group-hover:text-white text-xl transition-colors"></i>
                         <span class="text-slate-300 group-hover:text-white font-black text-xs tracking-[0.15em] uppercase">Manohar Ray (Mano)</span>
                     </a>
@@ -440,9 +447,10 @@
     </footer>
 
     <script>
-        const MENU_URL = "https://script.google.com/macros/s/AKfycbwsljkDbxPr9vZISpFIGk8ZvxheQ5l6LD_VVWTkVau7K0Ta51aDIiQ-QzIeoMOIZeg0/exec"; 
-        const CONTACT_URL = "https://script.google.com/macros/s/AKfycbxy7-RzigDKDqiYvr6g3IDw8LRPXoE-ZJBQPfCZUt5oRIVl4e3ZKJSgJHPuu0P5h550/exec"; 
-        
+        // --- Live Sheet Configuration ---
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyqiwjkantJm2DRAw9gQAxpp9cDx21Sx-y0RZWjipX75RvFPDgt83aG42S4OBmbiJU5/exec";
+        const WA_NUMBER = "919910109626";
+
         let allMenuItems = [];
         let categories = [];
 
@@ -450,13 +458,13 @@
             const preloader = document.getElementById('preloader');
             setTimeout(() => {
                 preloader.style.opacity = '0';
-                setTimeout(() => { preloader.style.visibility = 'hidden'; }, 500);
-            }, 1500); 
+                setTimeout(() => { preloader.style.display = 'none'; }, 500);
+            }, 1500);
         });
 
         async function init() {
             try {
-                const res = await fetch(MENU_URL);
+                const res = await fetch(WEB_APP_URL);
                 const data = await res.json();
                 allMenuItems = data;
                 categories = [...new Set(data.map(i => i.category?.toString().trim()))].filter(Boolean);
@@ -472,52 +480,89 @@
         function generateNavigation() {
             const sidebar = document.getElementById('sidebar-categories');
             const mobileStrip = document.getElementById('mobile-categories');
-            const navItems = categories.map(cat => ({ name: cat, slug: cat.toLowerCase().replace(/\s+/g, '-') }));
+            
             const allOptionDesktop = `<a href="#menu-list-container-top" class="category-link px-4 py-3 text-sm font-medium text-slate-500 hover:text-orange-600 transition-all block active-category-link">All Items</a>`;
-            const allOptionMobile = `<a href="#menu-list-container-top" class="px-4 py-2 bg-orange-600 text-white rounded-full text-xs font-bold transition-all inline-block border border-transparent">All Items</a>`;
-            sidebar.innerHTML = allOptionDesktop + navItems.map(nav => `<a href="#section-${nav.slug}" class="category-link px-4 py-3 text-sm font-medium text-slate-500 hover:text-orange-600 transition-all block">${nav.name}</a>`).join('');
-            mobileStrip.innerHTML = allOptionMobile + navItems.map(nav => `<a href="#section-${nav.slug}" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-full text-xs font-bold transition-all inline-block border border-transparent">${nav.name}</a>`).join('');
+            const allOptionMobile = `<button onclick="filterMobile('All', this)" class="mobile-cat-btn px-4 py-2 bg-orange-600 text-white rounded-full text-xs font-bold transition-all border border-transparent whitespace-nowrap">All Items</button>`;
+            
+            sidebar.innerHTML = allOptionDesktop + categories.map(cat => {
+                const slug = cat.toLowerCase().replace(/\s+/g, '-');
+                return `<a href="#section-${slug}" class="category-link px-4 py-3 text-sm font-medium text-slate-500 hover:text-orange-600 transition-all block">${cat}</a>`;
+            }).join('');
+            
+            mobileStrip.innerHTML = allOptionMobile + categories.map(cat => {
+                return `<button onclick="filterMobile('${cat}', this)" class="mobile-cat-btn px-4 py-2 bg-slate-100 text-slate-600 rounded-full text-xs font-bold transition-all border border-transparent whitespace-nowrap">${cat}</button>`;
+            }).join('');
+        }
+
+        function filterMobile(cat, btn) {
+            document.querySelectorAll('.mobile-cat-btn').forEach(b => {
+                b.classList.remove('bg-orange-600', 'text-white');
+                b.classList.add('bg-slate-100', 'text-slate-600');
+            });
+            btn.classList.add('bg-orange-600', 'text-white');
+            btn.classList.remove('bg-slate-100', 'text-slate-600');
+            
+            if (cat === 'All') {
+                document.getElementById('menu-list-container-top').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                const slug = cat.toLowerCase().replace(/\s+/g, '-');
+                const target = document.getElementById(`section-${slug}`);
+                if (target) target.scrollIntoView({ behavior: 'smooth' });
+            }
         }
 
         function renderMenu(searchTerm = "") {
             const container = document.getElementById('menu-list-container');
             let html = "";
             categories.forEach(cat => {
-                const catSlug = cat.toLowerCase().replace(/\s+/g, '-');
-                const itemsInCat = allMenuItems.filter(i => i.category?.toString().trim() === cat && (i.name.toLowerCase().includes(searchTerm.toLowerCase()) || i.desc?.toLowerCase().includes(searchTerm.toLowerCase())));
+                const slug = cat.toLowerCase().replace(/\s+/g, '-');
+                const itemsInCat = allMenuItems.filter(i => 
+                    i.category === cat && 
+                    (i.name.toLowerCase().includes(searchTerm.toLowerCase()) || (i.desc && i.desc.toLowerCase().includes(searchTerm.toLowerCase())))
+                );
+                
                 if (itemsInCat.length > 0) {
                     html += `
-                        <div id="section-${catSlug}" class="menu-section scroll-mt-32">
-                            <h2 class="text-2xl font-black text-slate-800 mb-6 px-2 flex items-center gap-3">
+                        <div id="section-${slug}" class="menu-section scroll-mt-32">
+                            <h2 class="text-2xl font-black text-slate-800 mb-6 px-2 flex items-center gap-3 uppercase">
                                 ${cat}
-                                <span class="text-xs font-bold text-orange-600 bg-orange-50 px-3 py-1 rounded-full">${itemsInCat.length} Items</span>
+                                <span class="text-[10px] font-bold text-orange-600 bg-orange-50 px-3 py-1 rounded-full">${itemsInCat.length} Items</span>
                             </h2>
-                            <div class="grid grid-cols-1 gap-4">
+                            <div class="grid grid-cols-1 gap-6">
                                 ${itemsInCat.map(item => renderItemCard(item)).join('')}
                             </div>
                         </div>`;
                 }
             });
             container.innerHTML = html || `<div class="text-center py-20 text-slate-400">No dishes found matching "${searchTerm}"</div>`;
+            
             setTimeout(() => {
                 const cards = document.querySelectorAll('.menu-item-card');
-                cards.forEach((card, index) => { setTimeout(() => card.classList.add('show'), index * 100); });
+                cards.forEach((card, index) => { setTimeout(() => card.classList.add('show'), index * 60); });
             }, 50);
         }
 
         function renderItemCard(item) {
-            const variantHtml = Object.entries(item.variants || {}).map(([vName, vPrice]) => `
+            const variants = item.variants || {};
+            const variantHtml = Object.entries(variants).map(([vName, vPrice]) => `
                 <div class="flex justify-between items-center py-1.5 border-b border-slate-50 last:border-0">
                     <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">${vName}</span>
-                    <span class="text-sm font-black text-orange-600 ml-4">${vPrice}</span>
+                    <span class="text-sm font-black text-orange-600 ml-4">₹${vPrice}</span>
                 </div>`).join('');
+
+            const imageUrl = item.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400";
+
             return `
-                <div class="menu-item-card bg-white p-6 rounded-3xl border border-slate-100 flex flex-col md:flex-row justify-between gap-6 group">
+                <div class="menu-item-card bg-white p-6 rounded-3xl border border-slate-100 flex flex-col md:flex-row items-center gap-6 group">
+                    <div class="w-24 h-24 md:w-32 md:h-32 flex-shrink-0 overflow-hidden rounded-2xl shadow-sm bg-gray-100">
+                        <img src="${imageUrl}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                             onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400'">
+                    </div>
                     <div class="flex-1 text-left">
                         <h4 class="font-bold text-lg group-hover:text-orange-600 transition-colors mb-1 uppercase tracking-tight">${item.name}</h4>
                         <p class="text-slate-400 text-xs leading-relaxed max-w-lg">${item.desc || 'Prepared with authentic spices and fresh ingredients.'}</p>
                     </div>
-                    <div class="bg-slate-50 p-4 rounded-2xl min-w-[170px] self-start md:self-center border border-slate-100">
+                    <div class="bg-slate-50 p-4 rounded-2xl min-w-[170px] w-full md:w-auto border border-slate-100">
                         <p class="text-[9px] font-black text-slate-300 uppercase mb-2 tracking-widest border-b border-slate-100 pb-1">Price List</p>
                         ${variantHtml || '<span class="text-xs text-slate-400 italic">See Menu</span>'}
                     </div>
@@ -527,50 +572,29 @@
         function handleSearch() { renderMenu(document.getElementById('menu-search').value); }
         function toggleMenu() { document.getElementById('mobile-menu').classList.toggle('hidden'); }
 
-        document.getElementById('contact-form').addEventListener('submit', async (e) => {
+        document.getElementById('contact-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const btn = document.getElementById('submit-btn');
-            const status = document.getElementById('form-status');
-            btn.disabled = true;
-            document.getElementById('btn-loader').classList.remove('hidden');
-            document.getElementById('btn-text').textContent = "Sending...";
-            const payload = {
-                name: document.getElementById('form-name').value,
-                email: document.getElementById('form-email').value,
-                phone: document.getElementById('form-phone').value,
-                purpose: document.getElementById('form-purpose').value,
-                message: document.getElementById('form-message').value
-            };
-            try {
-                const response = await fetch(CONTACT_URL, { method: 'POST', body: JSON.stringify(payload) });
-                const result = await response.json();
-                if (result.status === "success") {
-                    status.textContent = `Success! Request ID: ${result.id}`;
-                    status.className = "text-center text-xs mt-4 text-green-600 block";
-                    e.target.reset();
-                }
-            } catch (err) {
-                status.textContent = "Error sending message.";
-                status.className = "text-center text-xs mt-4 text-red-600 block";
-            } finally {
-                btn.disabled = false;
-                document.getElementById('btn-loader').classList.add('hidden');
-                document.getElementById('btn-text').textContent = "Send Message";
-            }
+            const name = document.getElementById('form-name').value;
+            const phone = document.getElementById('form-phone').value;
+            const purpose = document.getElementById('form-purpose').value;
+            const message = document.getElementById('form-message').value;
+
+            const text = `*New Inquiry - Deepanshu Restaurant*%0A%0A*Name:* ${name}%0A*Phone:* ${phone}%0A*Purpose:* ${purpose}%0A*Message:* ${message}`;
+            window.open(`https://wa.me/${WA_NUMBER}?text=${text}`, '_blank');
         });
 
         window.addEventListener('scroll', () => {
             const sections = document.querySelectorAll('.menu-section');
             const links = document.querySelectorAll('.category-link');
             let current = "menu-list-container-top";
-            sections.forEach(section => { if (pageYOffset >= section.offsetTop - 200) current = section.getAttribute('id'); });
-            links.forEach(link => { link.classList.remove('active-category-link'); if (link.getAttribute('href') === `#${current}`) link.classList.add('active-category-link'); });
+            sections.forEach(section => { if (window.pageYOffset >= section.offsetTop - 200) current = section.getAttribute('id'); });
+            links.forEach(link => { 
+                link.classList.remove('active-category-link'); 
+                if (link.getAttribute('href') === `#${current}`) link.classList.add('active-category-link'); 
+            });
         });
 
         init();
     </script>
 </body>
 </html>
-
-
-
