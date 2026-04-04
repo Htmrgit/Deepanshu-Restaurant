@@ -2,92 +2,145 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FacePass - Face Recognition Attendance</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FacePass Mobile</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Face-API.js from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
     <style>
-        .video-container { position: relative; width: 100%; max-width: 640px; margin: 0 auto; overflow: hidden; border-radius: 1rem; }
-        canvas { position: absolute; top: 0; left: 0; pointer-events: none; }
-        .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        .video-wrapper { 
+            position: relative; 
+            width: 100%; 
+            aspect-ratio: 3/4; 
+            background: #000;
+            overflow: hidden; 
+            border-radius: 2rem;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+        
+        video { object-fit: cover; width: 100%; height: 100%; transform: scaleX(-1); }
+        canvas { position: absolute; top: 0; left: 0; pointer-events: none; transform: scaleX(-1); }
+
+        .nav-item.active { color: #2563eb; }
+        .nav-item.active svg { transform: translateY(-4px); color: #2563eb; }
+        
+        .status-pill { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .status-pill.active { background-color: #2563eb; color: white; transform: scale(1.05); }
+
+        .loading-screen {
+            position: fixed; inset: 0; background: white; z-index: 999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        /* Glassmorphism for mobile feel */
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans min-h-screen">
+<body class="bg-slate-50 text-slate-900 overflow-x-hidden">
 
-    <!-- Loading State -->
-    <div id="loading" class="loading-overlay">
-        <div class="spinner"></div>
-        <p class="mt-4 font-medium text-slate-600" id="loading-text">Loading Face Models...</p>
+    <!-- Startup Loading -->
+    <div id="loading" class="loading-screen">
+        <div id="loading-spinner" class="w-16 h-16 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
+        <p class="mt-6 font-semibold text-slate-700" id="loading-text">Initializing FacePass...</p>
+        <button id="retry-btn" onclick="location.reload()" class="hidden mt-6 px-8 py-3 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-200">Try Again</button>
     </div>
 
-    <nav class="bg-white shadow-sm border-b px-6 py-4 flex justify-between items-center sticky top-0 z-50">
-        <div class="flex items-center gap-2">
-            <div class="bg-blue-600 p-2 rounded-lg text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 0 0-5 5v3a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5z"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
-            </div>
-            <h1 class="text-xl font-bold tracking-tight">FacePass</h1>
+    <!-- Mobile Header -->
+    <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b px-6 py-4 flex justify-between items-center">
+        <div>
+            <h1 class="text-xl font-bold text-slate-800">FacePass</h1>
+            <p id="header-subtitle" class="text-xs font-medium text-blue-600 uppercase tracking-wider">Attendance Mode</p>
         </div>
-        <div class="flex gap-2">
-            <button onclick="switchTab('attendance')" id="btn-att" class="px-4 py-2 rounded-full font-medium text-blue-600 bg-blue-50 transition-all">Attendance</button>
-            <button onclick="switchTab('register')" id="btn-reg" class="px-4 py-2 rounded-full font-medium text-slate-500 hover:bg-slate-100 transition-all">Register</button>
+        <div class="h-10 w-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </div>
-    </nav>
+    </header>
 
-    <main class="max-w-4xl mx-auto p-4 md:p-8">
+    <main class="pb-24 pt-4 px-4 max-w-md mx-auto">
         
-        <!-- Attendance Section -->
-        <div id="tab-attendance" class="space-y-6">
-            <div class="text-center space-y-2">
-                <h2 class="text-2xl font-bold">Face Attendance</h2>
-                <p class="text-slate-500">Look into the camera to mark your presence</p>
+        <!-- Attendance View -->
+        <div id="tab-attendance" class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <!-- Mode Switcher -->
+            <div class="flex p-1.5 bg-slate-200/50 rounded-2xl items-center">
+                <button onclick="setAttendanceType('IN')" id="btn-in" class="status-pill active flex-1 py-3 rounded-xl font-bold text-sm">PUNCH IN</button>
+                <button onclick="setAttendanceType('OUT')" id="btn-out" class="status-pill flex-1 py-3 rounded-xl font-bold text-sm text-slate-600">PUNCH OUT</button>
             </div>
 
-            <div class="video-container shadow-2xl border-4 border-white">
-                <video id="video" width="640" height="480" autoplay muted playsinline></video>
+            <!-- Video Display -->
+            <div class="video-wrapper">
+                <video id="video" autoplay muted playsinline></video>
                 <canvas id="overlay"></canvas>
+                
+                <!-- Center Target UI -->
+                <div class="absolute inset-0 border-[30px] border-black/10 pointer-events-none flex items-center justify-center">
+                    <div class="w-64 h-80 border-2 border-white/30 rounded-[3rem] border-dashed"></div>
+                </div>
             </div>
 
-            <div id="status-box" class="hidden max-w-md mx-auto p-6 bg-white rounded-2xl shadow-lg text-center animate-bounce border-l-4 border-blue-500">
-                <p id="status-msg" class="text-xl font-bold text-blue-600"></p>
+            <!-- Interaction Result -->
+            <div id="status-card" class="hidden glass p-6 rounded-[2rem] text-center shadow-xl border-blue-100">
+                <div id="status-icon" class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 italic font-bold text-xl">!</div>
+                <h3 id="status-msg" class="text-lg font-bold">Checking...</h3>
                 <p id="status-time" class="text-sm text-slate-500"></p>
             </div>
         </div>
 
-        <!-- Registration Section -->
-        <div id="tab-register" class="hidden space-y-6 max-w-lg mx-auto">
-            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
-                <h2 class="text-2xl font-bold mb-6">New Employee</h2>
+        <!-- Register View -->
+        <div id="tab-register" class="hidden space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-800">Registration</h2>
+                    <p class="text-slate-500 text-sm">Create a new employee profile</p>
+                </div>
                 
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Employee ID</label>
-                        <input type="text" id="reg-id" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="E.g. EMP101">
+                <div class="space-y-5">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Employee ID</label>
+                        <input type="text" id="reg-id" class="w-full px-5 py-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 outline-none font-medium transition-all" placeholder="ID Number">
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
-                        <input type="text" id="reg-name" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="John Doe">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Full Name</label>
+                        <input type="text" id="reg-name" class="w-full px-5 py-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 outline-none font-medium transition-all" placeholder="Legal Name">
                     </div>
                     
-                    <div id="capture-status" class="text-center py-2 text-blue-600 font-medium hidden">
-                        Capturing face data... <span id="cap-count">0</span>/5
+                    <div id="capture-status" class="bg-blue-50 p-4 rounded-2xl text-center hidden">
+                        <p class="text-blue-700 font-bold text-sm">Scanning: <span id="cap-count" class="text-lg">0</span>/5</p>
+                        <div class="w-full bg-blue-100 h-1.5 mt-2 rounded-full overflow-hidden">
+                            <div id="cap-progress" class="bg-blue-600 h-full w-0 transition-all duration-300"></div>
+                        </div>
                     </div>
 
-                    <button onclick="startRegistration()" id="reg-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 transition-all">
-                        Register Face
+                    <button onclick="startRegistration()" id="reg-btn" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-5 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <span>Begin Scan</span>
                     </button>
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 inset-x-0 bg-white/90 backdrop-blur-lg border-t px-8 py-3 flex justify-around items-center z-50">
+        <button onclick="switchTab('attendance')" id="nav-att" class="nav-item active flex flex-col items-center gap-1 group transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" class="transition-transform group-active:scale-90" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            <span class="text-[10px] font-bold uppercase tracking-widest">Attendance</span>
+        </button>
+        <button onclick="switchTab('register')" id="nav-reg" class="nav-item text-slate-400 flex flex-col items-center gap-1 group transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" class="transition-transform group-active:scale-90" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+            <span class="text-[10px] font-bold uppercase tracking-widest">Register</span>
+        </button>
+    </nav>
+
     <script>
-        // --- CONFIGURATION ---
-        // Replace with your Google Apps Script Web App URL after deploying
+        // --- CONFIG ---
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1o3sJ7l9FziD3T-DKfehMsM0lBFCTH2xXSNU7t5vuPkDRlegK5xZThDyhdZciwBw/exec"; 
-        
+        let attendanceType = 'IN';
         let labeledFaceDescriptors = [];
         let faceMatcher = null;
         let isProcessing = false;
@@ -95,37 +148,62 @@
         const video = document.getElementById('video');
         const overlay = document.getElementById('overlay');
 
-        // --- INITIALIZATION ---
+        // --- INIT ---
         async function init() {
             try {
-                // 1. Load Models
                 const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
                 await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
                 await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
                 await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
                 
-                document.getElementById('loading-text').innerText = "Fetching employee database...";
-                
-                // 2. Load Employees from Sheets
+                document.getElementById('loading-text').innerText = "Loading Database...";
                 await loadEmployees();
 
-                // 3. Start Camera
+                document.getElementById('loading-text').innerText = "Accessing Camera...";
                 await startVideo();
                 
                 document.getElementById('loading').style.display = 'none';
-                
-                // 4. Start Recognition Loop
                 startRecognition();
             } catch (err) {
-                console.error(err);
-                document.getElementById('loading-text').innerHTML = `<span class="text-red-500">Error: ${err.message}. Ensure Web App URL is set and models are reachable.</span>`;
+                console.error("Initialization failed:", err);
+                const spinner = document.getElementById('loading-spinner');
+                const retryBtn = document.getElementById('retry-btn');
+                const loadingText = document.getElementById('loading-text');
+
+                if (spinner) spinner.style.display = 'none';
+                if (retryBtn) retryBtn.classList.remove('hidden');
+                if (loadingText) loadingText.innerHTML = `<span class="text-red-500">${err.message || "Unknown error during initialization."}</span>`;
             }
         }
 
         async function startVideo() {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
-            video.srcObject = stream;
-            return new Promise(resolve => video.onloadedmetadata = resolve);
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error("Camera API not supported in this browser.");
+            }
+
+            const constraintsList = [
+                { video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } } },
+                { video: { facingMode: "user" } },
+                { video: true }
+            ];
+
+            let lastError;
+            for (const constraints of constraintsList) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    video.srcObject = stream;
+                    return new Promise(resolve => video.onloadedmetadata = resolve);
+                } catch (e) {
+                    lastError = e;
+                    console.warn("Camera constraint attempt failed:", e.name);
+                    if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') break;
+                }
+            }
+
+            if (lastError && (lastError.name === 'NotAllowedError' || lastError.name === 'PermissionDeniedError')) {
+                throw new Error("Camera permission denied. Please allow camera access in your browser settings.");
+            }
+            throw new Error("Could not find or access a camera device. Please check your hardware.");
         }
 
         async function loadEmployees() {
@@ -133,27 +211,28 @@
             try {
                 const response = await fetch(SCRIPT_URL);
                 const data = await response.json();
-                
                 labeledFaceDescriptors = data.map(emp => {
                     const desc = new Float32Array(Object.values(JSON.parse(emp.FaceDescriptor)));
-                    return new faceapi.LabeledFaceDescriptors(emp.Name + " (" + emp.ID + ")", [desc]);
+                    return new faceapi.LabeledFaceDescriptors(emp.Name + "@@" + emp.ID, [desc]);
                 });
-
-                if (labeledFaceDescriptors.length > 0) {
-                    faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6);
-                }
-            } catch (e) {
-                console.warn("Could not load employees. Check SCRIPT_URL.");
-            }
+                if (labeledFaceDescriptors.length > 0) faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.55);
+            } catch (e) { console.warn("Sync failed."); }
         }
 
-        // --- CORE RECOGNITION ---
+        // --- ATTENDANCE LOGIC ---
+        function setAttendanceType(type) {
+            attendanceType = type;
+            document.getElementById('btn-in').className = `status-pill flex-1 py-3 rounded-xl font-bold text-sm ${type === 'IN' ? 'active' : 'text-slate-600'}`;
+            document.getElementById('btn-out').className = `status-pill flex-1 py-3 rounded-xl font-bold text-sm ${type === 'OUT' ? 'active' : 'text-slate-600'}`;
+            showToast(`Mode: Punch ${type}`, 'success');
+        }
+
         async function startRecognition() {
             setInterval(async () => {
                 if (currentTab !== 'attendance' || isProcessing || !faceMatcher) return;
 
                 const detections = await faceapi.detectAllFaces(video).withFaceLandmarks().withFaceDescriptors();
-                const displaySize = { width: video.width, height: video.height };
+                const displaySize = { width: video.offsetWidth, height: video.offsetHeight };
                 faceapi.matchDimensions(overlay, displaySize);
                 
                 const resizedDetections = faceapi.resizeResults(detections, displaySize);
@@ -161,133 +240,141 @@
 
                 resizedDetections.forEach(async d => {
                     const result = faceMatcher.findBestMatch(d.descriptor);
+                    
+                    // Simple Box Drawing
                     const box = d.detection.box;
-                    const drawBox = new faceapi.draw.DrawBox(box, { label: result.toString() });
-                    drawBox.draw(overlay);
+                    const ctx = overlay.getContext('2d');
+                    ctx.strokeStyle = result.label === 'unknown' ? '#ef4444' : '#22c55e';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(box.x, box.y, box.width, box.height);
 
-                    if (result.label !== 'unknown' && result.distance < 0.45) {
-                        const [name, id] = result.label.replace(')', '').split(' (');
-                        markAttendance(id, name);
+                    if (result.label !== 'unknown' && result.distance < 0.4) {
+                        const [name, id] = result.label.split('@@');
+                        processAttendance(id, name);
                     }
                 });
-            }, 1000);
+            }, 800);
         }
 
-        async function markAttendance(id, name) {
+        async function processAttendance(id, name) {
             isProcessing = true;
-            showStatus(`Processing ${name}...`, 'info');
+            updateStatusCard(`Verifying ${name}...`, 'info');
+
+            if (!SCRIPT_URL) {
+                updateStatusCard(`Demo: Welcome ${name}!`, 'success', `Time: ${new Date().toLocaleTimeString()}`);
+                setTimeout(() => { isProcessing = false; hideStatusCard(); }, 4000);
+                return;
+            }
 
             try {
                 const res = await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    body: JSON.stringify({
-                        action: 'attendance',
-                        id: id,
-                        name: name,
-                        type: 'IN'
-                    })
+                    body: JSON.stringify({ action: 'attendance', id, name, type: attendanceType })
                 });
                 const data = await res.json();
                 
                 if (data.status === 'success') {
-                    showStatus(`Welcome, ${name}! ✅`, 'success', `Time: ${data.time}`);
-                    setTimeout(() => {
-                        isProcessing = false;
-                        hideStatus();
-                    }, 5000);
+                    updateStatusCard(`${name} Punched ${attendanceType}`, 'success', `Time: ${data.time}`);
+                    setTimeout(() => { isProcessing = false; hideStatusCard(); }, 5000);
                 } else {
-                    showStatus(data.message, 'error');
+                    updateStatusCard(data.message, 'error');
                     setTimeout(() => isProcessing = false, 3000);
                 }
             } catch (e) {
-                showStatus("Network Error", 'error');
+                updateStatusCard("Connection Error", 'error');
                 isProcessing = false;
             }
         }
 
         // --- REGISTRATION LOGIC ---
         async function startRegistration() {
-            const id = document.getElementById('reg-id').value;
-            const name = document.getElementById('reg-name').value;
+            const id = document.getElementById('reg-id').value.trim();
+            const name = document.getElementById('reg-name').value.trim();
             
             if (!id || !name) return showToast("Enter ID and Name", "error");
-            if (!SCRIPT_URL) return showToast("Set SCRIPT_URL first", "error");
+            if (!SCRIPT_URL) return showToast("DB URL missing", "error");
 
-            document.getElementById('capture-status').classList.remove('hidden');
-            document.getElementById('reg-btn').disabled = true;
-            document.getElementById('reg-btn').innerText = "Scanning Face...";
+            const statusArea = document.getElementById('capture-status');
+            const progress = document.getElementById('cap-progress');
+            const regBtn = document.getElementById('reg-btn');
+            
+            statusArea.classList.remove('hidden');
+            regBtn.disabled = true;
+            regBtn.innerText = "Scanning...";
 
             const descriptors = [];
-            while (descriptors.length < 5) {
-                const detection = await faceapi.detectSingleFace(video).withFaceLandmarks().withFaceDescriptor();
-                if (detection) {
-                    descriptors.push(detection.descriptor);
-                    document.getElementById('cap-count').innerText = descriptors.length;
-                }
-                await new Promise(r => setTimeout(r, 500));
-            }
-
-            // Average the descriptors for better accuracy
-            const avgDescriptor = new Float32Array(128).map((_, i) => 
-                descriptors.reduce((a, b) => a + b[i], 0) / descriptors.length
-            );
-
-            document.getElementById('reg-btn').innerText = "Uploading...";
-
             try {
+                while (descriptors.length < 5) {
+                    const detection = await faceapi.detectSingleFace(video).withFaceLandmarks().withFaceDescriptor();
+                    if (detection) {
+                        descriptors.push(detection.descriptor);
+                        document.getElementById('cap-count').innerText = descriptors.length;
+                        progress.style.width = `${(descriptors.length / 5) * 100}%`;
+                    }
+                    await new Promise(r => setTimeout(r, 600));
+                }
+
+                const avgDescriptor = new Float32Array(128).map((_, i) => 
+                    descriptors.reduce((a, b) => a + b[i], 0) / descriptors.length
+                );
+
+                regBtn.innerText = "Syncing...";
                 const res = await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    body: JSON.stringify({
-                        action: 'register',
-                        id: id,
-                        name: name,
-                        descriptor: JSON.stringify(Object.values(avgDescriptor))
-                    })
+                    body: JSON.stringify({ action: 'register', id, name, descriptor: JSON.stringify(Object.values(avgDescriptor)) })
                 });
-                const data = await res.json();
-                if(data.status === 'success') {
-                    showToast("Registration Complete!", "success");
-                    location.reload(); // Refresh to update matcher
-                }
+                
+                showToast("User Registered!", "success");
+                setTimeout(() => location.reload(), 1500); 
             } catch (e) {
-                showToast("Registration Failed", "error");
-                document.getElementById('reg-btn').disabled = false;
-                document.getElementById('reg-btn').innerText = "Register Face";
+                showToast("Failed", "error");
+                regBtn.disabled = false;
+                statusArea.classList.add('hidden');
             }
         }
 
-        // --- UI HELPERS ---
+        // --- UI UTILS ---
         function switchTab(tab) {
             currentTab = tab;
             document.getElementById('tab-attendance').classList.toggle('hidden', tab !== 'attendance');
             document.getElementById('tab-register').classList.toggle('hidden', tab !== 'register');
+            document.getElementById('header-subtitle').innerText = tab === 'attendance' ? 'Attendance Mode' : 'Registration Mode';
             
-            document.getElementById('btn-att').className = tab === 'attendance' ? 'px-4 py-2 rounded-full font-medium text-blue-600 bg-blue-50' : 'px-4 py-2 rounded-full font-medium text-slate-500 hover:bg-slate-100';
-            document.getElementById('btn-reg').className = tab === 'register' ? 'px-4 py-2 rounded-full font-medium text-blue-600 bg-blue-50' : 'px-4 py-2 rounded-full font-medium text-slate-500 hover:bg-slate-100';
+            document.getElementById('nav-att').classList.toggle('active', tab === 'attendance');
+            document.getElementById('nav-att').classList.toggle('text-slate-400', tab !== 'attendance');
+            document.getElementById('nav-reg').classList.toggle('active', tab === 'register');
+            document.getElementById('nav-reg').classList.toggle('text-slate-400', tab !== 'register');
             
-            if (tab === 'attendance') {
-                overlay.getContext('2d').clearRect(0, 0, overlay.width, overlay.height);
+            overlay.getContext('2d').clearRect(0, 0, overlay.width, overlay.height);
+        }
+
+        function updateStatusCard(msg, type, sub = '') {
+            const card = document.getElementById('status-card');
+            const icon = document.getElementById('status-icon');
+            card.classList.remove('hidden');
+            document.getElementById('status-msg').innerText = msg;
+            document.getElementById('status-time').innerText = sub;
+            
+            if(type === 'success') {
+                icon.className = "w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3 font-bold";
+                icon.innerText = "✓";
+            } else if(type === 'error') {
+                icon.className = "w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-3 font-bold";
+                icon.innerText = "✕";
+            } else {
+                icon.className = "w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 font-bold animate-pulse";
+                icon.innerText = "...";
             }
         }
 
-        function showStatus(msg, type, sub) {
-            const box = document.getElementById('status-box');
-            box.classList.remove('hidden');
-            document.getElementById('status-msg').innerText = msg;
-            document.getElementById('status-time').innerText = sub || '';
-        }
-
-        function hideStatus() {
-            document.getElementById('status-box').classList.add('hidden');
-        }
+        function hideStatusCard() { document.getElementById('status-card').classList.add('hidden'); }
 
         function showToast(msg, type) {
-            // Simple non-blocking message box replacement for alert
             const div = document.createElement('div');
-            div.className = `fixed bottom-10 left-1/2 -translate-x-1/2 p-4 rounded-xl shadow-xl z-[200] text-white font-bold ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
+            div.className = `fixed top-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-2xl shadow-2xl z-[100] text-white text-sm font-bold transition-all duration-300 ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
             div.innerText = msg;
             document.body.appendChild(div);
-            setTimeout(() => div.remove(), 3000);
+            setTimeout(() => { div.style.opacity = '0'; setTimeout(() => div.remove(), 300); }, 2500);
         }
 
         window.onload = init;
