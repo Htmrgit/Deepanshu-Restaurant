@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FacePass Pro - Attendance System</title>
+    <title>FingerPass Pro - Biometric Attendance</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
@@ -24,67 +23,47 @@
             transform: scale(0.95);
         }
 
-        /* Scanner View for both Attendance & Registration */
-        .scanner-overlay {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 100;
-            display: none;
-            flex-direction: column;
-        }
-
-        #video, #reg-video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transform: scaleX(-1);
-        }
-
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            transform: scaleX(-1);
-            pointer-events: none;
-        }
-
         .loading-overlay {
             position: fixed; inset: 0; background: white; z-index: 200;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* Circular Face Guide */
-        .face-guide {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 280px;
-            height: 280px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
+        .fingerprint-anim {
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
-            box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.6);
-            transition: all 0.3s ease;
-        }
-        
-        .face-guide.active {
-            border-color: #3b82f6;
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.5), 0 0 0 1000px rgba(0, 0, 0, 0.6);
-            transform: translate(-50%, -50%) scale(1.02);
+            background: #eff6ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 20px;
         }
 
-        .face-guide.matched {
-            border-color: #22c55e;
-            box-shadow: 0 0 40px rgba(34, 197, 94, 0.6), 0 0 0 1000px rgba(0, 0, 0, 0.6);
+        .fingerprint-anim::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid #3b82f6;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
         }
 
-        .progress-ring {
-            transition: stroke-dashoffset 0.4s ease;
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        .scan-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 150;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
         }
     </style>
 </head>
@@ -93,55 +72,18 @@
     <!-- Startup Loading -->
     <div id="app-loading" class="loading-overlay">
         <div class="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
-        <p class="mt-4 font-semibold text-slate-600 tracking-wide">AI Models load ho rahe hain...</p>
+        <p class="mt-4 font-semibold text-slate-600 tracking-wide">Biometric module ready ho raha hai...</p>
     </div>
 
-    <!-- Attendance Scanner View -->
-    <div id="scanner-view" class="scanner-overlay">
-        <video id="video" autoplay muted playsinline></video>
-        <canvas id="overlay"></canvas>
-        <div class="face-guide" id="att-guide"></div>
-
-        <div class="absolute top-0 inset-x-0 p-6 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
-            <button onclick="stopSession()" class="text-white bg-white/10 p-3 rounded-full backdrop-blur-md hover:bg-white/20 transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-            </button>
-            <div class="text-center">
-                <p id="scan-mode-text" class="text-white font-bold tracking-widest uppercase text-[10px]">PUNCHING...</p>
-                <p id="identified-name" class="text-blue-400 font-semibold text-lg mt-0.5">Face dhund rahe hain...</p>
+    <!-- Biometric Scan Modal -->
+    <div id="scan-modal" class="scan-modal">
+        <div class="bg-white rounded-[3rem] p-10 w-[90%] max-w-sm text-center shadow-2xl">
+            <div class="fingerprint-anim mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12"/><path d="M5 12C5 8.13401 8.13401 5 12 5C15.866 5 19 8.13401 19 12"/><path d="M8 12C8 9.79086 9.79086 8 12 8C14.2091 8 16 9.79086 16 12"/><path d="M12 11V17"/><path d="M12 21V22"/><circle cx="12" cy="12" r="1"/></svg>
             </div>
-            <div class="w-12"></div>
-        </div>
-
-        <div id="scan-success" class="hidden absolute bottom-20 inset-x-6 bg-green-500 p-6 rounded-3xl text-white text-center shadow-2xl animate-bounce">
-            <h2 id="success-title" class="text-xl font-bold">Done!</h2>
-            <p id="success-desc" class="opacity-90">Attendance lag gayi hai.</p>
-        </div>
-    </div>
-
-    <!-- Registration Scanner View -->
-    <div id="reg-scanner-view" class="scanner-overlay">
-        <video id="reg-video" autoplay muted playsinline></video>
-        <div class="face-guide" id="reg-guide"></div>
-        
-        <div class="absolute top-0 inset-x-0 p-6 bg-gradient-to-b from-black/80 to-transparent text-center">
-            <p class="text-white font-bold uppercase text-[10px] tracking-widest text-shadow">REGISTRATION SCAN</p>
-            <p id="reg-feedback" class="text-blue-400 font-semibold mt-1">Camera ready ho raha hai...</p>
-        </div>
-
-        <!-- Circular Progress Bar -->
-        <div class="absolute bottom-24 left-1/2 -translate-x-1/2">
-            <svg width="120" height="120">
-                <circle cx="60" cy="60" r="50" fill="transparent" stroke="rgba(255,255,255,0.2)" stroke-width="8"/>
-                <circle id="reg-progress-ring" class="progress-ring" cx="60" cy="60" r="50" fill="transparent" stroke="#3b82f6" stroke-width="8" stroke-dasharray="314.15" stroke-dashoffset="314.15"/>
-            </svg>
-            <div class="absolute inset-0 flex items-center justify-center">
-                <span id="reg-percent" class="text-white font-bold text-xl">0%</span>
-            </div>
-        </div>
-
-        <div class="absolute bottom-10 inset-x-6">
-            <button onclick="cancelRegistration()" class="w-full py-4 bg-white/10 text-white rounded-2xl font-bold backdrop-blur-md hover:bg-white/20 transition-all">Cancel Scan</button>
+            <h2 id="scan-title" class="text-2xl font-extrabold text-slate-800">Sensor Touch Karein</h2>
+            <p id="scan-subtitle" class="text-slate-500 mt-2">Apna fingerprint verify karein</p>
+            <button onclick="hideScanModal()" class="mt-8 text-slate-400 font-bold text-sm uppercase tracking-widest">Cancel</button>
         </div>
     </div>
 
@@ -150,8 +92,8 @@
         <header class="p-8 pb-4">
             <div class="flex justify-between items-start">
                 <div>
-                    <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">FacePass</h1>
-                    <p class="text-slate-500 font-medium">Smart AI Attendance</p>
+                    <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">FingerPass</h1>
+                    <p class="text-slate-500 font-medium">Biometric Attendance</p>
                 </div>
                 <div class="h-12 w-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
@@ -169,14 +111,14 @@
             </div>
 
             <div class="grid grid-cols-2 gap-4">
-                <button onclick="startSession('IN')" class="action-card bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col items-center gap-4 active:bg-slate-50">
+                <button onclick="handlePunch('IN')" class="action-card bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col items-center gap-4 active:bg-slate-50">
                     <div class="w-14 h-14 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
                     </div>
                     <span class="font-bold text-slate-800">Punch IN</span>
                 </button>
 
-                <button onclick="startSession('OUT')" class="action-card bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col items-center gap-4 active:bg-slate-50">
+                <button onclick="handlePunch('OUT')" class="action-card bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col items-center gap-4 active:bg-slate-50">
                     <div class="w-14 h-14 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                     </div>
@@ -192,7 +134,7 @@
                         </div>
                         <div class="text-left">
                             <span class="block font-bold text-blue-900 leading-tight">Naya User Register karein</span>
-                            <span class="text-blue-600/70 text-[10px] font-bold uppercase tracking-widest">Employee Data Entry</span>
+                            <span class="text-blue-600/70 text-[10px] font-bold uppercase tracking-widest">Enroll Fingerprint</span>
                         </div>
                     </div>
                     <svg xmlns="http://www.w3.org/2000/svg" class="text-blue-400 group-hover:translate-x-1 transition-transform" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
@@ -201,14 +143,14 @@
         </main>
     </div>
 
-    <!-- Registration Form Screen -->
+    <!-- Registration Screen -->
     <div id="tab-register" class="hidden min-h-screen bg-white">
         <div class="p-8">
             <button onclick="switchTab('dashboard')" class="mb-10 w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-600 active:bg-slate-200 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </button>
-            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Registration</h2>
-            <p class="text-slate-500 font-medium mt-1">Employee ki details bhariye</p>
+            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Enrollment</h2>
+            <p class="text-slate-500 font-medium mt-1">Details bhariye aur finger scan karein</p>
             
             <div class="mt-10 space-y-6">
                 <div class="space-y-2">
@@ -223,7 +165,7 @@
                 <div class="pt-8">
                     <button onclick="initiateRegistration()" id="reg-btn" class="w-full py-6 bg-slate-900 text-white rounded-[2rem] font-bold shadow-xl shadow-slate-200 active:scale-95 transition-all flex items-center justify-center gap-3">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
-                        Face Scan Shuru Karein
+                        Fingerprint Enroll Karein
                     </button>
                 </div>
             </div>
@@ -234,14 +176,8 @@
         // --- APPS SCRIPT WEB APP URL ---
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1o3sJ7l9FziD3T-DKfehMsM0lBFCTH2xXSNU7t5vuPkDRlegK5xZThDyhdZciwBw/exec"; 
 
-        let labeledDescriptors = [];
-        let faceMatcher = null;
-        let activeSession = false;
+        let userCredentials = []; // Database of {name, id, credentialId}
         let attendanceMode = 'IN';
-        let regScanning = false;
-        const video = document.getElementById('video');
-        const regVideo = document.getElementById('reg-video');
-        const overlay = document.getElementById('overlay');
 
         // Clock Logic
         setInterval(() => {
@@ -250,131 +186,72 @@
             document.getElementById('current-date').innerText = now.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'short' });
         }, 1000);
 
-        // Models Initializing
         async function init() {
-            try {
-                const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
-                await Promise.all([
-                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL), 
-                    faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
-                    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-                    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
-                ]);
-                await loadDatabase();
-                document.getElementById('app-loading').style.display = 'none';
-            } catch (err) {
-                console.error(err);
-                document.getElementById('app-loading').innerHTML = `<p class="text-red-500 font-bold">Error: Connection Check Karein.</p>`;
+            if (!window.PublicKeyCredential) {
+                alert("Aapka browser biometric authentication support nahi karta.");
             }
+            await loadDatabase();
+            document.getElementById('app-loading').style.display = 'none';
         }
 
         async function loadDatabase() {
             if(!SCRIPT_URL) return;
             try {
                 const res = await fetch(SCRIPT_URL);
-                const data = await res.json();
-                labeledDescriptors = data.map(emp => {
-                    try {
-                        const parsedDesc = JSON.parse(emp.FaceDescriptor);
-                        const desc = new Float32Array(Object.values(parsedDesc));
-                        return new faceapi.LabeledFaceDescriptors(emp.Name + "||" + emp.ID, [desc]);
-                    } catch(e) { return null; }
-                }).filter(i => i !== null);
-                
-                if (labeledDescriptors.length > 0) {
-                    faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.45);
+                const result = await res.json();
+                if(result.status === 'success') {
+                    userCredentials = result.data;
                 }
-            } catch (e) { console.error("Database loading failed:", e); }
+            } catch (e) { console.error("Database error:", e); }
         }
 
-        // Attendance Module
-        async function startSession(mode) {
+        // --- ATTENDANCE (PUNCH IN/OUT) ---
+        async function handlePunch(mode) {
             attendanceMode = mode;
-            document.getElementById('scan-mode-text').innerText = `PUNCHING ${mode}...`;
-            document.getElementById('identified-name').innerText = "Face dhund rahe hain...";
-            document.getElementById('scanner-view').style.display = 'flex';
+            showScanModal("Verification", `Punch ${mode} karne ke liye finger touch karein.`);
             
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } } 
-                });
-                video.srcObject = stream;
-                activeSession = true;
-                video.onloadedmetadata = () => {
-                    video.play();
-                    runRecognition();
-                };
-            } catch (e) {
-                alert("Camera permission block ki gayi hai.");
-                stopSession();
-            }
-        }
+                // In a real environment, WebAuthn requires a challenge from a server.
+                // Since this is a standalone demo, we use a fixed challenge.
+                const challenge = new Uint8Array(32);
+                window.crypto.getRandomValues(challenge);
 
-        function stopSession() {
-            activeSession = false;
-            if (video.srcObject) {
-                video.srcObject.getTracks().forEach(t => t.stop());
-                video.srcObject = null;
-            }
-            document.getElementById('scanner-view').style.display = 'none';
-            document.getElementById('scan-success').classList.add('hidden');
-            const guide = document.getElementById('att-guide');
-            guide.classList.remove('active', 'matched');
-        }
-
-        // --- OPTIMIZED FOR FAST READING ---
-        async function runRecognition() {
-            if (!activeSession) return;
-
-            // Speed boost: Use detectSingleFace instead of detectAllFaces for 1:1 attendance
-            // Use 160 inputSize for faster Tiny Detector processing
-            const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 160, scoreThreshold: 0.5 });
-            
-            try {
-                const detection = await faceapi.detectSingleFace(video, options)
-                    .withFaceLandmarks()
-                    .withFaceDescriptor();
-
-                const displaySize = { width: video.offsetWidth, height: video.offsetHeight };
-                faceapi.matchDimensions(overlay, displaySize);
-                const guide = document.getElementById('att-guide');
-
-                if (detection) {
-                    guide.classList.add('active');
-                    
-                    if (faceMatcher) {
-                        const result = faceMatcher.findBestMatch(detection.descriptor);
-                        
-                        if (result.label !== 'unknown' && result.distance < 0.42) {
-                            const [name, id] = result.label.split('||');
-                            document.getElementById('identified-name').innerText = `Namaste, ${name}!`;
-                            document.getElementById('identified-name').classList.replace('text-blue-400', 'text-green-400');
-                            guide.classList.add('matched');
-                            
-                            activeSession = false; 
-                            submitAttendance(id, name);
-                        } else {
-                            document.getElementById('identified-name').innerText = "Matching...";
-                            document.getElementById('identified-name').classList.replace('text-green-400', 'text-blue-400');
-                            guide.classList.remove('matched');
-                        }
+                const credential = await navigator.credentials.get({
+                    publicKey: {
+                        challenge: challenge,
+                        userVerification: "required",
                     }
-                } else {
-                    guide.classList.remove('active', 'matched');
-                    document.getElementById('identified-name').innerText = "Face dhund rahe hain...";
+                });
+
+                if (credential) {
+                    // Search database for this credential ID
+                    // Note: Credential.id is the Base64 ID we saved
+                    const matchedUser = userCredentials.find(u => u.FaceDescriptor === credential.id);
+
+                    if (matchedUser) {
+                        submitAttendance(matchedUser.ID, matchedUser.Name);
+                    } else {
+                        alert("Fingerprint toh sahi hai, par yeh user registered nahi hai.");
+                        hideScanModal();
+                    }
                 }
             } catch (err) {
-                console.warn("Frame process skipped:", err);
+                console.error(err);
+                if(err.name !== 'NotAllowedError') alert("Biometric Verification Fail: " + err.message);
+                hideScanModal();
             }
-
-            if (activeSession) requestAnimationFrame(runRecognition);
         }
 
         async function submitAttendance(id, name) {
+            document.getElementById('scan-title').innerText = "Processing...";
+            document.getElementById('scan-subtitle').innerText = "Attendance mark ho rahi hai...";
+
             if (!SCRIPT_URL) {
-                showSuccess(`Welcome, ${name}!`, "Demo Mode: Attendance Marked.");
+                alert(`Demo: ${name} ka ${attendanceMode} mark ho gaya!`);
+                hideScanModal();
                 return;
             }
+
             try {
                 const res = await fetch(SCRIPT_URL, {
                     method: 'POST',
@@ -382,158 +259,109 @@
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
-                    showSuccess(`Punched ${attendanceMode}!`, `${name} ka attendance lag gaya.`);
+                    document.getElementById('scan-title').innerText = "Safal Hua! ✅";
+                    document.getElementById('scan-subtitle').innerText = `${name} ka attendance lag gaya.`;
+                    setTimeout(hideScanModal, 3000);
                 } else {
                     alert(data.message);
-                    activeSession = true;
-                    runRecognition();
+                    hideScanModal();
                 }
             } catch (e) {
-                alert("Network issue. Please retry.");
-                activeSession = true;
-                runRecognition();
+                alert("Network error.");
+                hideScanModal();
             }
         }
 
-        function showSuccess(title, desc) {
-            document.getElementById('success-title').innerText = title;
-            document.getElementById('success-desc').innerText = desc;
-            document.getElementById('scan-success').classList.remove('hidden');
-            setTimeout(stopSession, 3500);
-        }
-
-        // Registration Module
+        // --- REGISTRATION (ENROLLMENT) ---
         async function initiateRegistration() {
             const id = document.getElementById('reg-id').value.trim();
             const name = document.getElementById('reg-name').value.trim();
             
-            if(!id || !name) return alert("Pehle Employee ID aur Naam bhariye.");
+            if(!id || !name) return alert("Details bhariye.");
 
-            document.getElementById('reg-scanner-view').style.display = 'flex';
-            const feedback = document.getElementById('reg-feedback');
-            feedback.innerText = "Camera setup ho raha hai...";
-            
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } } 
+                const challenge = new Uint8Array(32);
+                window.crypto.getRandomValues(challenge);
+                const userId = new Uint8Array(16);
+                window.crypto.getRandomValues(userId);
+
+                const credential = await navigator.credentials.create({
+                    publicKey: {
+                        challenge: challenge,
+                        rp: { name: "FacePass Pro" },
+                        user: {
+                            id: userId,
+                            name: name,
+                            displayName: name
+                        },
+                        pubKeyCredParams: [{ alg: -7, type: "public-key" }], // ES256
+                        authenticatorSelection: {
+                            authenticatorAttachment: "platform",
+                            userVerification: "required"
+                        },
+                        timeout: 60000,
+                        attestation: "none"
+                    }
                 });
-                regVideo.srcObject = stream;
-                
-                regVideo.onloadedmetadata = () => {
-                    regVideo.play();
-                    regScanning = true;
-                    feedback.innerText = "Chehra circle ke andar laiye";
-                    processRegistration(id, name);
-                };
-            } catch (e) {
-                alert("Camera access denied.");
-                cancelRegistration();
+
+                if (credential) {
+                    saveRegistration(id, name, credential.id);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Registration Error: " + err.message);
             }
         }
 
-        async function processRegistration(id, name) {
-            const descriptors = [];
-            const progressRing = document.getElementById('reg-progress-ring');
-            const percentText = document.getElementById('reg-percent');
-            const guide = document.getElementById('reg-guide');
-            const feedback = document.getElementById('reg-feedback');
-            
-            const radius = 50;
-            const circumference = 2 * Math.PI * radius;
-            progressRing.style.strokeDashoffset = circumference;
+        async function saveRegistration(id, name, credentialId) {
+            document.getElementById('reg-btn').innerText = "Saving...";
+            document.getElementById('reg-btn').disabled = true;
 
-            await new Promise(r => setTimeout(r, 800));
-
-            const detectorOptions = new faceapi.TinyFaceDetectorOptions({ inputSize: 160, scoreThreshold: 0.5 });
-
-            while (regScanning && descriptors.length < 5) {
-                try {
-                    const detection = await faceapi.detectSingleFace(regVideo, detectorOptions)
-                        .withFaceLandmarks()
-                        .withFaceDescriptor();
-                    
-                    if (detection) {
-                        guide.classList.add('active');
-                        feedback.innerText = "Sahi hai! Hold karein...";
-                        feedback.classList.replace('text-blue-400', 'text-green-400');
-                        
-                        descriptors.push(detection.descriptor);
-                        
-                        const progress = descriptors.length / 5;
-                        const offset = circumference - (progress * circumference);
-                        progressRing.style.strokeDashoffset = offset;
-                        percentText.innerText = `${Math.round(progress * 100)}%`;
-                        
-                        await new Promise(r => setTimeout(r, 500));
-                    } else {
-                        guide.classList.remove('active');
-                        feedback.innerText = "Chehra dhund rahe hain...";
-                        feedback.classList.replace('text-green-400', 'text-blue-400');
-                    }
-                } catch (e) { 
-                    console.warn("Scan frame skip:", e);
-                }
-                
-                await new Promise(r => setTimeout(r, 100));
-            }
-
-            if (!regScanning) return;
-
-            feedback.innerText = "Processing Data...";
-            feedback.classList.replace('text-green-400', 'text-blue-400');
-            
-            const avg = new Float32Array(128).map((_, i) => descriptors.reduce((a, b) => a + b[i], 0) / 5);
-            
             if (!SCRIPT_URL) {
-                feedback.innerText = "Demo Mode: Scan Success!";
-                setTimeout(() => location.reload(), 2000);
+                alert("Demo Mode: Registration Success!");
+                location.reload();
                 return;
             }
 
             try {
-                feedback.innerText = "Sheet mein save ho raha hai...";
                 const res = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify({ 
                         action: 'register', 
                         id, 
                         name, 
-                        descriptor: JSON.stringify(Object.values(avg)) 
+                        descriptor: credentialId // Hum credential ID save karenge
                     })
                 });
                 const data = await res.json();
                 if(data.status === 'success') {
-                    feedback.innerText = "Registration Safal Hua!";
-                    setTimeout(() => location.reload(), 2000);
+                    alert("User Enroll ho gaya!");
+                    location.reload();
                 } else {
-                    alert("Registration failed: " + data.message);
-                    cancelRegistration();
+                    alert(data.message);
+                    document.getElementById('reg-btn').innerText = "Fingerprint Enroll Karein";
+                    document.getElementById('reg-btn').disabled = false;
                 }
             } catch (e) {
-                alert("Server connection check karein.");
-                cancelRegistration();
+                alert("Server Error.");
+                location.reload();
             }
         }
 
-        function cancelRegistration() {
-            regScanning = false;
-            if (regVideo.srcObject) {
-                regVideo.srcObject.getTracks().forEach(t => t.stop());
-                regVideo.srcObject = null;
-            }
-            document.getElementById('reg-scanner-view').style.display = 'none';
-            document.getElementById('reg-percent').innerText = "0%";
-            document.getElementById('reg-progress-ring').style.strokeDashoffset = 314.15;
+        // --- UI UTILS ---
+        function showScanModal(title, sub) {
+            document.getElementById('scan-modal').style.display = 'flex';
+            document.getElementById('scan-title').innerText = title;
+            document.getElementById('scan-subtitle').innerText = sub;
+        }
+
+        function hideScanModal() {
+            document.getElementById('scan-modal').style.display = 'none';
         }
 
         function switchTab(tabId) {
             document.getElementById('dashboard').style.display = tabId === 'dashboard' ? 'flex' : 'none';
             document.getElementById('tab-register').style.display = tabId === 'register' ? 'block' : 'none';
-            
-            if (tabId === 'dashboard') {
-                document.getElementById('reg-id').value = "";
-                document.getElementById('reg-name').value = "";
-            }
         }
 
         window.onload = init;
