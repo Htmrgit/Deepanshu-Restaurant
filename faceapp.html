@@ -255,7 +255,7 @@
             try {
                 const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
                 await Promise.all([
-                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL), // Use Tiny Detector for faster registration
+                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL), 
                     faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
                     faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
                     faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
@@ -322,47 +322,49 @@
             guide.classList.remove('active', 'matched');
         }
 
+        // --- OPTIMIZED FOR FAST READING ---
         async function runRecognition() {
             if (!activeSession) return;
 
-            // Using Tiny Detector for faster performance in real-time
-            const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 });
+            // Speed boost: Use detectSingleFace instead of detectAllFaces for 1:1 attendance
+            // Use 160 inputSize for faster Tiny Detector processing
+            const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 160, scoreThreshold: 0.5 });
             
-            const detections = await faceapi.detectAllFaces(video, options)
-                .withFaceLandmarks()
-                .withFaceDescriptors();
+            try {
+                const detection = await faceapi.detectSingleFace(video, options)
+                    .withFaceLandmarks()
+                    .withFaceDescriptor();
 
-            const displaySize = { width: video.offsetWidth, height: video.offsetHeight };
-            faceapi.matchDimensions(overlay, displaySize);
-            
-            const resized = faceapi.resizeResults(detections, displaySize);
-            const ctx = overlay.getContext('2d');
-            ctx.clearRect(0, 0, overlay.width, overlay.height);
+                const displaySize = { width: video.offsetWidth, height: video.offsetHeight };
+                faceapi.matchDimensions(overlay, displaySize);
+                const guide = document.getElementById('att-guide');
 
-            const guide = document.getElementById('att-guide');
-
-            if (resized.length > 0) {
-                guide.classList.add('active');
-                if (faceMatcher) {
-                    const result = faceMatcher.findBestMatch(resized[0].descriptor);
-                    // Match found
-                    if (result.label !== 'unknown' && result.distance < 0.45) {
-                        const [name, id] = result.label.split('||');
-                        document.getElementById('identified-name').innerText = `Hi, ${name}! Match Hua.`;
-                        document.getElementById('identified-name').classList.replace('text-blue-400', 'text-green-400');
-                        guide.classList.add('matched');
+                if (detection) {
+                    guide.classList.add('active');
+                    
+                    if (faceMatcher) {
+                        const result = faceMatcher.findBestMatch(detection.descriptor);
                         
-                        activeSession = false; // Stop scanning once matched
-                        submitAttendance(id, name);
-                    } else {
-                        document.getElementById('identified-name').innerText = "Anjaan Vyakti (Face mismatch)";
-                        document.getElementById('identified-name').classList.replace('text-green-400', 'text-blue-400');
-                        guide.classList.remove('matched');
+                        if (result.label !== 'unknown' && result.distance < 0.42) {
+                            const [name, id] = result.label.split('||');
+                            document.getElementById('identified-name').innerText = `Namaste, ${name}!`;
+                            document.getElementById('identified-name').classList.replace('text-blue-400', 'text-green-400');
+                            guide.classList.add('matched');
+                            
+                            activeSession = false; 
+                            submitAttendance(id, name);
+                        } else {
+                            document.getElementById('identified-name').innerText = "Matching...";
+                            document.getElementById('identified-name').classList.replace('text-green-400', 'text-blue-400');
+                            guide.classList.remove('matched');
+                        }
                     }
+                } else {
+                    guide.classList.remove('active', 'matched');
+                    document.getElementById('identified-name').innerText = "Face dhund rahe hain...";
                 }
-            } else {
-                guide.classList.remove('active', 'matched');
-                document.getElementById('identified-name').innerText = "Face dhund rahe hain...";
+            } catch (err) {
+                console.warn("Frame process skipped:", err);
             }
 
             if (activeSession) requestAnimationFrame(runRecognition);
