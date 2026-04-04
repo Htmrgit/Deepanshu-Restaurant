@@ -76,6 +76,11 @@
             transform: translate(-50%, -50%) scale(1.02);
         }
 
+        .face-guide.matched {
+            border-color: #22c55e;
+            box-shadow: 0 0 40px rgba(34, 197, 94, 0.6), 0 0 0 1000px rgba(0, 0, 0, 0.6);
+        }
+
         .progress-ring {
             transition: stroke-dashoffset 0.4s ease;
             transform: rotate(-90deg);
@@ -295,7 +300,10 @@
                 });
                 video.srcObject = stream;
                 activeSession = true;
-                video.onloadedmetadata = () => runRecognition();
+                video.onloadedmetadata = () => {
+                    video.play();
+                    runRecognition();
+                };
             } catch (e) {
                 alert("Camera permission block ki gayi hai.");
                 stopSession();
@@ -310,12 +318,20 @@
             }
             document.getElementById('scanner-view').style.display = 'none';
             document.getElementById('scan-success').classList.add('hidden');
+            const guide = document.getElementById('att-guide');
+            guide.classList.remove('active', 'matched');
         }
 
         async function runRecognition() {
             if (!activeSession) return;
 
-            const detections = await faceapi.detectAllFaces(video).withFaceLandmarks().withFaceDescriptors();
+            // Using Tiny Detector for faster performance in real-time
+            const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 });
+            
+            const detections = await faceapi.detectAllFaces(video, options)
+                .withFaceLandmarks()
+                .withFaceDescriptors();
+
             const displaySize = { width: video.offsetWidth, height: video.offsetHeight };
             faceapi.matchDimensions(overlay, displaySize);
             
@@ -329,19 +345,23 @@
                 guide.classList.add('active');
                 if (faceMatcher) {
                     const result = faceMatcher.findBestMatch(resized[0].descriptor);
+                    // Match found
                     if (result.label !== 'unknown' && result.distance < 0.45) {
                         const [name, id] = result.label.split('||');
-                        document.getElementById('identified-name').innerText = `Namaste, ${name}!`;
+                        document.getElementById('identified-name').innerText = `Hi, ${name}! Match Hua.`;
                         document.getElementById('identified-name').classList.replace('text-blue-400', 'text-green-400');
-                        activeSession = false;
+                        guide.classList.add('matched');
+                        
+                        activeSession = false; // Stop scanning once matched
                         submitAttendance(id, name);
                     } else {
-                        document.getElementById('identified-name').innerText = "Anjaan Vyakti";
+                        document.getElementById('identified-name').innerText = "Anjaan Vyakti (Face mismatch)";
                         document.getElementById('identified-name').classList.replace('text-green-400', 'text-blue-400');
+                        guide.classList.remove('matched');
                     }
                 }
             } else {
-                guide.classList.remove('active');
+                guide.classList.remove('active', 'matched');
                 document.getElementById('identified-name').innerText = "Face dhund rahe hain...";
             }
 
@@ -350,7 +370,7 @@
 
         async function submitAttendance(id, name) {
             if (!SCRIPT_URL) {
-                showSuccess(`Welcome, ${name}!`, "Demo Mode: Marked.");
+                showSuccess(`Welcome, ${name}!`, "Demo Mode: Attendance Marked.");
                 return;
             }
             try {
@@ -360,14 +380,14 @@
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
-                    showSuccess(`Punched ${attendanceMode}!`, `${name} ka time mark ho gaya.`);
+                    showSuccess(`Punched ${attendanceMode}!`, `${name} ka attendance lag gaya.`);
                 } else {
                     alert(data.message);
                     activeSession = true;
                     runRecognition();
                 }
             } catch (e) {
-                alert("Network connectivity check karein.");
+                alert("Network issue. Please retry.");
                 activeSession = true;
                 runRecognition();
             }
@@ -380,7 +400,7 @@
             setTimeout(stopSession, 3500);
         }
 
-        // Registration Module - Overhauled for Smooth Scan
+        // Registration Module
         async function initiateRegistration() {
             const id = document.getElementById('reg-id').value.trim();
             const name = document.getElementById('reg-name').value.trim();
@@ -401,7 +421,6 @@
                     regVideo.play();
                     regScanning = true;
                     feedback.innerText = "Chehra circle ke andar laiye";
-                    // Explicitly start process
                     processRegistration(id, name);
                 };
             } catch (e) {
@@ -421,10 +440,8 @@
             const circumference = 2 * Math.PI * radius;
             progressRing.style.strokeDashoffset = circumference;
 
-            // Wait a bit for video to stabilize
             await new Promise(r => setTimeout(r, 800));
 
-            // Use Tiny Face Detector for faster scanning during registration
             const detectorOptions = new faceapi.TinyFaceDetectorOptions({ inputSize: 160, scoreThreshold: 0.5 });
 
             while (regScanning && descriptors.length < 5) {
@@ -445,7 +462,6 @@
                         progressRing.style.strokeDashoffset = offset;
                         percentText.innerText = `${Math.round(progress * 100)}%`;
                         
-                        // Small delay between captures for diversity
                         await new Promise(r => setTimeout(r, 500));
                     } else {
                         guide.classList.remove('active');
@@ -456,7 +472,7 @@
                     console.warn("Scan frame skip:", e);
                 }
                 
-                await new Promise(r => setTimeout(r, 100)); // Tick rate
+                await new Promise(r => setTimeout(r, 100));
             }
 
             if (!regScanning) return;
