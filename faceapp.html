@@ -120,7 +120,7 @@
         <div class="face-guide" id="reg-guide"></div>
         
         <div class="absolute top-0 inset-x-0 p-6 bg-gradient-to-b from-black/80 to-transparent text-center">
-            <p class="text-white font-bold uppercase text-[10px] tracking-widest">REGISTRATION SCAN</p>
+            <p class="text-white font-bold uppercase text-[10px] tracking-widest text-shadow">REGISTRATION SCAN</p>
             <p id="reg-feedback" class="text-blue-400 font-semibold mt-1">Camera ready ho raha hai...</p>
         </div>
 
@@ -250,6 +250,7 @@
             try {
                 const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
                 await Promise.all([
+                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL), // Use Tiny Detector for faster registration
                     faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
                     faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
                     faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
@@ -294,7 +295,6 @@
                 });
                 video.srcObject = stream;
                 activeSession = true;
-                // Wait for video metadata to avoid issues
                 video.onloadedmetadata = () => runRecognition();
             } catch (e) {
                 alert("Camera permission block ki gayi hai.");
@@ -380,7 +380,7 @@
             setTimeout(stopSession, 3500);
         }
 
-        // Registration Module - Fixes included for Scan Logic
+        // Registration Module - Overhauled for Smooth Scan
         async function initiateRegistration() {
             const id = document.getElementById('reg-id').value.trim();
             const name = document.getElementById('reg-name').value.trim();
@@ -389,7 +389,7 @@
 
             document.getElementById('reg-scanner-view').style.display = 'flex';
             const feedback = document.getElementById('reg-feedback');
-            feedback.innerText = "Camera start ho raha hai...";
+            feedback.innerText = "Camera setup ho raha hai...";
             
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -397,14 +397,15 @@
                 });
                 regVideo.srcObject = stream;
                 
-                // CRITICAL FIX: Wait for the video to actually play before detection
-                regVideo.onplay = () => {
+                regVideo.onloadedmetadata = () => {
+                    regVideo.play();
                     regScanning = true;
                     feedback.innerText = "Chehra circle ke andar laiye";
+                    // Explicitly start process
                     processRegistration(id, name);
                 };
             } catch (e) {
-                alert("Camera access block hai.");
+                alert("Camera access denied.");
                 cancelRegistration();
             }
         }
@@ -420,13 +421,17 @@
             const circumference = 2 * Math.PI * radius;
             progressRing.style.strokeDashoffset = circumference;
 
-            // Warm up detection
-            await new Promise(r => setTimeout(r, 1000));
+            // Wait a bit for video to stabilize
+            await new Promise(r => setTimeout(r, 800));
+
+            // Use Tiny Face Detector for faster scanning during registration
+            const detectorOptions = new faceapi.TinyFaceDetectorOptions({ inputSize: 160, scoreThreshold: 0.5 });
 
             while (regScanning && descriptors.length < 5) {
                 try {
-                    // Optimized detection sensitivity
-                    const detection = await faceapi.detectSingleFace(regVideo).withFaceLandmarks().withFaceDescriptor();
+                    const detection = await faceapi.detectSingleFace(regVideo, detectorOptions)
+                        .withFaceLandmarks()
+                        .withFaceDescriptor();
                     
                     if (detection) {
                         guide.classList.add('active');
@@ -435,29 +440,38 @@
                         
                         descriptors.push(detection.descriptor);
                         
-                        // Smooth UI Update
                         const progress = descriptors.length / 5;
                         const offset = circumference - (progress * circumference);
                         progressRing.style.strokeDashoffset = offset;
                         percentText.innerText = `${Math.round(progress * 100)}%`;
                         
-                        // Chota pause capture ke beech
-                        await new Promise(r => setTimeout(r, 400));
+                        // Small delay between captures for diversity
+                        await new Promise(r => setTimeout(r, 500));
                     } else {
                         guide.classList.remove('active');
                         feedback.innerText = "Chehra dhund rahe hain...";
                         feedback.classList.replace('text-green-400', 'text-blue-400');
                     }
-                } catch (e) { console.error("Scan frame error:", e); }
+                } catch (e) { 
+                    console.warn("Scan frame skip:", e);
+                }
                 
-                await new Promise(r => setTimeout(r, 200));
+                await new Promise(r => setTimeout(r, 100)); // Tick rate
             }
 
             if (!regScanning) return;
 
-            feedback.innerText = "Finalizing Data...";
+            feedback.innerText = "Processing Data...";
+            feedback.classList.replace('text-green-400', 'text-blue-400');
+            
             const avg = new Float32Array(128).map((_, i) => descriptors.reduce((a, b) => a + b[i], 0) / 5);
             
+            if (!SCRIPT_URL) {
+                feedback.innerText = "Demo Mode: Scan Success!";
+                setTimeout(() => location.reload(), 2000);
+                return;
+            }
+
             try {
                 feedback.innerText = "Sheet mein save ho raha hai...";
                 const res = await fetch(SCRIPT_URL, {
@@ -478,7 +492,7 @@
                     cancelRegistration();
                 }
             } catch (e) {
-                alert("Internet check karein aur phir koshish karein.");
+                alert("Server connection check karein.");
                 cancelRegistration();
             }
         }
@@ -490,12 +504,10 @@
                 regVideo.srcObject = null;
             }
             document.getElementById('reg-scanner-view').style.display = 'none';
-            // Reset Progress UI
             document.getElementById('reg-percent').innerText = "0%";
             document.getElementById('reg-progress-ring').style.strokeDashoffset = 314.15;
         }
 
-        // Navigation Module
         function switchTab(tabId) {
             document.getElementById('dashboard').style.display = tabId === 'dashboard' ? 'flex' : 'none';
             document.getElementById('tab-register').style.display = tabId === 'register' ? 'block' : 'none';
