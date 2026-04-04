@@ -67,15 +67,17 @@
             border: 4px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
             box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.6);
+            transition: all 0.3s ease;
         }
         
         .face-guide.active {
             border-color: #3b82f6;
-            box-shadow: 0 0 20px #3b82f6, 0 0 0 1000px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.5), 0 0 0 1000px rgba(0, 0, 0, 0.6);
+            transform: translate(-50%, -50%) scale(1.02);
         }
 
         .progress-ring {
-            transition: stroke-dashoffset 0.35s;
+            transition: stroke-dashoffset 0.4s ease;
             transform: rotate(-90deg);
             transform-origin: 50% 50%;
         }
@@ -86,7 +88,7 @@
     <!-- Startup Loading -->
     <div id="app-loading" class="loading-overlay">
         <div class="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
-        <p class="mt-4 font-semibold text-slate-600">AI Models load ho rahe hain...</p>
+        <p class="mt-4 font-semibold text-slate-600 tracking-wide">AI Models load ho rahe hain...</p>
     </div>
 
     <!-- Attendance Scanner View -->
@@ -96,12 +98,12 @@
         <div class="face-guide" id="att-guide"></div>
 
         <div class="absolute top-0 inset-x-0 p-6 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
-            <button onclick="stopSession()" class="text-white bg-white/10 p-3 rounded-full backdrop-blur-md hover:bg-white/20">
+            <button onclick="stopSession()" class="text-white bg-white/10 p-3 rounded-full backdrop-blur-md hover:bg-white/20 transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </button>
             <div class="text-center">
-                <p id="scan-mode-text" class="text-white font-bold tracking-widest uppercase text-xs">PUNCHING...</p>
-                <p id="identified-name" class="text-blue-400 font-medium text-lg mt-1">Face dhund rahe hain...</p>
+                <p id="scan-mode-text" class="text-white font-bold tracking-widest uppercase text-[10px]">PUNCHING...</p>
+                <p id="identified-name" class="text-blue-400 font-semibold text-lg mt-0.5">Face dhund rahe hain...</p>
             </div>
             <div class="w-12"></div>
         </div>
@@ -118,8 +120,8 @@
         <div class="face-guide" id="reg-guide"></div>
         
         <div class="absolute top-0 inset-x-0 p-6 bg-gradient-to-b from-black/80 to-transparent text-center">
-            <p class="text-white font-bold uppercase text-xs tracking-widest">REGISTRATION SCAN</p>
-            <p id="reg-feedback" class="text-blue-400 font-medium mt-1">Apna chehra circle mein laiye</p>
+            <p class="text-white font-bold uppercase text-[10px] tracking-widest">REGISTRATION SCAN</p>
+            <p id="reg-feedback" class="text-blue-400 font-semibold mt-1">Camera ready ho raha hai...</p>
         </div>
 
         <!-- Circular Progress Bar -->
@@ -134,7 +136,7 @@
         </div>
 
         <div class="absolute bottom-10 inset-x-6">
-            <button onclick="cancelRegistration()" class="w-full py-4 bg-white/10 text-white rounded-2xl font-bold backdrop-blur-md">Cancel</button>
+            <button onclick="cancelRegistration()" class="w-full py-4 bg-white/10 text-white rounded-2xl font-bold backdrop-blur-md hover:bg-white/20 transition-all">Cancel Scan</button>
         </div>
     </div>
 
@@ -155,8 +157,8 @@
         <main class="flex-1 px-6 space-y-6 pt-4">
             <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
                 <div class="relative z-10">
-                    <h2 id="current-time" class="text-4xl font-bold">00:00:00</h2>
-                    <p id="current-date" class="opacity-60 font-medium mt-1 uppercase tracking-wider text-xs">Loading...</p>
+                    <h2 id="current-time" class="text-4xl font-bold tracking-tighter">00:00:00</h2>
+                    <p id="current-date" class="opacity-60 font-semibold mt-1 uppercase tracking-widest text-[10px]">Loading...</p>
                 </div>
                 <div class="absolute -right-8 -bottom-8 w-40 h-40 bg-blue-600/20 rounded-full blur-3xl"></div>
             </div>
@@ -177,44 +179,45 @@
                 </button>
             </div>
 
-            <div class="pt-4">
+            <div class="pt-4 pb-12">
                 <button onclick="switchTab('register')" class="w-full p-6 bg-blue-50 border border-blue-100 rounded-[2.5rem] flex items-center justify-between group active:scale-95 transition-all">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
                         </div>
                         <div class="text-left">
-                            <span class="block font-bold text-blue-900">Naya User Register karein</span>
-                            <span class="text-blue-600/70 text-xs font-medium uppercase tracking-tight">Add Employee Profile</span>
+                            <span class="block font-bold text-blue-900 leading-tight">Naya User Register karein</span>
+                            <span class="text-blue-600/70 text-[10px] font-bold uppercase tracking-widest">Employee Data Entry</span>
                         </div>
                     </div>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="text-blue-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="text-blue-400 group-hover:translate-x-1 transition-transform" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                 </button>
             </div>
         </main>
     </div>
 
-    <!-- Registration Screen -->
+    <!-- Registration Form Screen -->
     <div id="tab-register" class="hidden min-h-screen bg-white">
         <div class="p-8">
-            <button onclick="switchTab('dashboard')" class="mb-10 w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-600 active:bg-slate-200">
+            <button onclick="switchTab('dashboard')" class="mb-10 w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-600 active:bg-slate-200 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </button>
-            <h2 class="text-3xl font-extrabold text-slate-800">Registration</h2>
-            <p class="text-slate-500 font-medium mt-1">Naye employee ka data fill karein</p>
+            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Registration</h2>
+            <p class="text-slate-500 font-medium mt-1">Employee ki details bhariye</p>
             
-            <div class="mt-10 space-y-5">
+            <div class="mt-10 space-y-6">
                 <div class="space-y-2">
-                    <label class="text-xs font-bold text-slate-400 uppercase ml-2 tracking-widest">Employee ID</label>
-                    <input type="text" id="reg-id" class="w-full p-5 bg-slate-50 rounded-3xl border-2 border-transparent outline-none focus:border-blue-600 focus:bg-white font-bold text-slate-800 transition-all" placeholder="Enter ID (e.g. EMP101)">
+                    <label class="text-[10px] font-extrabold text-slate-400 uppercase ml-2 tracking-[0.2em]">Employee ID</label>
+                    <input type="text" id="reg-id" class="w-full p-5 bg-slate-50 rounded-3xl border-2 border-transparent outline-none focus:border-blue-600 focus:bg-white font-bold text-slate-800 transition-all placeholder:text-slate-300" placeholder="e.g. EMP101">
                 </div>
                 <div class="space-y-2">
-                    <label class="text-xs font-bold text-slate-400 uppercase ml-2 tracking-widest">Full Name</label>
-                    <input type="text" id="reg-name" class="w-full p-5 bg-slate-50 rounded-3xl border-2 border-transparent outline-none focus:border-blue-600 focus:bg-white font-bold text-slate-800 transition-all" placeholder="Enter Full Name">
+                    <label class="text-[10px] font-extrabold text-slate-400 uppercase ml-2 tracking-[0.2em]">Full Name</label>
+                    <input type="text" id="reg-name" class="w-full p-5 bg-slate-50 rounded-3xl border-2 border-transparent outline-none focus:border-blue-600 focus:bg-white font-bold text-slate-800 transition-all placeholder:text-slate-300" placeholder="e.g. Rahul Kumar">
                 </div>
                 
-                <div class="pt-6">
-                    <button onclick="initiateRegistration()" id="reg-btn" class="w-full py-6 bg-slate-900 text-white rounded-[2rem] font-bold shadow-xl shadow-slate-200 active:scale-95 transition-all">
+                <div class="pt-8">
+                    <button onclick="initiateRegistration()" id="reg-btn" class="w-full py-6 bg-slate-900 text-white rounded-[2rem] font-bold shadow-xl shadow-slate-200 active:scale-95 transition-all flex items-center justify-center gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
                         Face Scan Shuru Karein
                     </button>
                 </div>
@@ -223,7 +226,9 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1o3sJ7l9FziD3T-DKfehMsM0lBFCTH2xXSNU7t5vuPkDRlegK5xZThDyhdZciwBw/exec"; // Paste your Web App URL here
+        // --- APPS SCRIPT WEB APP URL ---
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1o3sJ7l9FziD3T-DKfehMsM0lBFCTH2xXSNU7t5vuPkDRlegK5xZThDyhdZciwBw/exec"; 
+
         let labeledDescriptors = [];
         let faceMatcher = null;
         let activeSession = false;
@@ -233,13 +238,14 @@
         const regVideo = document.getElementById('reg-video');
         const overlay = document.getElementById('overlay');
 
-        // Clock Update
+        // Clock Logic
         setInterval(() => {
             const now = new Date();
             document.getElementById('current-time').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
             document.getElementById('current-date').innerText = now.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'short' });
         }, 1000);
 
+        // Models Initializing
         async function init() {
             try {
                 const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
@@ -251,7 +257,8 @@
                 await loadDatabase();
                 document.getElementById('app-loading').style.display = 'none';
             } catch (err) {
-                alert("Models load nahi ho paaye. Please refresh karein.");
+                console.error(err);
+                document.getElementById('app-loading').innerHTML = `<p class="text-red-500 font-bold">Error: Connection Check Karein.</p>`;
             }
         }
 
@@ -261,14 +268,20 @@
                 const res = await fetch(SCRIPT_URL);
                 const data = await res.json();
                 labeledDescriptors = data.map(emp => {
-                    const desc = new Float32Array(Object.values(JSON.parse(emp.FaceDescriptor)));
-                    return new faceapi.LabeledFaceDescriptors(emp.Name + "||" + emp.ID, [desc]);
-                });
-                if (labeledDescriptors.length > 0) faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.5);
-            } catch (e) { console.warn("Database error."); }
+                    try {
+                        const parsedDesc = JSON.parse(emp.FaceDescriptor);
+                        const desc = new Float32Array(Object.values(parsedDesc));
+                        return new faceapi.LabeledFaceDescriptors(emp.Name + "||" + emp.ID, [desc]);
+                    } catch(e) { return null; }
+                }).filter(i => i !== null);
+                
+                if (labeledDescriptors.length > 0) {
+                    faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.45);
+                }
+            } catch (e) { console.error("Database loading failed:", e); }
         }
 
-        // Attendance Scanning
+        // Attendance Module
         async function startSession(mode) {
             attendanceMode = mode;
             document.getElementById('scan-mode-text').innerText = `PUNCHING ${mode}...`;
@@ -276,12 +289,15 @@
             document.getElementById('scanner-view').style.display = 'flex';
             
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 480 } });
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } } 
+                });
                 video.srcObject = stream;
                 activeSession = true;
-                runRecognition();
+                // Wait for video metadata to avoid issues
+                video.onloadedmetadata = () => runRecognition();
             } catch (e) {
-                alert("Camera permission ki zarurat hai.");
+                alert("Camera permission block ki gayi hai.");
                 stopSession();
             }
         }
@@ -316,10 +332,12 @@
                     if (result.label !== 'unknown' && result.distance < 0.45) {
                         const [name, id] = result.label.split('||');
                         document.getElementById('identified-name').innerText = `Namaste, ${name}!`;
+                        document.getElementById('identified-name').classList.replace('text-blue-400', 'text-green-400');
                         activeSession = false;
                         submitAttendance(id, name);
                     } else {
-                        document.getElementById('identified-name').innerText = "Unknown Person";
+                        document.getElementById('identified-name').innerText = "Anjaan Vyakti";
+                        document.getElementById('identified-name').classList.replace('text-green-400', 'text-blue-400');
                     }
                 }
             } else {
@@ -332,7 +350,7 @@
 
         async function submitAttendance(id, name) {
             if (!SCRIPT_URL) {
-                showSuccess(`Welcome, ${name}!`, "Demo mode: Saved.");
+                showSuccess(`Welcome, ${name}!`, "Demo Mode: Marked.");
                 return;
             }
             try {
@@ -341,34 +359,52 @@
                     body: JSON.stringify({ action: 'attendance', id, name, type: attendanceMode })
                 });
                 const data = await res.json();
-                if (data.status === 'success') showSuccess(`Punched ${attendanceMode}!`, `${name} ka time mark ho gaya.`);
-                else { alert(data.message); activeSession = true; runRecognition(); }
-            } catch (e) { alert("Network issue."); activeSession = true; runRecognition(); }
+                if (data.status === 'success') {
+                    showSuccess(`Punched ${attendanceMode}!`, `${name} ka time mark ho gaya.`);
+                } else {
+                    alert(data.message);
+                    activeSession = true;
+                    runRecognition();
+                }
+            } catch (e) {
+                alert("Network connectivity check karein.");
+                activeSession = true;
+                runRecognition();
+            }
         }
 
         function showSuccess(title, desc) {
             document.getElementById('success-title').innerText = title;
             document.getElementById('success-desc').innerText = desc;
             document.getElementById('scan-success').classList.remove('hidden');
-            setTimeout(stopSession, 3000);
+            setTimeout(stopSession, 3500);
         }
 
-        // Smoother Registration Scanning
+        // Registration Module - Fixes included for Scan Logic
         async function initiateRegistration() {
             const id = document.getElementById('reg-id').value.trim();
             const name = document.getElementById('reg-name').value.trim();
-            if(!id || !name) return alert("Pehle ID aur Name bhariye");
+            
+            if(!id || !name) return alert("Pehle Employee ID aur Naam bhariye.");
 
             document.getElementById('reg-scanner-view').style.display = 'flex';
-            document.getElementById('reg-feedback').innerText = "Camera start ho raha hai...";
+            const feedback = document.getElementById('reg-feedback');
+            feedback.innerText = "Camera start ho raha hai...";
             
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 480 } });
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } } 
+                });
                 regVideo.srcObject = stream;
-                regScanning = true;
-                processRegistration(id, name);
+                
+                // CRITICAL FIX: Wait for the video to actually play before detection
+                regVideo.onplay = () => {
+                    regScanning = true;
+                    feedback.innerText = "Chehra circle ke andar laiye";
+                    processRegistration(id, name);
+                };
             } catch (e) {
-                alert("Camera access error.");
+                alert("Camera access block hai.");
                 cancelRegistration();
             }
         }
@@ -382,45 +418,67 @@
             
             const radius = 50;
             const circumference = 2 * Math.PI * radius;
+            progressRing.style.strokeDashoffset = circumference;
+
+            // Warm up detection
+            await new Promise(r => setTimeout(r, 1000));
 
             while (regScanning && descriptors.length < 5) {
-                const detection = await faceapi.detectSingleFace(regVideo).withFaceLandmarks().withFaceDescriptor();
-                
-                if (detection) {
-                    guide.classList.add('active');
-                    feedback.innerText = "Hold still... Scan ho raha hai";
-                    descriptors.push(detection.descriptor);
+                try {
+                    // Optimized detection sensitivity
+                    const detection = await faceapi.detectSingleFace(regVideo).withFaceLandmarks().withFaceDescriptor();
                     
-                    // Update UI
-                    const progress = descriptors.length / 5;
-                    const offset = circumference - (progress * circumference);
-                    progressRing.style.strokeDashoffset = offset;
-                    percentText.innerText = `${Math.round(progress * 100)}%`;
-                } else {
-                    guide.classList.remove('active');
-                    feedback.innerText = "Chehra circle ke andar laiye";
-                }
-                await new Promise(r => setTimeout(r, 600));
+                    if (detection) {
+                        guide.classList.add('active');
+                        feedback.innerText = "Sahi hai! Hold karein...";
+                        feedback.classList.replace('text-blue-400', 'text-green-400');
+                        
+                        descriptors.push(detection.descriptor);
+                        
+                        // Smooth UI Update
+                        const progress = descriptors.length / 5;
+                        const offset = circumference - (progress * circumference);
+                        progressRing.style.strokeDashoffset = offset;
+                        percentText.innerText = `${Math.round(progress * 100)}%`;
+                        
+                        // Chota pause capture ke beech
+                        await new Promise(r => setTimeout(r, 400));
+                    } else {
+                        guide.classList.remove('active');
+                        feedback.innerText = "Chehra dhund rahe hain...";
+                        feedback.classList.replace('text-green-400', 'text-blue-400');
+                    }
+                } catch (e) { console.error("Scan frame error:", e); }
+                
+                await new Promise(r => setTimeout(r, 200));
             }
 
             if (!regScanning) return;
 
-            feedback.innerText = "Processing Data...";
+            feedback.innerText = "Finalizing Data...";
             const avg = new Float32Array(128).map((_, i) => descriptors.reduce((a, b) => a + b[i], 0) / 5);
             
             try {
-                feedback.innerText = "Uploading to Database...";
+                feedback.innerText = "Sheet mein save ho raha hai...";
                 const res = await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    body: JSON.stringify({ action: 'register', id, name, descriptor: JSON.stringify(Object.values(avg)) })
+                    body: JSON.stringify({ 
+                        action: 'register', 
+                        id, 
+                        name, 
+                        descriptor: JSON.stringify(Object.values(avg)) 
+                    })
                 });
                 const data = await res.json();
                 if(data.status === 'success') {
-                    feedback.innerText = "Registration Complete!";
+                    feedback.innerText = "Registration Safal Hua!";
                     setTimeout(() => location.reload(), 2000);
+                } else {
+                    alert("Registration failed: " + data.message);
+                    cancelRegistration();
                 }
             } catch (e) {
-                alert("Upload failed. Try again.");
+                alert("Internet check karein aur phir koshish karein.");
                 cancelRegistration();
             }
         }
@@ -432,11 +490,20 @@
                 regVideo.srcObject = null;
             }
             document.getElementById('reg-scanner-view').style.display = 'none';
+            // Reset Progress UI
+            document.getElementById('reg-percent').innerText = "0%";
+            document.getElementById('reg-progress-ring').style.strokeDashoffset = 314.15;
         }
 
+        // Navigation Module
         function switchTab(tabId) {
             document.getElementById('dashboard').style.display = tabId === 'dashboard' ? 'flex' : 'none';
             document.getElementById('tab-register').style.display = tabId === 'register' ? 'block' : 'none';
+            
+            if (tabId === 'dashboard') {
+                document.getElementById('reg-id').value = "";
+                document.getElementById('reg-name').value = "";
+            }
         }
 
         window.onload = init;
