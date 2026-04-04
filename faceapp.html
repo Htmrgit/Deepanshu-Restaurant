@@ -1,1 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FacePass - Face Recognition Attendance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Face-API.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
+    <style>
+        .video-container { position: relative; width: 100%; max-width: 640px; margin: 0 auto; overflow: hidden; border-radius: 1rem; }
+        canvas { position: absolute; top: 0; left: 0; pointer-events: none; }
+        .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans min-h-screen">
 
+    <!-- Loading State -->
+    <div id="loading" class="loading-overlay">
+        <div class="spinner"></div>
+        <p class="mt-4 font-medium text-slate-600" id="loading-text">Loading Face Models...</p>
+    </div>
+
+    <nav class="bg-white shadow-sm border-b px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-2">
+            <div class="bg-blue-600 p-2 rounded-lg text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 0 0-5 5v3a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5z"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
+            </div>
+            <h1 class="text-xl font-bold tracking-tight">FacePass</h1>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="switchTab('attendance')" id="btn-att" class="px-4 py-2 rounded-full font-medium text-blue-600 bg-blue-50 transition-all">Attendance</button>
+            <button onclick="switchTab('register')" id="btn-reg" class="px-4 py-2 rounded-full font-medium text-slate-500 hover:bg-slate-100 transition-all">Register</button>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto p-4 md:p-8">
+        
+        <!-- Attendance Section -->
+        <div id="tab-attendance" class="space-y-6">
+            <div class="text-center space-y-2">
+                <h2 class="text-2xl font-bold">Face Attendance</h2>
+                <p class="text-slate-500">Look into the camera to mark your presence</p>
+            </div>
+
+            <div class="video-container shadow-2xl border-4 border-white">
+                <video id="video" width="640" height="480" autoplay muted playsinline></video>
+                <canvas id="overlay"></canvas>
+            </div>
+
+            <div id="status-box" class="hidden max-w-md mx-auto p-6 bg-white rounded-2xl shadow-lg text-center animate-bounce border-l-4 border-blue-500">
+                <p id="status-msg" class="text-xl font-bold text-blue-600"></p>
+                <p id="status-time" class="text-sm text-slate-500"></p>
+            </div>
+        </div>
+
+        <!-- Registration Section -->
+        <div id="tab-register" class="hidden space-y-6 max-w-lg mx-auto">
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+                <h2 class="text-2xl font-bold mb-6">New Employee</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Employee ID</label>
+                        <input type="text" id="reg-id" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="E.g. EMP101">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                        <input type="text" id="reg-name" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="John Doe">
+                    </div>
+                    
+                    <div id="capture-status" class="text-center py-2 text-blue-600 font-medium hidden">
+                        Capturing face data... <span id="cap-count">0</span>/5
+                    </div>
+
+                    <button onclick="startRegistration()" id="reg-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 transition-all">
+                        Register Face
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- CONFIGURATION ---
+        // Replace with your Google Apps Script Web App URL after deploying
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1o3sJ7l9FziD3T-DKfehMsM0lBFCTH2xXSNU7t5vuPkDRlegK5xZThDyhdZciwBw/exec"; 
+        
+        let labeledFaceDescriptors = [];
+        let faceMatcher = null;
+        let isProcessing = false;
+        let currentTab = 'attendance';
+        const video = document.getElementById('video');
+        const overlay = document.getElementById('overlay');
+
+        // --- INITIALIZATION ---
+        async function init() {
+            try {
+                // 1. Load Models
+                const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+                await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+                await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+                await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+                
+                document.getElementById('loading-text').innerText = "Fetching employee database...";
+                
+                // 2. Load Employees from Sheets
+                await loadEmployees();
+
+                // 3. Start Camera
+                await startVideo();
+                
+                document.getElementById('loading').style.display = 'none';
+                
+                // 4. Start Recognition Loop
+                startRecognition();
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loading-text').innerHTML = `<span class="text-red-500">Error: ${err.message}. Ensure Web App URL is set and models are reachable.</span>`;
+            }
+        }
+
+        async function startVideo() {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+            video.srcObject = stream;
+            return new Promise(resolve => video.onloadedmetadata = resolve);
+        }
+
+        async function loadEmployees() {
+            if(!SCRIPT_URL) return;
+            try {
+                const response = await fetch(SCRIPT_URL);
+                const data = await response.json();
+                
+                labeledFaceDescriptors = data.map(emp => {
+                    const desc = new Float32Array(Object.values(JSON.parse(emp.FaceDescriptor)));
+                    return new faceapi.LabeledFaceDescriptors(emp.Name + " (" + emp.ID + ")", [desc]);
+                });
+
+                if (labeledFaceDescriptors.length > 0) {
+                    faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6);
+                }
+            } catch (e) {
+                console.warn("Could not load employees. Check SCRIPT_URL.");
+            }
+        }
+
+        // --- CORE RECOGNITION ---
+        async function startRecognition() {
+            setInterval(async () => {
+                if (currentTab !== 'attendance' || isProcessing || !faceMatcher) return;
+
+                const detections = await faceapi.detectAllFaces(video).withFaceLandmarks().withFaceDescriptors();
+                const displaySize = { width: video.width, height: video.height };
+                faceapi.matchDimensions(overlay, displaySize);
+                
+                const resizedDetections = faceapi.resizeResults(detections, displaySize);
+                overlay.getContext('2d').clearRect(0, 0, overlay.width, overlay.height);
+
+                resizedDetections.forEach(async d => {
+                    const result = faceMatcher.findBestMatch(d.descriptor);
+                    const box = d.detection.box;
+                    const drawBox = new faceapi.draw.DrawBox(box, { label: result.toString() });
+                    drawBox.draw(overlay);
+
+                    if (result.label !== 'unknown' && result.distance < 0.45) {
+                        const [name, id] = result.label.replace(')', '').split(' (');
+                        markAttendance(id, name);
+                    }
+                });
+            }, 1000);
+        }
+
+        async function markAttendance(id, name) {
+            isProcessing = true;
+            showStatus(`Processing ${name}...`, 'info');
+
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'attendance',
+                        id: id,
+                        name: name,
+                        type: 'IN'
+                    })
+                });
+                const data = await res.json();
+                
+                if (data.status === 'success') {
+                    showStatus(`Welcome, ${name}! ✅`, 'success', `Time: ${data.time}`);
+                    setTimeout(() => {
+                        isProcessing = false;
+                        hideStatus();
+                    }, 5000);
+                } else {
+                    showStatus(data.message, 'error');
+                    setTimeout(() => isProcessing = false, 3000);
+                }
+            } catch (e) {
+                showStatus("Network Error", 'error');
+                isProcessing = false;
+            }
+        }
+
+        // --- REGISTRATION LOGIC ---
+        async function startRegistration() {
+            const id = document.getElementById('reg-id').value;
+            const name = document.getElementById('reg-name').value;
+            
+            if (!id || !name) return showToast("Enter ID and Name", "error");
+            if (!SCRIPT_URL) return showToast("Set SCRIPT_URL first", "error");
+
+            document.getElementById('capture-status').classList.remove('hidden');
+            document.getElementById('reg-btn').disabled = true;
+            document.getElementById('reg-btn').innerText = "Scanning Face...";
+
+            const descriptors = [];
+            while (descriptors.length < 5) {
+                const detection = await faceapi.detectSingleFace(video).withFaceLandmarks().withFaceDescriptor();
+                if (detection) {
+                    descriptors.push(detection.descriptor);
+                    document.getElementById('cap-count').innerText = descriptors.length;
+                }
+                await new Promise(r => setTimeout(r, 500));
+            }
+
+            // Average the descriptors for better accuracy
+            const avgDescriptor = new Float32Array(128).map((_, i) => 
+                descriptors.reduce((a, b) => a + b[i], 0) / descriptors.length
+            );
+
+            document.getElementById('reg-btn').innerText = "Uploading...";
+
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'register',
+                        id: id,
+                        name: name,
+                        descriptor: JSON.stringify(Object.values(avgDescriptor))
+                    })
+                });
+                const data = await res.json();
+                if(data.status === 'success') {
+                    showToast("Registration Complete!", "success");
+                    location.reload(); // Refresh to update matcher
+                }
+            } catch (e) {
+                showToast("Registration Failed", "error");
+                document.getElementById('reg-btn').disabled = false;
+                document.getElementById('reg-btn').innerText = "Register Face";
+            }
+        }
+
+        // --- UI HELPERS ---
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('tab-attendance').classList.toggle('hidden', tab !== 'attendance');
+            document.getElementById('tab-register').classList.toggle('hidden', tab !== 'register');
+            
+            document.getElementById('btn-att').className = tab === 'attendance' ? 'px-4 py-2 rounded-full font-medium text-blue-600 bg-blue-50' : 'px-4 py-2 rounded-full font-medium text-slate-500 hover:bg-slate-100';
+            document.getElementById('btn-reg').className = tab === 'register' ? 'px-4 py-2 rounded-full font-medium text-blue-600 bg-blue-50' : 'px-4 py-2 rounded-full font-medium text-slate-500 hover:bg-slate-100';
+            
+            if (tab === 'attendance') {
+                overlay.getContext('2d').clearRect(0, 0, overlay.width, overlay.height);
+            }
+        }
+
+        function showStatus(msg, type, sub) {
+            const box = document.getElementById('status-box');
+            box.classList.remove('hidden');
+            document.getElementById('status-msg').innerText = msg;
+            document.getElementById('status-time').innerText = sub || '';
+        }
+
+        function hideStatus() {
+            document.getElementById('status-box').classList.add('hidden');
+        }
+
+        function showToast(msg, type) {
+            // Simple non-blocking message box replacement for alert
+            const div = document.createElement('div');
+            div.className = `fixed bottom-10 left-1/2 -translate-x-1/2 p-4 rounded-xl shadow-xl z-[200] text-white font-bold ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
+            div.innerText = msg;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
