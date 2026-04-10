@@ -76,7 +76,7 @@
             <div class="flex flex-col items-center text-center mb-6">
                 <span class="text-[10px] font-extrabold text-amber-500 uppercase tracking-[0.2em] mb-1">Welcome To</span>
                 <h1 class="text-3xl font-extrabold tracking-tighter uppercase text-slate-900">Deepanshu</h1>
-                <p class="text-[10px] text-slate-500 font-medium mt-1 uppercase">Shakti Khand - I, Indirapuram, Ghaziabad</p>
+                <p class="text-[10px] text-slate-500 font-medium mt-1 uppercase">387/1, SHAKTI KHAND -Ist, Indirapuram - Ghaziabad</p>
             </div>
 
             <div class="relative max-w-md mx-auto">
@@ -132,23 +132,47 @@
     <div id="cartPanelOverlay" class="modal-overlay fixed inset-0 z-50"></div>
     <div id="cartPanel" class="fixed bottom-0 inset-x-0 z-[55] bg-white rounded-t-[2.5rem] shadow-2xl max-h-[90vh] flex flex-col">
         <div class="p-6 border-b border-slate-50 flex justify-between items-center">
-            <h2 class="text-2xl font-black text-slate-900 uppercase">Your Order</h2>
+            <div class="flex items-center gap-4">
+                <h2 class="text-2xl font-black text-slate-900 uppercase">Your Order</h2>
+                <button onclick="clearAllCart()" class="text-[10px] font-bold text-red-500 border border-red-200 px-2 py-1 rounded-lg uppercase tracking-widest">Clear All</button>
+            </div>
             <button onclick="toggleCart(false)" class="bg-slate-100 p-2 rounded-full text-slate-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="3"/></svg></button>
         </div>
         
         <div id="cartItems" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
 
-        <div class="p-6 bg-slate-50 space-y-4">
+        <div class="p-6 bg-slate-50 space-y-4 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+            <!-- User Info -->
             <div class="grid grid-cols-2 gap-3">
                 <input type="text" id="orderName" placeholder="Your Name" class="w-full p-4 rounded-xl border-2 border-slate-100 font-bold text-sm outline-none focus:border-amber-400">
                 <input type="tel" id="orderPhone" placeholder="Phone Number" class="w-full p-4 rounded-xl border-2 border-slate-100 font-bold text-sm outline-none focus:border-amber-400">
             </div>
-            <select id="orderType" class="w-full p-4 rounded-xl border-2 border-slate-100 font-bold text-sm outline-none bg-white">
-                <option value="Delivery">Home Delivery</option>
-                <option value="Pickup">Takeaway / Pickup</option>
-            </select>
+            
+            <!-- Timing Selection -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Type</label>
+                    <select id="orderType" class="w-full p-4 rounded-xl border-2 border-slate-100 font-bold text-sm outline-none bg-white">
+                        <option value="Delivery">Home Delivery</option>
+                        <option value="Pickup">Pickup</option>
+                    </select>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Order Timing</label>
+                    <select id="scheduleType" onchange="toggleScheduleInput()" class="w-full p-4 rounded-xl border-2 border-slate-100 font-bold text-sm outline-none bg-white">
+                        <option value="Immediate">Order Now</option>
+                        <option value="Scheduled">Schedule Later</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Schedule Input -->
+            <div id="scheduleInputContainer" class="hidden animate-pulse">
+                 <input type="datetime-local" id="scheduleTime" class="w-full p-4 rounded-xl border-2 border-amber-200 bg-amber-50 font-bold text-sm outline-none">
+            </div>
+
             <button onclick="placeOrder()" class="w-full bg-green-500 hover:bg-green-600 text-white font-black py-5 rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-green-100 transition-all active:scale-95">
-                ORDER VIA WHATSAPP
+                PLACE ORDER ON WHATSAPP
             </button>
         </div>
     </div>
@@ -207,14 +231,9 @@
                 { "name": "Paneer Masala Dosa", "price": "170.00" },
                 { "name": "Onion Masala Dosa", "price": "160.00" },
                 { "name": "Deepanshu Special Dosa", "price": "190.00" },
-                { "name": "Rava Masala Dosa", "price": "160.00" },
-                { "name": "Rava Paneer Dosa", "price": "180.00" },
                 { "name": "Veg. Uttapam", "price": "140.00" },
                 { "name": "Onion Uttapam", "price": "130.00" },
-                { "name": "Tomato Uttapam", "price": "130.00" },
-                { "name": "Onion Tomato Uttapam", "price": "150.00" },
                 { "name": "Paneer Uttapam", "price": "170.00" },
-                { "name": "Deepanshu Special Uttapam", "price": "180.00" },
                 { "name": "Sambar Vada (2 PCS)", "price": "120.00" },
                 { "name": "South Indian Platter", "price": "390.00" },
                 { "name": "Sambar Idli (2 PCS)", "price": "120.00" },
@@ -226,90 +245,42 @@
               "items": [
                 { "name": "Pav Bhaji 2 Pcs", "price": "130.00" },
                 { "name": "Veg. Manchurian + Noodles", "price": "230.00" },
-                { "name": "Veg. Manchurian + Veg. Fried Rice", "price": "240.00" },
                 { "name": "Rajma + Chawal", "price": "240.00" },
                 { "name": "Chhole + Chawal", "price": "240.00" },
                 { "name": "Dal + Chawal", "price": "220.00" },
-                { "name": "Keema Nan (2 Pc.) + Gravy (Mutton)", "price": "250.00" },
-                { "name": "Stuff Nan (2 Pc.) + Gravy", "price": "210.00" },
-                { "name": "Paneer Nan (2 Pc.) + Gravy", "price": "240.00" },
-                { "name": "Chicken Chilli W / Fried Rice", "price": "280.00" },
-                { "name": "Chicken Chilli W / Noodles", "price": "270.00" },
-                { "name": "Chilli Paneer W / Fried Rice", "price": "260.00" },
-                { "name": "Chilli Paneer W / Noodles", "price": "260.00" }
+                { "name": "Keema Nan + Gravy", "price": "250.00" },
+                { "name": "Stuff Nan + Gravy", "price": "210.00" },
+                { "name": "Paneer Nan + Gravy", "price": "240.00" }
               ]
             },
             {
               "category": "NOODLES",
               "items": [
                 { "name": "Veg. Noodles", "price": {"Full": "180.00", "Half": "100.00"} },
-                { "name": "Veg. Noodles with Garlic", "price": {"Full": "190.00", "Half": "100.00"} },
                 { "name": "Hakka Noodles", "price": {"Full": "180.00", "Half": "100.00"} },
                 { "name": "Paneer Noodles", "price": {"Full": "210.00", "Half": "110.00"} },
                 { "name": "Egg Noodles", "price": {"Full": "220.00", "Half": "125.00"} },
-                { "name": "Chicken Noodles", "price": {"Full": "230.00", "Half": "125.00"} },
-                { "name": "Veg. Singapuri Noodles", "price": {"Full": "200.00", "Half": "120.00"} },
-                { "name": "Chicken Singapuri Noodles", "price": {"Full": "230.00", "Half": "130.00"} },
-                { "name": "Veg. Schezwan Noodles", "price": {"Full": "200.00", "Half": "110.00"} },
-                { "name": "Chicken Schezwan Noodles", "price": {"Full": "230.00", "Half": "130.00"} }
+                { "name": "Chicken Noodles", "price": {"Full": "230.00", "Half": "125.00"} }
               ]
             },
-            { "category": "CHOPSUEY", "items": [{ "name": "Veg. Chopsuey", "price": "160.00" }, { "name": "Chinese Chopsuey (Non Veg)", "price": "180.00" }] },
             { "category": "SALAD", "items": [{ "name": "Green Salad", "price": "65.00" }, { "name": "Onion Salad", "price": "55.00" }, { "name": "Kachumber Salad", "price": "60.00" }] },
             {
               "category": "FRIED RICE",
               "items": [
-                { "name": "Mater Mushrrom Fried Rice", "price": {"Full": "220.00", "Half": "125.00"} },
                 { "name": "Veg. Fried Rice", "price": {"Full": "200.00", "Half": "120.00"} },
                 { "name": "Paneer Fried Rice", "price": {"Full": "220.00", "Half": "130.00"} },
                 { "name": "Egg. Fried Rice", "price": {"Full": "240.00", "Half": "130.00"} },
-                { "name": "Chicken Fried Rice", "price": {"Full": "240.00", "Half": "140.00"} },
-                { "name": "Veg. Schezwan Fried Rice", "price": {"Full": "210.00", "Half": "130.00"} },
-                { "name": "Chicken Schezwan Fried Rice", "price": {"Full": "250.00", "Half": "140.00"} }
+                { "name": "Chicken Fried Rice", "price": {"Full": "240.00", "Half": "140.00"} }
               ]
             },
             {
-              "category": "SNACKS (Gravy)",
+              "category": "SNACKS",
               "items": [
                 { "name": "Chilli Paneer", "price": {"Full": "310.00", "Half": "170.00"} },
-                { "name": "Paneer Manchurian", "price": {"Full": "290.00", "Half": "160.00"} },
                 { "name": "Veg. Manchurian", "price": {"Full": "240.00", "Half": "130.00"} },
                 { "name": "Chicken Chilli B/L", "price": {"Full": "440.00", "Half": "270.00"} },
-                { "name": "Chicken Manchurian B/L", "price": {"Full": "430.00", "Half": "270.00"} }
-              ]
-            },
-            {
-              "category": "SNACKS (Dry)",
-              "items": [
                 { "name": "Chicken Lollipop", "price": {"Full": "400.00", "Half": "260.00"} },
-                { "name": "Chicken Wings (Crispy)", "price": {"Full": "370.00", "Half": "210.00"} },
-                { "name": "Chilli Soya Chap", "price": "240.00" },
-                { "name": "Mushroom Chilli", "price": "240.00" },
-                { "name": "French Fry (500 Ml)", "price": "130.00" },
-                { "name": "Chilli Potato", "price": {"Full": "220.00", "Half": "120.00"} },
-                { "name": "Honey Chilli Potato", "price": {"Full": "230.00", "Half": "130.00"} },
-                { "name": "Veg. Spring Roll (8 Pc.)", "price": "150.00" }
-              ]
-            },
-            { "category": "DAHI & RAITA", "items": [{ "name": "Plain Dahi", "price": "90.00" }, { "name": "Aloo Raita", "price": "100.00" }, { "name": "Mix Raita", "price": "110.00" }, { "name": "Pineapple Raita", "price": "120.00" }] },
-            {
-              "category": "RICE & BIRYANI",
-              "items": [
-                { "name": "Steam Rice", "price": {"Full": "100.00", "Half": "55.00"} },
-                { "name": "Zeera Rice", "price": "110.00" },
-                { "name": "Veg. Pulao", "price": "170.00" },
-                { "name": "Veg. Biryani With Raita", "price": {"Full": "200.00", "Half": "120.00"} },
-                { "name": "Chicken Biryani With Gravy", "price": {"Full": "260.00", "Half": "155.00"} },
-                { "name": "Mutton Biryani With Gravy", "price": {"Full": "300.00", "Half": "175.00"} }
-              ]
-            },
-            {
-              "category": "MUTTON CURRY",
-              "items": [
-                { "name": "Rara Mutton", "price": {"Full-4Pcs": "670.00", "Half-2Pcs": "330.00"} },
-                { "name": "Mutton Masala", "price": {"Full": "550.00", "Half": "280.00"} },
-                { "name": "Mutton Curry", "price": {"Full": "530.00", "Half": "270.00"} },
-                { "name": "Keema Meat", "price": "580.00" }
+                { "name": "Chilli Potato", "price": {"Full": "220.00", "Half": "120.00"} }
               ]
             },
             {
@@ -317,69 +288,22 @@
               "items": [
                 { "name": "Chicken Rara", "price": {"Full-8PC": "730.00", "Half-4PC": "460.00", "Qtr-2PC": "290.00"} },
                 { "name": "Butter Chicken", "price": {"Full-8PC": "645.00", "Half-4PC": "460.00", "Qtr-2PC": "280.00"} },
-                { "name": "Kadhai Chicken", "price": {"Full-8PC": "625.00", "Half-4PC": "420.00", "Qtr-2PC": "280.00"} },
-                { "name": "Egg Curry", "price": {"Full-8PC": "555.00", "Half-4PC": "280.00"} }
+                { "name": "Handi Chicken", "price": {"Full-8PC": "725.00", "Half-4PC": "470.00"} }
               ]
             },
-            {
-              "category": "BONELESS CHICKEN",
-              "items": [
-                { "name": "Chicken Tikka Masala BL", "price": {"Full-12PC": "700.00", "Half-6PC": "460.00"} },
-                { "name": "Butter Chicken BL", "price": {"Full-12PC": "710.00", "Half-6PC": "470.00"} },
-                { "name": "Chicken Lababdar BL", "price": {"Full-12PC": "720.00", "Half-6PC": "490.00"} }
-              ]
-            },
-            {
-              "category": "SOYA CHAP",
-              "items": [
-                { "name": "Soya Malai Chap Stuffed", "price": {"Full": "280.00", "Half": "150.00"} },
-                { "name": "Afgani Malai Chap", "price": {"Full": "290.00", "Half": "150.00"} },
-                { "name": "Masala Chap", "price": {"Full": "250.00", "Half": "130.00"} }
-              ]
-            },
-            {
-              "category": "MUSHROOM & PANEER",
-              "items": [
-                { "name": "Paneer Tikka", "price": {"Full-8Pcs": "290.00", "Half-4Pcs": "150.00"} },
-                { "name": "Mushroom Tikka", "price": "270.00" },
-                { "name": "Veg Platter", "price": "430.00" }
-              ]
-            },
-            {
-              "category": "NON-VEG STARTERS",
-              "items": [
-                { "name": "Tandoor Chicken", "price": {"Full-8Pcs": "580.00", "Half-4Pcs": "300.00"} },
-                { "name": "Chicken Tikka", "price": {"Full": "390.00", "Half": "200.00"} },
-                { "name": "Chicken Seek Kabab", "price": {"Full": "280.00", "Half": "150.00"} }
-              ]
-            },
-            { "category": "ROLL", "items": [{ "name": "Paneer Tikka Roll", "price": "190.00" }, { "name": "Chicken Tikka Roll", "price": "200.00" }] },
             {
               "category": "VEG. CURRY",
               "items": [
                 { "name": "Dal Makhani", "price": {"Full": "275.00", "Half": "155.00"} },
                 { "name": "Paneer Butter Masala", "price": {"Full": "295.00", "Half": "165.00"} },
                 { "name": "Shahi Paneer", "price": {"Full": "285.00", "Half": "165.00"} },
-                { "name": "Kadhai Paneer", "price": {"Full": "295.00", "Half": "165.00"} },
-                { "name": "Malai Kofta", "price": "275.00" },
-                { "name": "Mix Veg.", "price": {"Full": "255.00", "Half": "135.00"} }
-              ]
-            },
-            {
-              "category": "THALI",
-              "items": [
-                { "name": "Special Thali", "price": "255.00" },
-                { "name": "General Thali", "price": "160.00" }
+                { "name": "Kadhai Paneer", "price": {"Full": "295.00", "Half": "165.00"} }
               ]
             },
             {
               "category": "BREADS",
               "items": [
-                { "name": "Plain Chapati (Tawa)", "price": "12.00" },
-                { "name": "Butter Chapati (Tawa)", "price": "14.00" },
-                { "name": "Plain Roti (Tandoor)", "price": "22.00" },
                 { "name": "Butter Roti (Tandoor)", "price": "25.00" },
-                { "name": "Plain Nan", "price": "45.00" },
                 { "name": "Butter Nan", "price": "55.00" },
                 { "name": "Lachha Paratha", "price": "55.00" },
                 { "name": "Paneer Nan", "price": "70.00" },
@@ -393,6 +317,15 @@
         const menuContent = document.getElementById('menuContent');
         const categoryTabs = document.getElementById('categoryTabs');
         const searchInput = document.getElementById('searchInput');
+
+        // Load saved user info
+        window.onload = () => {
+            const savedName = localStorage.getItem('deepanshu_name');
+            const savedPhone = localStorage.getItem('deepanshu_phone');
+            if (savedName) document.getElementById('orderName').value = savedName;
+            if (savedPhone) document.getElementById('orderPhone').value = savedPhone;
+            renderMenu();
+        };
 
         function isNonVeg(name) {
             const nvKeywords = ['chicken', 'mutton', 'egg', 'keema', 'meat', 'wings', 'lollipop', 'tangri', 'fish'];
@@ -492,20 +425,28 @@
         function renderCartItems() {
             const container = document.getElementById('cartItems');
             if (cart.length === 0) {
-                container.innerHTML = `<p class="text-center py-10 text-slate-400 font-bold">Your cart is empty</p>`;
+                container.innerHTML = `<div class="text-center py-10 space-y-4">
+                    <p class="text-slate-400 font-bold uppercase tracking-widest text-xs">Your cart is empty</p>
+                    <button onclick="toggleCart(false)" class="text-amber-500 font-black text-sm">Return to Menu</button>
+                </div>`;
                 return;
             }
             container.innerHTML = cart.map((item, idx) => `
-                <div class="flex justify-between items-center gap-4 bg-slate-50 p-4 rounded-2xl">
+                <div class="flex justify-between items-center gap-4 bg-slate-50 p-4 rounded-3xl border border-slate-100">
                     <div class="flex-1">
                         <h4 class="text-sm font-black text-slate-900 leading-tight">${item.name}</h4>
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">${item.variant}</p>
                         <p class="text-xs font-black text-amber-500 mt-1">₹${(item.price * item.qty).toFixed(2)}</p>
                     </div>
-                    <div class="flex items-center gap-3 bg-white border border-slate-100 p-1.5 rounded-xl">
-                        <button onclick="updateQty(${idx}, -1)" class="w-6 h-6 flex items-center justify-center font-black text-slate-400">-</button>
-                        <span class="text-xs font-black w-4 text-center">${item.qty}</span>
-                        <button onclick="updateQty(${idx}, 1)" class="w-6 h-6 flex items-center justify-center font-black text-amber-500">+</button>
+                    <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-3 bg-white border border-slate-100 p-1.5 rounded-xl">
+                            <button onclick="updateQty(${idx}, -1)" class="w-6 h-6 flex items-center justify-center font-black text-slate-400">-</button>
+                            <span class="text-xs font-black w-4 text-center">${item.qty}</span>
+                            <button onclick="updateQty(${idx}, 1)" class="w-6 h-6 flex items-center justify-center font-black text-amber-500">+</button>
+                        </div>
+                        <button onclick="removeItem(${idx})" class="p-2 text-red-400 hover:text-red-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2"/></svg>
+                        </button>
                     </div>
                 </div>
             `).join('');
@@ -518,25 +459,67 @@
             updateUI();
         }
 
-        function toggleCart(show) {
-            document.getElementById('cartPanel').classList.toggle('open', show);
-            document.getElementById('cartPanelOverlay').classList.toggle('open', show);
+        function removeItem(idx) {
+            cart.splice(idx, 1);
+            if (cart.length === 0) toggleCart(false);
+            updateUI();
+        }
+
+        function clearAllCart() {
+            if (confirm("Are you sure you want to clear your entire cart?")) {
+                cart = [];
+                toggleCart(false);
+                updateUI();
+            }
+        }
+
+        function toggleScheduleInput() {
+            const type = document.getElementById('scheduleType').value;
+            document.getElementById('scheduleInputContainer').classList.toggle('hidden', type === 'Immediate');
         }
 
         function placeOrder() {
             const name = document.getElementById('orderName').value;
             const phone = document.getElementById('orderPhone').value;
             const type = document.getElementById('orderType').value;
+            const scheduleType = document.getElementById('scheduleType').value;
+            const scheduleTime = document.getElementById('scheduleTime').value;
+
             if (!name || !phone) { alert("Please enter your name and phone number!"); return; }
+            if (scheduleType === 'Scheduled' && !scheduleTime) { alert("Please select a valid date and time for your order!"); return; }
+
+            // Save user info for next time
+            localStorage.setItem('deepanshu_name', name);
+            localStorage.setItem('deepanshu_phone', phone);
 
             let msg = `*NEW ORDER - DEEPANSHU RESTAURANT*\n`;
             msg += `--------------------------\n`;
-            msg += `*Name:* ${name}\n*Phone:* ${phone}\n*Type:* ${type}\n`;
+            msg += `*Name:* ${name}\n*Phone:* ${phone}\n*Order:* ${type}\n`;
+            
+            if (scheduleType === 'Scheduled') {
+                const date = new Date(scheduleTime).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+                msg += `*⏰ Scheduled For:* ${date}\n`;
+            } else {
+                msg += `*⏰ Order For:* Immediate\n`;
+            }
+
             msg += `--------------------------\n`;
             cart.forEach(item => { msg += `• ${item.name} (${item.variant}) x ${item.qty} = ₹${(item.price * item.qty).toFixed(2)}\n`; });
             const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             msg += `--------------------------\n*TOTAL: ₹${total.toFixed(2)}*\n\n_Sent via Digital Menu_`;
+
+            // Open WhatsApp
             window.open(`https://wa.me/919910109626?text=${encodeURIComponent(msg)}`, '_blank');
+            
+            // Clear cart after order
+            cart = [];
+            toggleCart(false);
+            updateUI();
+        }
+
+        function toggleCart(show) {
+            document.getElementById('cartPanel').classList.toggle('open', show);
+            document.getElementById('cartPanelOverlay').classList.toggle('open', show);
         }
 
         function scrollToCategory(id) {
@@ -562,7 +545,6 @@
 
         window.addEventListener('scroll', updateActiveTab);
         searchInput.addEventListener('input', (e) => renderMenu(e.target.value));
-        setTimeout(() => renderMenu(), 500);
     </script>
 </body>
 </html>
