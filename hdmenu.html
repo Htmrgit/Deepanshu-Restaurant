@@ -478,6 +478,10 @@
             document.getElementById('scheduleInputContainer').classList.toggle('hidden', type === 'Immediate');
         }
 
+        function generateOrderId() {
+            return Math.floor(1000000000 + Math.random() * 9000000000).toString();
+        }
+
         function placeOrder() {
             const name = document.getElementById('orderName').value;
             const phone = document.getElementById('orderPhone').value;
@@ -492,7 +496,10 @@
             localStorage.setItem('deepanshu_name', name);
             localStorage.setItem('deepanshu_phone', phone);
 
+            const orderId = generateOrderId();
             let msg = `*NEW ORDER - DEEPANSHU RESTAURANT*\n`;
+            msg += `--------------------------\n`;
+            msg += `*Order ID:* ${orderId}\n`;
             msg += `--------------------------\n`;
             msg += `*Name:* ${name}\n*Phone:* ${phone}\n*Order:* ${type}\n`;
             
