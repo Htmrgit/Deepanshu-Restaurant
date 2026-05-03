@@ -1,1 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Payout Pro v2.2</title>
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --primary: #6366f1; --primary-dark: #4f46e5; --secondary: #10b981; --bg: #f8fafc; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: #1e293b; }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .tab-btn.active { background: white; color: var(--primary-dark); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .summary-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .summary-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        input, select { @apply border border-slate-200 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all w-full bg-white; }
+        .btn-primary { @apply bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-2; }
+        .btn-secondary { @apply bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold py-2 px-4 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-2; }
+        #loader { display: none; position: fixed; inset: 0; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(4px); z-index: 9999; justify-content: center; align-items: center; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="antialiased">
 
+    <div id="loader">
+        <div class="text-center">
+            <div class="spinner mx-auto"></div>
+            <p class="mt-4 text-slate-600 font-medium animate-pulse">Processing...</p>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed top-6 right-6 z-[1000] pointer-events-none transition-all duration-500 transform translate-y-[-100%] opacity-0">
+        <div id="toast-content" class="bg-white shadow-2xl rounded-xl border-l-4 p-4 flex items-center gap-4 min-w-[300px]">
+            <div id="toast-icon-wrapper" class="w-10 h-10 rounded-full flex items-center justify-center"></div>
+            <div><p id="toast-title" class="font-bold text-slate-800"></p><p id="toast-msg" class="text-sm text-slate-500"></p></div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <header class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10">
+            <div class="flex items-center gap-3">
+                <div class="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200"><i class="fas fa-utensils text-white text-xl"></i></div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">Restaurant Payout Pro</h1>
+                    <p class="text-slate-500 text-sm font-medium">Finance & Order Analytics Dashboard</p>
+                </div>
+            </div>
+            <nav class="flex p-1.5 bg-slate-200/50 rounded-xl w-full lg:w-auto">
+                <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn flex-1 lg:flex-none px-6 py-2.5 rounded-lg text-sm font-bold transition-all active">Dashboard</button>
+                <button onclick="switchTab('report')" id="tab-report" class="tab-btn flex-1 lg:flex-none px-6 py-2.5 rounded-lg text-sm font-bold transition-all text-slate-500">Reports</button>
+                <button onclick="switchTab('entry')" id="tab-entry" class="tab-btn flex-1 lg:flex-none px-6 py-2.5 rounded-lg text-sm font-bold transition-all text-slate-500">Entry</button>
+            </nav>
+        </header>
+
+        <!-- DASHBOARD VIEW -->
+        <main id="view-dashboard" class="space-y-8">
+            <!-- Filter Bar -->
+            <div class="glass p-6 rounded-2xl shadow-xl shadow-slate-200/50 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="space-y-1">
+                    <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider ml-1">Time Period</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <select id="filter-year" class="filter-sync"></select>
+                        <select id="filter-month" class="filter-sync">
+                            <option value="">All Months</option>
+                            <option value="January">Jan</option><option value="February">Feb</option>
+                            <option value="March">Mar</option><option value="April">Apr</option>
+                            <option value="May">May</option><option value="June">Jun</option>
+                            <option value="July">Jul</option><option value="August">Aug</option>
+                            <option value="September">Sep</option><option value="October">Oct</option>
+                            <option value="November">Nov</option><option value="December">Dec</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider ml-1">Platform</label>
+                    <select id="filter-platform" class="filter-sync">
+                        <option value="">All Platforms</option>
+                        <option value="Swiggy">Swiggy</option>
+                        <option value="Zomato">Zomato</option>
+                    </select>
+                </div>
+                <div class="space-y-1 lg:col-span-2">
+                    <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider ml-1">Outlet Search</label>
+                    <select id="filter-outlet" class="filter-sync"><option value="">All Registered Outlets</option></select>
+                </div>
+                <div class="flex items-end gap-2">
+                    <button onclick="applyFilters()" class="btn-primary w-full shadow-lg shadow-indigo-200"><i class="fas fa-filter"></i> Apply</button>
+                    <button onclick="resetFilters()" class="btn-secondary px-3" title="Reset Filters"><i class="fas fa-sync-alt"></i></button>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                <div class="summary-card bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-tight">Total Payout</p>
+                    <h3 id="sum-payout" class="text-xl font-extrabold text-slate-900 mt-1">₹0.00</h3>
+                </div>
+                <div class="summary-card bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-tight">Gross Sale</p>
+                    <h3 id="sum-sale" class="text-xl font-extrabold text-slate-900 mt-1">₹0.00</h3>
+                </div>
+                <div class="summary-card bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-tight">Others</p>
+                    <h3 id="sum-others" class="text-xl font-extrabold text-slate-900 mt-1">₹0.00</h3>
+                </div>
+                <div class="summary-card bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-tight">Total Orders</p>
+                    <h3 id="sum-order" class="text-xl font-extrabold text-indigo-600 mt-1">0</h3>
+                </div>
+                <div class="summary-card bg-indigo-50 p-5 rounded-2xl border border-indigo-100 shadow-sm">
+                    <p class="text-indigo-400 text-[10px] font-bold uppercase tracking-tight">Avg Order Value</p>
+                    <h3 id="sum-aov" class="text-xl font-extrabold text-indigo-700 mt-1">₹0.00</h3>
+                </div>
+                <div class="summary-card bg-indigo-600 p-5 rounded-2xl text-white shadow-xl shadow-indigo-100">
+                    <p class="text-white/70 text-[10px] font-bold uppercase tracking-tight">Recovery %</p>
+                    <h3 id="sum-receive" class="text-xl font-extrabold mt-1">0%</h3>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-8 glass p-6 rounded-3xl border border-slate-100 shadow-sm">
+                    <h4 class="text-sm font-bold text-slate-800 mb-6 uppercase tracking-wider">Outlet-wise Sale & Order Volume</h4>
+                    <div class="h-[300px]"><canvas id="barChart"></canvas></div>
+                </div>
+                <div class="lg:col-span-4 glass p-6 rounded-3xl border border-slate-100 shadow-sm">
+                    <h4 class="text-sm font-bold text-slate-800 mb-6 uppercase tracking-wider">Platform Split</h4>
+                    <div class="h-[300px]"><canvas id="pieChart"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Performance Table -->
+            <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden">
+                <div class="px-8 py-5 border-b flex justify-between items-center bg-slate-50/50">
+                    <div><h4 class="text-lg font-extrabold text-slate-800">Outlet Performance Matrix</h4></div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead>
+                            <tr class="text-slate-400 font-bold uppercase text-[10px] tracking-widest border-b">
+                                <th class="px-8 py-4">Outlet Identity</th>
+                                <th class="px-8 py-4">Total Sale</th>
+                                <th class="px-8 py-4">Orders</th>
+                                <th class="px-8 py-4">Avg Order Value</th>
+                                <th class="px-8 py-4">Payout</th>
+                                <th class="px-8 py-4 text-right">Yield %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="performance-table-body" class="divide-y divide-slate-50"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- REPORT VIEW -->
+        <section id="view-report" class="hidden space-y-6">
+             <!-- Report Filter Bar (Synced) -->
+             <div class="glass p-6 rounded-2xl shadow-xl shadow-slate-200/50 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="space-y-1">
+                    <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider ml-1">Time Period</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <select id="rep-filter-year" class="filter-sync"></select>
+                        <select id="rep-filter-month" class="filter-sync">
+                            <option value="">All Months</option>
+                            <option value="January">Jan</option><option value="February">Feb</option>
+                            <option value="March">Mar</option><option value="April">Apr</option>
+                            <option value="May">May</option><option value="June">Jun</option>
+                            <option value="July">Jul</option><option value="August">Aug</option>
+                            <option value="September">Sep</option><option value="October">Oct</option>
+                            <option value="November">Nov</option><option value="December">Dec</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider ml-1">Platform</label>
+                    <select id="rep-filter-platform" class="filter-sync"><option value="">All Platforms</option><option value="Swiggy">Swiggy</option><option value="Zomato">Zomato</option></select>
+                </div>
+                <div class="space-y-1 lg:col-span-2">
+                    <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider ml-1">Outlet Search</label>
+                    <select id="rep-filter-outlet" class="filter-sync"><option value="">All Registered Outlets</option></select>
+                </div>
+                <div class="flex items-end gap-2">
+                    <button onclick="applyFilters()" class="btn-primary w-full shadow-lg shadow-indigo-200"><i class="fas fa-filter"></i> Apply</button>
+                    <button onclick="resetFilters()" class="btn-secondary px-3" title="Reset Filters"><i class="fas fa-sync-alt"></i></button>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm border gap-4">
+                <div><h3 class="text-xl font-bold text-slate-800">Detailed Transaction Ledger</h3></div>
+                <div class="flex gap-3">
+                    <button onclick="downloadPDF()" class="btn-secondary text-red-600 border-red-100 hover:bg-red-50"><i class="fas fa-file-pdf"></i> Export PDF</button>
+                    <button onclick="downloadCSV()" class="btn-secondary text-emerald-600 border-emerald-100 hover:bg-emerald-50"><i class="fas fa-file-csv"></i> Export CSV</button>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-x-auto">
+                <table class="w-full text-[10px] text-left whitespace-nowrap">
+                    <thead class="bg-slate-50 text-slate-500 font-bold uppercase">
+                        <tr>
+                            <th class="px-4 py-4">#</th>
+                            <th class="px-4 py-4">Transaction ID</th>
+                            <th class="px-4 py-4">Outlet</th>
+                            <th class="px-4 py-4">Platform</th>
+                            <th class="px-4 py-4">Date</th>
+                            <th class="px-4 py-4 text-right">Payout</th>
+                            <th class="px-4 py-4 text-right">Sale</th>
+                            <th class="px-4 py-4 text-right">Orders</th>
+                            <th class="px-4 py-4 text-right">%</th>
+                            <th class="px-4 py-4 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="txn-table-body" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ENTRY VIEW -->
+        <section id="view-entry" class="hidden max-w-3xl mx-auto">
+            <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl border border-slate-100">
+                <div class="mb-10 text-center"><h3 id="form-title" class="text-3xl font-black text-slate-900 mb-2">New Transaction</h3></div>
+                <form id="payout-form" class="space-y-6">
+                    <input type="hidden" id="entry-id">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2"><label class="text-xs font-bold text-slate-500 uppercase">TXN ID</label><input type="text" id="field-txnid" readonly class="bg-slate-50 font-mono text-indigo-600 font-bold border-dashed"></div>
+                        <div class="space-y-2"><label class="text-xs font-bold text-slate-500 uppercase">Platform</label><select id="field-platform" required><option value="Swiggy">Swiggy</option><option value="Zomato">Zomato</option></select></div>
+                    </div>
+                    <div class="space-y-2"><label class="text-xs font-bold text-slate-500 uppercase">Outlet</label><select id="field-outlet" required></select></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2"><label class="text-xs font-bold text-slate-500 uppercase">Month</label><select id="field-month" required></select></div>
+                        <div class="space-y-2"><label class="text-xs font-bold text-slate-500 uppercase">Year</label><select id="field-year" required></select></div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-slate-50 rounded-2xl border">
+                        <div class="space-y-1"><label class="text-[10px] font-bold text-slate-400">Start</label><input type="date" id="field-start" required></div>
+                        <div class="space-y-1"><label class="text-[10px] font-bold text-slate-400">End</label><input type="date" id="field-end" required></div>
+                        <div class="space-y-1"><label class="text-[10px] font-bold text-slate-400">Date</label><input type="date" id="field-date" required></div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="space-y-2"><label class="text-xs font-bold text-slate-500 uppercase">Payout Amt</label><input type="number" step="0.01" id="field-payout" required oninput="calculateStats()"></div>
+                        <div class="space-y-2"><label class="text-xs font-bold text-slate-500 uppercase">Sale Amt</label><input type="number" step="0.01" id="field-sale" required oninput="calculateStats()"></div>
+                        <div class="space-y-2"><label class="text-xs font-bold text-slate-500 uppercase">Others</label><input type="number" step="0.01" id="field-others" required oninput="calculateStats()"></div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2"><label class="text-xs font-bold text-slate-500 uppercase">Total Orders</label><input type="number" id="field-order" required placeholder="0"></div>
+                    </div>
+                    <div class="flex flex-col md:flex-row gap-4 p-8 bg-indigo-600 rounded-3xl text-white shadow-xl">
+                        <div class="flex-1 px-4 border-r border-white/20 text-center"><p class="text-[10px] font-black uppercase text-white/60">Calculated Total Sale</p><p id="calc-total" class="text-2xl font-black">₹0.00</p></div>
+                        <div class="flex-1 px-4 text-center"><p class="text-[10px] font-black uppercase text-white/60">Recovery %</p><p id="calc-percent" class="text-2xl font-black">0.00%</p></div>
+                    </div>
+                    <div class="flex gap-4"><button type="submit" id="submit-btn" class="flex-1 btn-primary py-4 text-lg">Save Record</button><button type="button" onclick="cancelEdit()" id="cancel-btn" class="hidden flex-1 btn-secondary py-4 text-lg">Cancel</button></div>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modals & Toasts -->
+    <div id="modal-delete" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[1000] hidden flex items-center justify-center p-6">
+        <div class="bg-white p-8 rounded-3xl max-w-sm w-full shadow-2xl">
+            <h4 class="text-2xl font-black text-slate-800 mb-2">Delete Record?</h4>
+            <p class="text-slate-500 mb-8">This action is permanent and cannot be undone.</p>
+            <div class="flex gap-4"><button onclick="closeDeleteModal()" class="flex-1 btn-secondary py-3">No</button><button id="confirm-delete-btn" class="flex-1 bg-red-500 text-white py-3 rounded-xl font-bold">Delete</button></div>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxfHiiHaOocdS55v7fYNObm326NTzn0YTgrVqlew8Mqu-vCmUO_t9_cUL8Hru8rweQepQ/exec"; // SET YOUR APPS SCRIPT URL
+        const apiKey = ""; 
+
+        let allData = [];
+        let outlets = [];
+        let charts = {};
+        let deletingId = null;
+
+        window.onload = () => { initYearDropdowns(); initMonthDropdown(); setupFilterSync(); generateTxnId(); fetchData(); };
+
+        function initYearDropdowns() {
+            const currentYear = new Date().getFullYear();
+            const years = [2025, 2026, 2027];
+            ['filter-year', 'rep-filter-year', 'field-year'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) {
+                    el.innerHTML = id.includes('filter') ? `<option value="">Yearly View</option>` : "";
+                    years.forEach(y => {
+                        const opt = document.createElement('option');
+                        opt.value = opt.textContent = y;
+                        if(y === currentYear) opt.selected = true;
+                        el.appendChild(opt);
+                    });
+                }
+            });
+        }
+
+        function initMonthDropdown() {
+            const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+            const els = ['field-month'];
+            els.forEach(id => {
+                const el = document.getElementById(id);
+                const currentMonth = new Date().getMonth();
+                months.forEach((m, i) => {
+                    const opt = document.createElement('option');
+                    opt.value = opt.textContent = m;
+                    if(i === currentMonth) opt.selected = true;
+                    el.appendChild(opt);
+                });
+            });
+        }
+
+        function setupFilterSync() {
+            const syncPairs = [['filter-year', 'rep-filter-year'], ['filter-month', 'rep-filter-month'], ['filter-platform', 'rep-filter-platform'], ['filter-outlet', 'rep-filter-outlet']];
+            syncPairs.forEach(([id1, id2]) => {
+                const el1 = document.getElementById(id1); const el2 = document.getElementById(id2);
+                if(el1 && el2) {
+                    el1.addEventListener('change', () => { el2.value = el1.value; });
+                    el2.addEventListener('change', () => { el1.value = el2.value; });
+                }
+            });
+        }
+
+        function generateTxnId() {
+            const d = new Date();
+            const ts = d.getFullYear() + (d.getMonth()+1).toString().padStart(2,'0') + d.getDate().toString().padStart(2,'0') + "-" + d.getHours().toString().padStart(2,'0') + d.getMinutes().toString().padStart(2,'0') + d.getSeconds().toString().padStart(2,'0');
+            document.getElementById('field-txnid').value = `TXN-${ts}`;
+        }
+
+        function switchTab(id) {
+            document.querySelectorAll('main, section').forEach(v => v.classList.add('hidden'));
+            document.getElementById(`view-${id}`).classList.remove('hidden');
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('active', 'text-slate-900');
+                b.classList.add('text-slate-500');
+            });
+            document.getElementById(`tab-${id}`).classList.add('active', 'text-slate-900');
+        }
+
+        async function fetchData() {
+            showLoader(true);
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=getData`);
+                const result = await res.json();
+                allData = result.data || [];
+                outlets = result.outlets || [];
+                populateOutlets();
+                renderAll();
+            } catch (e) { showToast("Connection Error", "Check Web App URL", "error"); }
+            showLoader(false);
+        }
+
+        function populateOutlets() {
+            ['field-outlet', 'filter-outlet', 'rep-filter-outlet'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const prev = el.value;
+                el.innerHTML = id.includes('filter') ? '<option value="">All Registered Outlets</option>' : '<option value="">Select Outlet</option>';
+                outlets.sort().forEach(o => {
+                    const opt = document.createElement('option');
+                    opt.value = opt.textContent = o;
+                    el.appendChild(opt);
+                });
+                if(prev) el.value = prev;
+            });
+        }
+
+        function renderAll() {
+            const filtered = getFilteredData();
+            renderDashboard(filtered);
+            renderReport(filtered);
+        }
+
+        function getFilteredData() {
+            const fYear = document.getElementById('filter-year').value;
+            const fMonth = document.getElementById('filter-month').value;
+            const fPlatform = document.getElementById('filter-platform').value;
+            const fOutlet = document.getElementById('filter-outlet').value;
+            return allData.filter(i => (!fYear || i.Year == fYear) && (!fMonth || i.Month == fMonth) && (!fPlatform || i.Platform == fPlatform) && (!fOutlet || i.OutletName == fOutlet));
+        }
+
+        function renderDashboard(data) {
+            let sums = { p: 0, s: 0, o: 0, n: 0, ord: 0 };
+            let outletChartData = {}, platformSales = { Swiggy: 0, Zomato: 0 };
+
+            data.forEach(i => {
+                const p = parseFloat(i.PayoutAmount) || 0;
+                const s = parseFloat(i.SaleAmount) || 0;
+                const o = parseFloat(i.OthersSale || i.ToingSale) || 0;
+                const n = parseFloat(i.TotalSale) || 0;
+                const ord = parseInt(i.Order) || 0;
+                
+                sums.p += p; sums.s += s; sums.o += o; sums.n += n; sums.ord += ord;
+                outletChartData[i.OutletName] = (outletChartData[i.OutletName] || 0) + n;
+                platformSales[i.Platform] = (platformSales[i.Platform] || 0) + n;
+            });
+
+            document.getElementById('sum-payout').innerText = formatCurrency(sums.p);
+            document.getElementById('sum-sale').innerText = formatCurrency(sums.s);
+            document.getElementById('sum-others').innerText = formatCurrency(sums.o);
+            document.getElementById('sum-order').innerText = sums.ord.toLocaleString();
+            document.getElementById('sum-aov').innerText = formatCurrency(sums.ord > 0 ? sums.n/sums.ord : 0);
+            document.getElementById('sum-receive').innerText = (sums.n > 0 ? (sums.p/sums.n)*100 : 0).toFixed(1) + "%";
+
+            updateCharts(outletChartData, platformSales);
+            renderRankTable(data);
+        }
+
+        function renderRankTable(data) {
+            const grouped = {};
+            data.forEach(i => {
+                if(!grouped[i.OutletName]) grouped[i.OutletName] = { s: 0, p: 0, ord: 0 };
+                grouped[i.OutletName].s += parseFloat(i.TotalSale) || 0;
+                grouped[i.OutletName].p += parseFloat(i.PayoutAmount) || 0;
+                grouped[i.OutletName].ord += parseInt(i.Order) || 0;
+            });
+            const sorted = Object.entries(grouped).sort((a,b) => b[1].s - a[1].s);
+            document.getElementById('performance-table-body').innerHTML = sorted.map(([name, v]) => {
+                const aov = v.ord > 0 ? v.s / v.ord : 0;
+                return `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-8 py-5 font-bold text-slate-700">${name}</td>
+                    <td class="px-8 py-5 font-medium">${formatCurrency(v.s)}</td>
+                    <td class="px-8 py-5 text-indigo-600 font-bold">${v.ord.toLocaleString()}</td>
+                    <td class="px-8 py-5 text-slate-500 font-medium">${formatCurrency(aov)}</td>
+                    <td class="px-8 py-5 text-slate-500">${formatCurrency(v.p)}</td>
+                    <td class="px-8 py-5 text-right font-black text-indigo-600">${((v.p/v.s)*100 || 0).toFixed(1)}%</td>
+                </tr>
+            `}).join('') || `<tr><td colspan="6" class="p-10 text-center text-slate-400 italic">No records to rank</td></tr>`;
+        }
+
+        function updateCharts(outlets, platforms) {
+            const barCtx = document.getElementById('barChart').getContext('2d');
+            if(charts.bar) charts.bar.destroy();
+            charts.bar = new Chart(barCtx, {
+                type: 'bar',
+                data: { labels: Object.keys(outlets), datasets: [{ label: 'Sales', data: Object.values(outlets), backgroundColor: '#6366f1', borderRadius: 8 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+
+            const pieCtx = document.getElementById('pieChart').getContext('2d');
+            if(charts.pie) charts.pie.destroy();
+            charts.pie = new Chart(pieCtx, {
+                type: 'doughnut',
+                data: { labels: ['Swiggy', 'Zomato'], datasets: [{ data: [platforms.Swiggy, platforms.Zomato], backgroundColor: ['#fc8019', '#cb202d'], borderWidth: 0 }] },
+                options: { cutout: '70%', plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        function renderReport(data) {
+            const tbody = document.getElementById('txn-table-body');
+            tbody.innerHTML = data.map((i, idx) => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-4 py-4 text-slate-400">${idx+1}</td>
+                    <td class="px-4 py-4 font-mono font-bold text-slate-600">${i.TransactionID}</td>
+                    <td class="px-4 py-4 font-bold text-slate-700">${i.OutletName}</td>
+                    <td class="px-4 py-4 font-bold uppercase text-indigo-600">${i.Platform}</td>
+                    <td class="px-4 py-4 text-slate-500">${formatDateLabel(i.PayoutDate)}</td>
+                    <td class="px-4 py-4 text-right font-bold">${formatCurrency(i.PayoutAmount)}</td>
+                    <td class="px-4 py-4 text-right">${formatCurrency(i.TotalSale)}</td>
+                    <td class="px-4 py-4 text-right font-bold text-indigo-500">${i.Order || 0}</td>
+                    <td class="px-4 py-4 text-right font-black text-emerald-600">${(i['ReceivePercent'] || i['Receive%'] || 0)}%</td>
+                    <td class="px-4 py-4">
+                        <div class="flex justify-center gap-1">
+                            <button onclick="editTxn('${i.TransactionID}')" class="w-7 h-7 rounded-lg text-indigo-600 hover:bg-indigo-50"><i class="fas fa-pen text-[10px]"></i></button>
+                            <button onclick="openDelete('${i.TransactionID}')" class="w-7 h-7 rounded-lg text-red-500 hover:bg-red-50"><i class="fas fa-trash text-[10px]"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('') || `<tr><td colspan="10" class="p-10 text-center text-slate-400 italic">No ledger data found</td></tr>`;
+        }
+
+        const form = document.getElementById('payout-form');
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            showLoader(true);
+            const payload = {
+                TransactionID: document.getElementById('field-txnid').value,
+                Platform: document.getElementById('field-platform').value,
+                OutletName: document.getElementById('field-outlet').value,
+                Month: document.getElementById('field-month').value,
+                Year: document.getElementById('field-year').value,
+                PayoutStartDate: document.getElementById('field-start').value,
+                PayoutEndDate: document.getElementById('field-end').value,
+                PayoutDate: document.getElementById('field-date').value,
+                PayoutAmount: document.getElementById('field-payout').value,
+                SaleAmount: document.getElementById('field-sale').value,
+                OthersSale: document.getElementById('field-others').value,
+                Order: document.getElementById('field-order').value
+            };
+            const isEdit = !document.getElementById('cancel-btn').classList.contains('hidden');
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=${isEdit ? 'updateData' : 'saveData'}`, { method: 'POST', body: JSON.stringify(payload) });
+                const result = await res.json();
+                if(result.status === 'success') { showToast("Success", "Record Updated", "success"); cancelEdit(); fetchData(); switchTab('report'); }
+            } catch (err) { showToast("Error", "Check Connection", "error"); }
+            showLoader(false);
+        };
+
+        function editTxn(id) {
+            const i = allData.find(x => x.TransactionID === id);
+            if(!i) return;
+            document.getElementById('field-txnid').value = i.TransactionID;
+            document.getElementById('field-platform').value = i.Platform;
+            document.getElementById('field-outlet').value = i.OutletName;
+            document.getElementById('field-month').value = i.Month;
+            document.getElementById('field-year').value = i.Year;
+            document.getElementById('field-start').value = i.PayoutStartDate;
+            document.getElementById('field-end').value = i.PayoutEndDate;
+            document.getElementById('field-date').value = i.PayoutDate;
+            document.getElementById('field-payout').value = i.PayoutAmount;
+            document.getElementById('field-sale').value = i.SaleAmount;
+            document.getElementById('field-others').value = i.OthersSale || i.ToingSale || 0;
+            document.getElementById('field-order').value = i.Order || 0;
+            document.getElementById('cancel-btn').classList.remove('hidden');
+            calculateStats(); switchTab('entry');
+        }
+
+        async function downloadPDF() {
+            showLoader(true);
+            // Give UI a chance to render the loader
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('l', 'pt', 'a4'); 
+                
+                // Get Current Filter Text (Labels instead of internal values)
+                const fYearEl = document.getElementById('filter-year');
+                const fMonthEl = document.getElementById('filter-month');
+                const fPlatformEl = document.getElementById('filter-platform');
+                const fOutletEl = document.getElementById('filter-outlet');
+
+                const fYear = fYearEl.value || 'All Years';
+                const fMonth = fMonthEl.options[fMonthEl.selectedIndex]?.text || 'All Months';
+                const fPlatform = fPlatformEl.options[fPlatformEl.selectedIndex]?.text || 'All Platforms';
+                const fOutlet = fOutletEl.options[fOutletEl.selectedIndex]?.text || 'All Registered Outlets';
+                
+                doc.setFontSize(22);
+                doc.setTextColor(99, 102, 241);
+                doc.text("Restaurant Payout Pro - Detailed Report", 40, 45);
+                
+                doc.setFontSize(10);
+                doc.setTextColor(100);
+                doc.text(`Filters: ${fOutlet} | ${fPlatform} | ${fMonth} ${fYear}`, 40, 65);
+                doc.text(`Exported On: ${new Date().toLocaleString()}`, 40, 80);
+
+                const filtered = getFilteredData();
+                let totals = { payout: 0, sale: 0, others: 0, total: 0, order: 0 };
+                
+                const tableRows = filtered.map((i, idx) => {
+                    const payout = parseFloat(i.PayoutAmount) || 0;
+                    const sale = parseFloat(i.SaleAmount) || 0;
+                    const others = parseFloat(i.OthersSale || i.ToingSale) || 0;
+                    const total = parseFloat(i.TotalSale) || 0;
+                    const order = parseInt(i.Order) || 0;
+                    
+                    totals.payout += payout;
+                    totals.sale += sale;
+                    totals.others += others;
+                    totals.total += total;
+                    totals.order += order;
+
+                    return [
+                        idx + 1,
+                        i.TransactionID,
+                        i.Platform,
+                        i.OutletName,
+                        i.Month,
+                        i.Year,
+                        formatDateLabel(i.PayoutStartDate),
+                        formatDateLabel(i.PayoutEndDate),
+                        formatDateLabel(i.PayoutDate),
+                        formatCurrency(payout),
+                        formatCurrency(sale),
+                        formatCurrency(others),
+                        formatCurrency(total),
+                        (i['ReceivePercent'] || i['Receive%'] || 0) + "%",
+                        order
+                    ];
+                });
+
+                tableRows.push([
+                    '', '', '', 'SUMMARY TOTALS', '', '', '', '', '',
+                    formatCurrency(totals.payout),
+                    formatCurrency(totals.sale),
+                    formatCurrency(totals.others),
+                    formatCurrency(totals.total),
+                    (totals.total > 0 ? (totals.payout / totals.total * 100).toFixed(2) : '0.00') + "%",
+                    totals.order
+                ]);
+
+                doc.autoTable({
+                    startY: 100,
+                    head: [['#', 'TXN ID', 'Partner', 'Outlet', 'Mon', 'Yr', 'Start', 'End', 'Date', 'Payout', 'Sale', 'Others', 'Total Sale', 'Rec %', 'Orders']],
+                    body: tableRows,
+                    theme: 'grid',
+                    headStyles: { fillColor: [99, 102, 241], fontSize: 7, halign: 'center' },
+                    bodyStyles: { fontSize: 6.5, cellPadding: 4 },
+                    columnStyles: {
+                        9: { halign: 'right' }, 10: { halign: 'right' }, 11: { halign: 'right' },
+                        12: { halign: 'right' }, 13: { halign: 'right' }, 14: { halign: 'right' }
+                    },
+                    didParseCell: function (data) {
+                        if (data.row.index === tableRows.length - 1) {
+                            data.cell.styles.fontStyle = 'bold';
+                            data.cell.styles.fillColor = [240, 242, 245];
+                        }
+                    }
+                });
+
+                const safeName = fOutlet.substring(0, 15).replace(/\s+/g, '_');
+                doc.save(`Payout_Report_${safeName}_${Date.now()}.pdf`);
+                showToast("Success", "PDF Report Exported", "success");
+            } catch (err) {
+                showToast("Error", "PDF generation failed", "error");
+            } finally {
+                showLoader(false);
+            }
+        }
+
+        async function downloadCSV() {
+            showLoader(true);
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            try {
+                const filtered = getFilteredData();
+                const headers = "Transaction ID,Platform,Outlet Name,Month,Year,Payout Start Date,Payout End Date,Payout Date,Payout Amount,Sale Amount,Others Sale,Total Sale,Receive %,Order\n";
+                const csv = headers + filtered.map(i => {
+                    const oSale = i.OthersSale || i.ToingSale || 0;
+                    return `"${i.TransactionID}","${i.Platform}","${i.OutletName}","${i.Month}","${i.Year}","${i.PayoutStartDate}","${i.PayoutEndDate}","${i.PayoutDate}","${i.PayoutAmount}","${i.SaleAmount}","${oSale}","${i.TotalSale}","${i['ReceivePercent'] || i['Receive%'] || 0}%","${i.Order || 0}"`;
+                }).join('\n');
+                
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.href = url; a.download = 'Payout_Data.csv'; a.click();
+                showToast("Success", "CSV Exported", "success");
+            } catch (err) {
+                showToast("Error", "CSV Export failed", "error");
+            } finally {
+                showLoader(false);
+            }
+        }
+
+        function calculateStats() {
+            const p = parseFloat(document.getElementById('field-payout').value) || 0;
+            const s = parseFloat(document.getElementById('field-sale').value) || 0;
+            const o = parseFloat(document.getElementById('field-others').value) || 0;
+            const total = s + o;
+            document.getElementById('calc-total').innerText = formatCurrency(total);
+            document.getElementById('calc-percent').innerText = (total > 0 ? (p/total)*100 : 0).toFixed(2) + "%";
+        }
+        function cancelEdit() { document.getElementById('payout-form').reset(); document.getElementById('cancel-btn').classList.add('hidden'); generateTxnId(); calculateStats(); }
+        function openDelete(id) { deletingId = id; document.getElementById('modal-delete').classList.remove('hidden'); }
+        function closeDeleteModal() { document.getElementById('modal-delete').classList.add('hidden'); }
+        document.getElementById('confirm-delete-btn').onclick = async () => {
+            showLoader(true); closeDeleteModal();
+            try { await fetch(`${SCRIPT_URL}?action=deleteData&id=${deletingId}`, { method: 'POST' }); fetchData(); } catch (e) {}
+            showLoader(false);
+        };
+        function applyFilters() { renderAll(); }
+        function resetFilters() { document.querySelectorAll('.filter-sync').forEach(el => el.value = el.id.includes('year') ? 2025 : ""); renderAll(); }
+        function formatCurrency(n) { return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(n || 0); }
+        function formatDateLabel(val) { if(!val) return "-"; const p = val.split('-'); return p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : val; }
+        function showLoader(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
+        function showToast(t, m, type) {
+            const el = document.getElementById('toast');
+            document.getElementById('toast-title').innerText = t;
+            document.getElementById('toast-msg').innerText = m;
+            el.classList.remove('opacity-0', 'translate-y-[-100%]');
+            setTimeout(() => el.classList.add('opacity-0', 'translate-y-[-100%]'), 3000);
+        }
+    </script>
+</body>
+</html>
