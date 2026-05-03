@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restaurant Payout Pro v2.2</title>
+    <title>Restaurant Payout Pro v2.3</title>
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -14,27 +14,45 @@
     
     <style>
         :root { --primary: #6366f1; --primary-dark: #4f46e5; --secondary: #10b981; --bg: #f8fafc; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: #1e293b; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: #1e293b; overflow-x: hidden; }
+        
         .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
         .tab-btn.active { background: white; color: var(--primary-dark); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        
+        /* YouTube-style Top Loader */
+        #top-loader {
+            position: fixed;
+            top: 0; left: 0; width: 0%; height: 3px;
+            background: linear-gradient(to right, #6366f1, #a855f7);
+            z-index: 10000;
+            transition: width 0.4s cubic-bezier(0.1, 0.05, 0, 1), opacity 0.4s;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        }
+
+        /* Entry Form Section Headers */
+        .form-section-title {
+            @apply text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 flex items-center gap-2;
+        }
+        .form-section-title::after { content: ""; flex: 1; height: 1px; background: #e2e8f0; }
+
         .summary-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .summary-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        input, select { @apply border border-slate-200 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all w-full bg-white; }
-        .btn-primary { @apply bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-2; }
-        .btn-secondary { @apply bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold py-2 px-4 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-2; }
-        #loader { display: none; position: fixed; inset: 0; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(4px); z-index: 9999; justify-content: center; align-items: center; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        input, select { 
+            @apply border border-slate-200 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all w-full bg-white text-sm font-medium; 
+        }
+        
+        .btn-primary { @apply bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-indigo-200; }
+        .btn-secondary { @apply bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold py-3 px-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2; }
+        
+        #loader-overlay { display: none; position: fixed; inset: 0; background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(2px); z-index: 9998; }
     </style>
 </head>
 <body class="antialiased">
 
-    <div id="loader">
-        <div class="text-center">
-            <div class="spinner mx-auto"></div>
-            <p class="mt-4 text-slate-600 font-medium animate-pulse">Processing...</p>
-        </div>
-    </div>
+    <!-- Top Loading Bar (YouTube Style) -->
+    <div id="top-loader"></div>
+    <div id="loader-overlay"></div>
 
     <div id="toast" class="fixed top-6 right-6 z-[1000] pointer-events-none transition-all duration-500 transform translate-y-[-100%] opacity-0">
         <div id="toast-content" class="bg-white shadow-2xl rounded-xl border-l-4 p-4 flex items-center gap-4 min-w-[300px]">
@@ -92,7 +110,7 @@
                     <select id="filter-outlet" class="filter-sync"><option value="">All Registered Outlets</option></select>
                 </div>
                 <div class="flex items-end gap-2">
-                    <button onclick="applyFilters()" class="btn-primary w-full shadow-lg shadow-indigo-200"><i class="fas fa-filter"></i> Apply</button>
+                    <button onclick="applyFilters()" class="btn-primary w-full"><i class="fas fa-filter"></i> Apply</button>
                     <button onclick="resetFilters()" class="btn-secondary px-3" title="Reset Filters"><i class="fas fa-sync-alt"></i></button>
                 </div>
             </div>
@@ -188,7 +206,7 @@
                     <select id="rep-filter-outlet" class="filter-sync"><option value="">All Registered Outlets</option></select>
                 </div>
                 <div class="flex items-end gap-2">
-                    <button onclick="applyFilters()" class="btn-primary w-full shadow-lg shadow-indigo-200"><i class="fas fa-filter"></i> Apply</button>
+                    <button onclick="applyFilters()" class="btn-primary w-full"><i class="fas fa-filter"></i> Apply</button>
                     <button onclick="resetFilters()" class="btn-secondary px-3" title="Reset Filters"><i class="fas fa-sync-alt"></i></button>
                 </div>
             </div>
@@ -222,44 +240,130 @@
         </section>
 
         <!-- ENTRY VIEW -->
-        <section id="view-entry" class="hidden max-w-3xl mx-auto">
-            <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl border border-slate-100">
-                <div class="mb-10 text-center"><h3 id="form-title" class="text-3xl font-black text-slate-900 mb-2">New Transaction</h3></div>
-                <form id="payout-form" class="space-y-6">
-                    <input type="hidden" id="entry-id">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2"><label class="text-xs font-bold text-slate-500 uppercase">TXN ID</label><input type="text" id="field-txnid" readonly class="bg-slate-50 font-mono text-indigo-600 font-bold border-dashed"></div>
-                        <div class="space-y-2"><label class="text-xs font-bold text-slate-500 uppercase">Platform</label><select id="field-platform" required><option value="Swiggy">Swiggy</option><option value="Zomato">Zomato</option></select></div>
+        <section id="view-entry" class="hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl border border-slate-100 relative overflow-hidden">
+                    <!-- Accent Decoration -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
+                    
+                    <div class="mb-12 text-left relative z-10">
+                        <h3 id="form-title" class="text-3xl font-black text-slate-900 mb-2">New Transaction</h3>
+                        <p class="text-slate-500 font-medium italic">Record restaurant payouts with precision</p>
                     </div>
-                    <div class="space-y-2"><label class="text-xs font-bold text-slate-500 uppercase">Outlet</label><select id="field-outlet" required></select></div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2"><label class="text-xs font-bold text-slate-500 uppercase">Month</label><select id="field-month" required></select></div>
-                        <div class="space-y-2"><label class="text-xs font-bold text-slate-500 uppercase">Year</label><select id="field-year" required></select></div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-slate-50 rounded-2xl border">
-                        <div class="space-y-1"><label class="text-[10px] font-bold text-slate-400">Start</label><input type="date" id="field-start" required></div>
-                        <div class="space-y-1"><label class="text-[10px] font-bold text-slate-400">End</label><input type="date" id="field-end" required></div>
-                        <div class="space-y-1"><label class="text-[10px] font-bold text-slate-400">Date</label><input type="date" id="field-date" required></div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="space-y-2"><label class="text-xs font-bold text-slate-500 uppercase">Payout Amt</label><input type="number" step="0.01" id="field-payout" required oninput="calculateStats()"></div>
-                        <div class="space-y-2"><label class="text-xs font-bold text-slate-500 uppercase">Sale Amt</label><input type="number" step="0.01" id="field-sale" required oninput="calculateStats()"></div>
-                        <div class="space-y-2"><label class="text-xs font-bold text-slate-500 uppercase">Others</label><input type="number" step="0.01" id="field-others" required oninput="calculateStats()"></div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2"><label class="text-xs font-bold text-slate-500 uppercase">Total Orders</label><input type="number" id="field-order" required placeholder="0"></div>
-                    </div>
-                    <div class="flex flex-col md:flex-row gap-4 p-8 bg-indigo-600 rounded-3xl text-white shadow-xl">
-                        <div class="flex-1 px-4 border-r border-white/20 text-center"><p class="text-[10px] font-black uppercase text-white/60">Calculated Total Sale</p><p id="calc-total" class="text-2xl font-black">₹0.00</p></div>
-                        <div class="flex-1 px-4 text-center"><p class="text-[10px] font-black uppercase text-white/60">Recovery %</p><p id="calc-percent" class="text-2xl font-black">0.00%</p></div>
-                    </div>
-                    <div class="flex gap-4"><button type="submit" id="submit-btn" class="flex-1 btn-primary py-4 text-lg">Save Record</button><button type="button" onclick="cancelEdit()" id="cancel-btn" class="hidden flex-1 btn-secondary py-4 text-lg">Cancel</button></div>
-                </form>
+
+                    <form id="payout-form" class="space-y-10 relative z-10">
+                        <input type="hidden" id="entry-id">
+                        
+                        <!-- Section 1: Transaction Identity -->
+                        <div>
+                            <h4 class="form-section-title">1. Transaction Identity</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase ml-1">TXN Identifier</label>
+                                    <input type="text" id="field-txnid" readonly class="bg-slate-50 font-mono text-indigo-600 font-bold border-dashed border-2">
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase ml-1">Platform Partner</label>
+                                    <select id="field-platform" required>
+                                        <option value="Swiggy">Swiggy Food</option>
+                                        <option value="Zomato">Zomato Orders</option>
+                                    </select>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase ml-1">Registered Outlet</label>
+                                    <select id="field-outlet" required></select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 2: Payout Cycle -->
+                        <div>
+                            <h4 class="form-section-title">2. Payout Cycle</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase ml-1">Month</label>
+                                    <select id="field-month" required></select>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase ml-1">Year</label>
+                                    <select id="field-year" required></select>
+                                </div>
+                                <div class="md:col-span-2 grid grid-cols-3 gap-3 p-4 bg-indigo-50/30 rounded-2xl border border-indigo-100/50">
+                                    <div class="space-y-1">
+                                        <label class="text-[9px] font-bold text-slate-400">Start Date</label>
+                                        <input type="date" id="field-start" required class="py-2 px-2 !text-[11px]">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-[9px] font-bold text-slate-400">End Date</label>
+                                        <input type="date" id="field-end" required class="py-2 px-2 !text-[11px]">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-[9px] font-bold text-indigo-400">Payout Date</label>
+                                        <input type="date" id="field-date" required class="py-2 px-2 !text-[11px] !border-indigo-200">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 3: Financial Ledger -->
+                        <div>
+                            <h4 class="form-section-title">3. Financial Ledger</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase ml-1">Payout Amount</label>
+                                    <div class="relative">
+                                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">₹</span>
+                                        <input type="number" step="0.01" id="field-payout" required class="pl-8" placeholder="0.00" oninput="calculateStats()">
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase ml-1">Sale Amount</label>
+                                    <div class="relative">
+                                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">₹</span>
+                                        <input type="number" step="0.01" id="field-sale" required class="pl-8" placeholder="0.00" oninput="calculateStats()">
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase ml-1">Others</label>
+                                    <div class="relative">
+                                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">₹</span>
+                                        <input type="number" step="0.01" id="field-others" required class="pl-8" placeholder="0.00" oninput="calculateStats()">
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase ml-1">Order Count</label>
+                                    <input type="number" id="field-order" required placeholder="0" class="text-indigo-600 font-bold">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Real-time Stats Footer -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-1 bg-indigo-600 rounded-[2rem] text-white shadow-2xl shadow-indigo-100">
+                            <div class="p-8 border-r border-white/10 flex flex-col justify-center">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-indigo-200 mb-1">Estimated Gross Sale</p>
+                                <p id="calc-total" class="text-4xl font-black">₹0.00</p>
+                            </div>
+                            <div class="p-8 flex flex-col justify-center bg-white/5 rounded-r-[2rem]">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-indigo-200 mb-1">Projected Recovery</p>
+                                <p id="calc-percent" class="text-4xl font-black">0.00%</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 pt-6">
+                            <button type="submit" id="submit-btn" class="flex-1 btn-primary py-5 text-xl">
+                                <i class="fas fa-cloud-upload-alt"></i> Commit Record
+                            </button>
+                            <button type="button" onclick="cancelEdit()" id="cancel-btn" class="hidden flex-1 btn-secondary py-5 text-xl">
+                                Discard Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </section>
     </div>
 
-    <!-- Modals & Toasts -->
+    <!-- Modals -->
     <div id="modal-delete" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[1000] hidden flex items-center justify-center p-6">
         <div class="bg-white p-8 rounded-3xl max-w-sm w-full shadow-2xl">
             <h4 class="text-2xl font-black text-slate-800 mb-2">Delete Record?</h4>
@@ -280,8 +384,8 @@
         window.onload = () => { initYearDropdowns(); initMonthDropdown(); setupFilterSync(); generateTxnId(); fetchData(); };
 
         function initYearDropdowns() {
-            const currentYear = new Date().getFullYear();
             const years = [2025, 2026, 2027];
+            const currentYear = new Date().getFullYear();
             ['filter-year', 'rep-filter-year', 'field-year'].forEach(id => {
                 const el = document.getElementById(id);
                 if(el) {
@@ -519,14 +623,12 @@
 
         async function downloadPDF() {
             showLoader(true);
-            // Give UI a chance to render the loader
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, 400)); // Simulate loading animation start
 
             try {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF('l', 'pt', 'a4'); 
                 
-                // Get Current Filter Text (Labels instead of internal values)
                 const fYearEl = document.getElementById('filter-year');
                 const fMonthEl = document.getElementById('filter-month');
                 const fPlatformEl = document.getElementById('filter-platform');
@@ -555,41 +657,12 @@
                     const others = parseFloat(i.OthersSale || i.ToingSale) || 0;
                     const total = parseFloat(i.TotalSale) || 0;
                     const order = parseInt(i.Order) || 0;
-                    
-                    totals.payout += payout;
-                    totals.sale += sale;
-                    totals.others += others;
-                    totals.total += total;
-                    totals.order += order;
+                    totals.payout += payout; totals.sale += sale; totals.others += others; totals.total += total; totals.order += order;
 
-                    return [
-                        idx + 1,
-                        i.TransactionID,
-                        i.Platform,
-                        i.OutletName,
-                        i.Month,
-                        i.Year,
-                        formatDateLabel(i.PayoutStartDate),
-                        formatDateLabel(i.PayoutEndDate),
-                        formatDateLabel(i.PayoutDate),
-                        formatCurrency(payout),
-                        formatCurrency(sale),
-                        formatCurrency(others),
-                        formatCurrency(total),
-                        (i['ReceivePercent'] || i['Receive%'] || 0) + "%",
-                        order
-                    ];
+                    return [idx + 1, i.TransactionID, i.Platform, i.OutletName, i.Month, i.Year, formatDateLabel(i.PayoutStartDate), formatDateLabel(i.PayoutEndDate), formatDateLabel(i.PayoutDate), formatCurrency(payout), formatCurrency(sale), formatCurrency(others), formatCurrency(total), (i['ReceivePercent'] || i['Receive%'] || 0) + "%", order];
                 });
 
-                tableRows.push([
-                    '', '', '', 'SUMMARY TOTALS', '', '', '', '', '',
-                    formatCurrency(totals.payout),
-                    formatCurrency(totals.sale),
-                    formatCurrency(totals.others),
-                    formatCurrency(totals.total),
-                    (totals.total > 0 ? (totals.payout / totals.total * 100).toFixed(2) : '0.00') + "%",
-                    totals.order
-                ]);
+                tableRows.push(['', '', '', 'SUMMARY TOTALS', '', '', '', '', '', formatCurrency(totals.payout), formatCurrency(totals.sale), formatCurrency(totals.others), formatCurrency(totals.total), (totals.total > 0 ? (totals.payout / totals.total * 100).toFixed(2) : '0.00') + "%", totals.order]);
 
                 doc.autoTable({
                     startY: 100,
@@ -598,49 +671,28 @@
                     theme: 'grid',
                     headStyles: { fillColor: [99, 102, 241], fontSize: 7, halign: 'center' },
                     bodyStyles: { fontSize: 6.5, cellPadding: 4 },
-                    columnStyles: {
-                        9: { halign: 'right' }, 10: { halign: 'right' }, 11: { halign: 'right' },
-                        12: { halign: 'right' }, 13: { halign: 'right' }, 14: { halign: 'right' }
-                    },
-                    didParseCell: function (data) {
-                        if (data.row.index === tableRows.length - 1) {
-                            data.cell.styles.fontStyle = 'bold';
-                            data.cell.styles.fillColor = [240, 242, 245];
-                        }
-                    }
+                    columnStyles: { 9: { halign: 'right' }, 10: { halign: 'right' }, 11: { halign: 'right' }, 12: { halign: 'right' }, 13: { halign: 'right' }, 14: { halign: 'right' } },
+                    didParseCell: function (data) { if (data.row.index === tableRows.length - 1) { data.cell.styles.fontStyle = 'bold'; data.cell.styles.fillColor = [240, 242, 245]; } }
                 });
 
                 const safeName = fOutlet.substring(0, 15).replace(/\s+/g, '_');
                 doc.save(`Payout_Report_${safeName}_${Date.now()}.pdf`);
                 showToast("Success", "PDF Report Exported", "success");
-            } catch (err) {
-                showToast("Error", "PDF generation failed", "error");
-            } finally {
-                showLoader(false);
-            }
+            } catch (err) { showToast("Error", "PDF generation failed", "error"); } finally { showLoader(false); }
         }
 
         async function downloadCSV() {
             showLoader(true);
-            await new Promise(resolve => setTimeout(resolve, 100));
-
+            await new Promise(resolve => setTimeout(resolve, 400));
             try {
                 const filtered = getFilteredData();
                 const headers = "Transaction ID,Platform,Outlet Name,Month,Year,Payout Start Date,Payout End Date,Payout Date,Payout Amount,Sale Amount,Others Sale,Total Sale,Receive %,Order\n";
-                const csv = headers + filtered.map(i => {
-                    const oSale = i.OthersSale || i.ToingSale || 0;
-                    return `"${i.TransactionID}","${i.Platform}","${i.OutletName}","${i.Month}","${i.Year}","${i.PayoutStartDate}","${i.PayoutEndDate}","${i.PayoutDate}","${i.PayoutAmount}","${i.SaleAmount}","${oSale}","${i.TotalSale}","${i['ReceivePercent'] || i['Receive%'] || 0}%","${i.Order || 0}"`;
-                }).join('\n');
-                
+                const csv = headers + filtered.map(i => `"${i.TransactionID}","${i.Platform}","${i.OutletName}","${i.Month}","${i.Year}","${i.PayoutStartDate}","${i.PayoutEndDate}","${i.PayoutDate}","${i.PayoutAmount}","${i.SaleAmount}","${i.OthersSale || 0}","${i.TotalSale}","${i['ReceivePercent'] || i['Receive%'] || 0}%","${i.Order || 0}"`).join('\n');
                 const blob = new Blob([csv], { type: 'text/csv' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a'); a.href = url; a.download = 'Payout_Data.csv'; a.click();
                 showToast("Success", "CSV Exported", "success");
-            } catch (err) {
-                showToast("Error", "CSV Export failed", "error");
-            } finally {
-                showLoader(false);
-            }
+            } catch (err) { showToast("Error", "CSV Export failed", "error"); } finally { showLoader(false); }
         }
 
         function calculateStats() {
@@ -651,6 +703,25 @@
             document.getElementById('calc-total').innerText = formatCurrency(total);
             document.getElementById('calc-percent').innerText = (total > 0 ? (p/total)*100 : 0).toFixed(2) + "%";
         }
+
+        function showLoader(s) {
+            const topBar = document.getElementById('top-loader');
+            const overlay = document.getElementById('loader-overlay');
+            if(s) {
+                overlay.style.display = 'block';
+                topBar.style.opacity = '1';
+                topBar.style.width = '30%';
+                setTimeout(() => { if(topBar.style.width === '30%') topBar.style.width = '70%'; }, 200);
+            } else {
+                topBar.style.width = '100%';
+                setTimeout(() => {
+                    topBar.style.opacity = '0';
+                    overlay.style.display = 'none';
+                    setTimeout(() => { topBar.style.width = '0%'; }, 400);
+                }, 400);
+            }
+        }
+
         function cancelEdit() { document.getElementById('payout-form').reset(); document.getElementById('cancel-btn').classList.add('hidden'); generateTxnId(); calculateStats(); }
         function openDelete(id) { deletingId = id; document.getElementById('modal-delete').classList.remove('hidden'); }
         function closeDeleteModal() { document.getElementById('modal-delete').classList.add('hidden'); }
@@ -663,11 +734,19 @@
         function resetFilters() { document.querySelectorAll('.filter-sync').forEach(el => el.value = el.id.includes('year') ? 2025 : ""); renderAll(); }
         function formatCurrency(n) { return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(n || 0); }
         function formatDateLabel(val) { if(!val) return "-"; const p = val.split('-'); return p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : val; }
-        function showLoader(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
         function showToast(t, m, type) {
             const el = document.getElementById('toast');
             document.getElementById('toast-title').innerText = t;
             document.getElementById('toast-msg').innerText = m;
+            if(type === 'success') {
+                document.getElementById('toast-icon-wrapper').className = "w-10 h-10 rounded-full flex items-center justify-center bg-emerald-50 text-emerald-500";
+                document.getElementById('toast-icon-wrapper').innerHTML = '<i class="fas fa-check"></i>';
+                document.getElementById('toast-content').className = "bg-white shadow-2xl rounded-xl border-l-4 border-emerald-500 p-4 flex items-center gap-4 min-w-[300px]";
+            } else {
+                document.getElementById('toast-icon-wrapper').className = "w-10 h-10 rounded-full flex items-center justify-center bg-red-50 text-red-500";
+                document.getElementById('toast-icon-wrapper').innerHTML = '<i class="fas fa-times"></i>';
+                document.getElementById('toast-content').className = "bg-white shadow-2xl rounded-xl border-l-4 border-red-500 p-4 flex items-center gap-4 min-w-[300px]";
+            }
             el.classList.remove('opacity-0', 'translate-y-[-100%]');
             setTimeout(() => el.classList.add('opacity-0', 'translate-y-[-100%]'), 3000);
         }
