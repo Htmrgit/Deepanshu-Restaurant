@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,18 +12,40 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
     <style>
-        :root { --primary: #6366f1; --primary-dark: #4f46e5; --secondary: #10b981; --bg: #f8fafc; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: #1e293b; overflow-x: hidden; }
-        
-        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
-        .tab-btn.active { background: white; color: var(--primary-dark); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
-        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --bg: #f8fafc;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: #1e293b;
+            overflow-x: hidden;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: var(--primary-dark);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
         /* YouTube-style Top Loader */
         #top-loader {
             position: fixed;
-            top: 0; left: 0; width: 0%; height: 3px;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
             background: linear-gradient(to right, #6366f1, #a855f7);
             z-index: 10000;
             transition: width 0.4s cubic-bezier(0.1, 0.05, 0, 1), opacity 0.4s;
@@ -33,23 +56,55 @@
         .form-section-title {
             @apply text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 flex items-center gap-2;
         }
-        .form-section-title::after { content: ""; flex: 1; height: 1px; background: #e2e8f0; }
 
-        .summary-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .summary-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        
-        input, select { 
-            @apply border border-slate-200 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all w-full bg-white text-sm font-medium; 
+        .form-section-title::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
         }
-        
-        .btn-primary { @apply bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-indigo-200; }
-        .btn-secondary { @apply bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold py-3 px-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2; }
-        
-        #loader-overlay { display: none; position: fixed; inset: 0; background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(2px); z-index: 9998; }
+
+        .summary-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .summary-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        input,
+        select {
+            @apply border border-slate-200 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all w-full bg-white text-sm font-medium;
+        }
+
+        /* Remove spin buttons from number inputs */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .btn-primary {
+            @apply bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-indigo-200;
+        }
+
+        .btn-secondary {
+            @apply bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold py-3 px-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2;
+        }
+
+        #loader-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(2px);
+            z-index: 9998;
+        }
     </style>
 </head>
-<body class="antialiased">
 
+<body class="antialiased">
     <!-- Top Loading Bar (YouTube Style) -->
     <div id="top-loader"></div>
     <div id="loader-overlay"></div>
@@ -57,7 +112,10 @@
     <div id="toast" class="fixed top-6 right-6 z-[1000] pointer-events-none transition-all duration-500 transform translate-y-[-100%] opacity-0">
         <div id="toast-content" class="bg-white shadow-2xl rounded-xl border-l-4 p-4 flex items-center gap-4 min-w-[300px]">
             <div id="toast-icon-wrapper" class="w-10 h-10 rounded-full flex items-center justify-center"></div>
-            <div><p id="toast-title" class="font-bold text-slate-800"></p><p id="toast-msg" class="text-sm text-slate-500"></p></div>
+            <div>
+                <p id="toast-title" class="font-bold text-slate-800"></p>
+                <p id="toast-msg" class="text-sm text-slate-500"></p>
+            </div>
         </div>
     </div>
 
@@ -88,12 +146,18 @@
                         <select id="filter-year" class="filter-sync"></select>
                         <select id="filter-month" class="filter-sync">
                             <option value="">All Months</option>
-                            <option value="January">Jan</option><option value="February">Feb</option>
-                            <option value="March">Mar</option><option value="April">Apr</option>
-                            <option value="May">May</option><option value="June">Jun</option>
-                            <option value="July">Jul</option><option value="August">Aug</option>
-                            <option value="September">Sep</option><option value="October">Oct</option>
-                            <option value="November">Nov</option><option value="December">Dec</option>
+                            <option value="January">Jan</option>
+                            <option value="February">Feb</option>
+                            <option value="March">Mar</option>
+                            <option value="April">Apr</option>
+                            <option value="May">May</option>
+                            <option value="June">Jun</option>
+                            <option value="July">Jul</option>
+                            <option value="August">Aug</option>
+                            <option value="September">Sep</option>
+                            <option value="October">Oct</option>
+                            <option value="November">Nov</option>
+                            <option value="December">Dec</option>
                         </select>
                     </div>
                 </div>
@@ -107,7 +171,9 @@
                 </div>
                 <div class="space-y-1 lg:col-span-2">
                     <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider ml-1">Outlet Search</label>
-                    <select id="filter-outlet" class="filter-sync"><option value="">All Registered Outlets</option></select>
+                    <select id="filter-outlet" class="filter-sync">
+                        <option value="">All Registered Outlets</option>
+                    </select>
                 </div>
                 <div class="flex items-end gap-2">
                     <button onclick="applyFilters()" class="btn-primary w-full"><i class="fas fa-filter"></i> Apply</button>
@@ -119,15 +185,15 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
                 <div class="summary-card bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
                     <p class="text-slate-400 text-[10px] font-bold uppercase tracking-tight">Total Payout</p>
-                    <h3 id="sum-payout" class="text-xl font-extrabold text-slate-900 mt-1">₹0.00</h3>
+                    <h3 id="sum-payout" class="text-xl font-extrabold text-slate-900 mt-1">₹0</h3>
                 </div>
                 <div class="summary-card bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
                     <p class="text-slate-400 text-[10px] font-bold uppercase tracking-tight">Gross Sale</p>
-                    <h3 id="sum-sale" class="text-xl font-extrabold text-slate-900 mt-1">₹0.00</h3>
+                    <h3 id="sum-sale" class="text-xl font-extrabold text-slate-900 mt-1">₹0</h3>
                 </div>
                 <div class="summary-card bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
                     <p class="text-slate-400 text-[10px] font-bold uppercase tracking-tight">Others</p>
-                    <h3 id="sum-others" class="text-xl font-extrabold text-slate-900 mt-1">₹0.00</h3>
+                    <h3 id="sum-others" class="text-xl font-extrabold text-slate-900 mt-1">₹0</h3>
                 </div>
                 <div class="summary-card bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
                     <p class="text-slate-400 text-[10px] font-bold uppercase tracking-tight">Total Orders</p>
@@ -135,7 +201,7 @@
                 </div>
                 <div class="summary-card bg-indigo-50 p-5 rounded-2xl border border-indigo-100 shadow-sm">
                     <p class="text-indigo-400 text-[10px] font-bold uppercase tracking-tight">Avg Order Value</p>
-                    <h3 id="sum-aov" class="text-xl font-extrabold text-indigo-700 mt-1">₹0.00</h3>
+                    <h3 id="sum-aov" class="text-xl font-extrabold text-indigo-700 mt-1">₹0</h3>
                 </div>
                 <div class="summary-card bg-indigo-600 p-5 rounded-2xl text-white shadow-xl shadow-indigo-100">
                     <p class="text-white/70 text-[10px] font-bold uppercase tracking-tight">Recovery %</p>
@@ -158,7 +224,9 @@
             <!-- Performance Table -->
             <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden">
                 <div class="px-8 py-5 border-b flex justify-between items-center bg-slate-50/50">
-                    <div><h4 class="text-lg font-extrabold text-slate-800">Outlet Performance Matrix</h4></div>
+                    <div>
+                        <h4 class="text-lg font-extrabold text-slate-800">Outlet Performance Matrix</h4>
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left">
@@ -180,30 +248,42 @@
 
         <!-- REPORT VIEW -->
         <section id="view-report" class="hidden space-y-6">
-             <!-- Report Filter Bar (Synced) -->
-             <div class="glass p-6 rounded-2xl shadow-xl shadow-slate-200/50 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <!-- Report Filter Bar (Synced) -->
+            <div class="glass p-6 rounded-2xl shadow-xl shadow-slate-200/50 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div class="space-y-1">
                     <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider ml-1">Time Period</label>
                     <div class="grid grid-cols-2 gap-2">
                         <select id="rep-filter-year" class="filter-sync"></select>
                         <select id="rep-filter-month" class="filter-sync">
                             <option value="">All Months</option>
-                            <option value="January">Jan</option><option value="February">Feb</option>
-                            <option value="March">Mar</option><option value="April">Apr</option>
-                            <option value="May">May</option><option value="June">Jun</option>
-                            <option value="July">Jul</option><option value="August">Aug</option>
-                            <option value="September">Sep</option><option value="October">Oct</option>
-                            <option value="November">Nov</option><option value="December">Dec</option>
+                            <option value="January">Jan</option>
+                            <option value="February">Feb</option>
+                            <option value="March">Mar</option>
+                            <option value="April">Apr</option>
+                            <option value="May">May</option>
+                            <option value="June">Jun</option>
+                            <option value="July">Jul</option>
+                            <option value="August">Aug</option>
+                            <option value="September">Sep</option>
+                            <option value="October">Oct</option>
+                            <option value="November">Nov</option>
+                            <option value="December">Dec</option>
                         </select>
                     </div>
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider ml-1">Platform</label>
-                    <select id="rep-filter-platform" class="filter-sync"><option value="">All Platforms</option><option value="Swiggy">Swiggy</option><option value="Zomato">Zomato</option></select>
+                    <select id="rep-filter-platform" class="filter-sync">
+                        <option value="">All Platforms</option>
+                        <option value="Swiggy">Swiggy</option>
+                        <option value="Zomato">Zomato</option>
+                    </select>
                 </div>
                 <div class="space-y-1 lg:col-span-2">
                     <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider ml-1">Outlet Search</label>
-                    <select id="rep-filter-outlet" class="filter-sync"><option value="">All Registered Outlets</option></select>
+                    <select id="rep-filter-outlet" class="filter-sync">
+                        <option value="">All Registered Outlets</option>
+                    </select>
                 </div>
                 <div class="flex items-end gap-2">
                     <button onclick="applyFilters()" class="btn-primary w-full"><i class="fas fa-filter"></i> Apply</button>
@@ -212,7 +292,9 @@
             </div>
 
             <div class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm border gap-4">
-                <div><h3 class="text-xl font-bold text-slate-800">Detailed Transaction Ledger</h3></div>
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800">Detailed Transaction Ledger</h3>
+                </div>
                 <div class="flex gap-3">
                     <button onclick="downloadPDF()" class="btn-secondary text-red-600 border-red-100 hover:bg-red-50"><i class="fas fa-file-pdf"></i> Export PDF</button>
                     <button onclick="downloadCSV()" class="btn-secondary text-emerald-600 border-emerald-100 hover:bg-emerald-50"><i class="fas fa-file-csv"></i> Export CSV</button>
@@ -245,7 +327,7 @@
                 <div class="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl border border-slate-100 relative overflow-hidden">
                     <!-- Accent Decoration -->
                     <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
-                    
+
                     <div class="mb-12 text-left relative z-10">
                         <h3 id="form-title" class="text-3xl font-black text-slate-900 mb-2">New Transaction</h3>
                         <p class="text-slate-500 font-medium italic">Record restaurant payouts with precision</p>
@@ -253,7 +335,6 @@
 
                     <form id="payout-form" class="space-y-10 relative z-10">
                         <input type="hidden" id="entry-id">
-                        
                         <!-- Section 1: Transaction Identity -->
                         <div>
                             <h4 class="form-section-title">1. Transaction Identity</h4>
@@ -271,7 +352,7 @@
                                 </div>
                                 <div class="space-y-2">
                                     <label class="text-[10px] font-black text-slate-500 uppercase ml-1">Registered Outlet</label>
-                                    <select id="field-outlet" required></select>
+                                    <select id="field-outlet" required autofocus></select>
                                 </div>
                             </div>
                         </div>
@@ -313,21 +394,21 @@
                                     <label class="text-[10px] font-black text-slate-500 uppercase ml-1">Payout Amount</label>
                                     <div class="relative">
                                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">₹</span>
-                                        <input type="number" step="0.01" id="field-payout" required class="pl-8" placeholder="0.00" oninput="calculateStats()">
+                                        <input type="number" step="1" id="field-payout" required class="pl-8" placeholder="0" oninput="calculateStats()">
                                     </div>
                                 </div>
                                 <div class="space-y-2">
                                     <label class="text-[10px] font-black text-slate-500 uppercase ml-1">Sale Amount</label>
                                     <div class="relative">
                                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">₹</span>
-                                        <input type="number" step="0.01" id="field-sale" required class="pl-8" placeholder="0.00" oninput="calculateStats()">
+                                        <input type="number" step="1" id="field-sale" required class="pl-8" placeholder="0" oninput="calculateStats()">
                                     </div>
                                 </div>
                                 <div class="space-y-2">
                                     <label class="text-[10px] font-black text-slate-500 uppercase ml-1">Others</label>
                                     <div class="relative">
                                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">₹</span>
-                                        <input type="number" step="0.01" id="field-others" required class="pl-8" placeholder="0.00" oninput="calculateStats()">
+                                        <input type="number" step="1" id="field-others" required class="pl-8" placeholder="0" oninput="calculateStats()">
                                     </div>
                                 </div>
                                 <div class="space-y-2">
@@ -340,12 +421,12 @@
                         <!-- Real-time Stats Footer -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-1 bg-indigo-600 rounded-[2rem] text-white shadow-2xl shadow-indigo-100">
                             <div class="p-8 border-r border-white/10 flex flex-col justify-center">
-                                <p class="text-[10px] font-black uppercase tracking-widest text-indigo-200 mb-1">Estimated Gross Sale</p>
-                                <p id="calc-total" class="text-4xl font-black">₹0.00</p>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-indigo-200 mb-1">Total Sale</p>
+                                <p id="calc-total" class="text-4xl font-black">₹0</p>
                             </div>
                             <div class="p-8 flex flex-col justify-center bg-white/5 rounded-r-[2rem]">
-                                <p class="text-[10px] font-black uppercase tracking-widest text-indigo-200 mb-1">Projected Recovery</p>
-                                <p id="calc-percent" class="text-4xl font-black">0.00%</p>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-indigo-200 mb-1">Recovery %</p>
+                                <p id="calc-percent" class="text-4xl font-black">0%</p>
                             </div>
                         </div>
 
@@ -368,32 +449,42 @@
         <div class="bg-white p-8 rounded-3xl max-w-sm w-full shadow-2xl">
             <h4 class="text-2xl font-black text-slate-800 mb-2">Delete Record?</h4>
             <p class="text-slate-500 mb-8">This action is permanent and cannot be undone.</p>
-            <div class="flex gap-4"><button onclick="closeDeleteModal()" class="flex-1 btn-secondary py-3">No</button><button id="confirm-delete-btn" class="flex-1 bg-red-500 text-white py-3 rounded-xl font-bold">Delete</button></div>
+            <div class="flex gap-4">
+                <button onclick="closeDeleteModal()" class="flex-1 btn-secondary py-3">No</button>
+                <button id="confirm-delete-btn" class="flex-1 bg-red-500 text-white py-3 rounded-xl font-bold">Delete</button>
+            </div>
         </div>
     </div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxfHiiHaOocdS55v7fYNObm326NTzn0YTgrVqlew8Mqu-vCmUO_t9_cUL8Hru8rweQepQ/exec"; // SET YOUR APPS SCRIPT URL
-        const apiKey = ""; 
+        const apiKey = "";
 
         let allData = [];
         let outlets = [];
         let charts = {};
         let deletingId = null;
 
-        window.onload = () => { initYearDropdowns(); initMonthDropdown(); setupFilterSync(); generateTxnId(); fetchData(); };
+        window.onload = () => {
+            initYearDropdowns();
+            initMonthDropdown();
+            setupFilterSync();
+            generateTxnId();
+            initDateDefaults();
+            fetchData();
+        };
 
         function initYearDropdowns() {
-            const years = [2025, 2026, 2027];
+            const years = [2024, 2025, 2026, 2027];
             const currentYear = new Date().getFullYear();
             ['filter-year', 'rep-filter-year', 'field-year'].forEach(id => {
                 const el = document.getElementById(id);
-                if(el) {
+                if (el) {
                     el.innerHTML = id.includes('filter') ? `<option value="">Yearly View</option>` : "";
                     years.forEach(y => {
                         const opt = document.createElement('option');
                         opt.value = opt.textContent = y;
-                        if(y === currentYear) opt.selected = true;
+                        if (y === currentYear) opt.selected = true;
                         el.appendChild(opt);
                     });
                 }
@@ -401,7 +492,7 @@
         }
 
         function initMonthDropdown() {
-            const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+            const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             const els = ['field-month'];
             els.forEach(id => {
                 const el = document.getElementById(id);
@@ -409,26 +500,52 @@
                 months.forEach((m, i) => {
                     const opt = document.createElement('option');
                     opt.value = opt.textContent = m;
-                    if(i === currentMonth) opt.selected = true;
+                    if (i === currentMonth) opt.selected = true;
                     el.appendChild(opt);
                 });
             });
         }
 
+        function initDateDefaults() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            
+            // Format to YYYY-MM-DD
+            const formatDate = (d) => d.toISOString().split('T')[0];
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            
+            document.getElementById('field-start').value = formatDate(firstDay);
+            document.getElementById('field-end').value = formatDate(lastDay);
+            document.getElementById('field-date').value = formatDate(now);
+        }
+
         function setupFilterSync() {
-            const syncPairs = [['filter-year', 'rep-filter-year'], ['filter-month', 'rep-filter-month'], ['filter-platform', 'rep-filter-platform'], ['filter-outlet', 'rep-filter-outlet']];
+            const syncPairs = [
+                ['filter-year', 'rep-filter-year'],
+                ['filter-month', 'rep-filter-month'],
+                ['filter-platform', 'rep-filter-platform'],
+                ['filter-outlet', 'rep-filter-outlet']
+            ];
             syncPairs.forEach(([id1, id2]) => {
-                const el1 = document.getElementById(id1); const el2 = document.getElementById(id2);
-                if(el1 && el2) {
-                    el1.addEventListener('change', () => { el2.value = el1.value; });
-                    el2.addEventListener('change', () => { el1.value = el2.value; });
+                const el1 = document.getElementById(id1);
+                const el2 = document.getElementById(id2);
+                if (el1 && el2) {
+                    el1.addEventListener('change', () => {
+                        el2.value = el1.value;
+                    });
+                    el2.addEventListener('change', () => {
+                        el1.value = el2.value;
+                    });
                 }
             });
         }
 
         function generateTxnId() {
             const d = new Date();
-            const ts = d.getFullYear() + (d.getMonth()+1).toString().padStart(2,'0') + d.getDate().toString().padStart(2,'0') + "-" + d.getHours().toString().padStart(2,'0') + d.getMinutes().toString().padStart(2,'0') + d.getSeconds().toString().padStart(2,'0');
+            const ts = d.getFullYear() + (d.getMonth() + 1).toString().padStart(2, '0') + d.getDate().toString().padStart(2, '0') + "-" + d.getHours().toString().padStart(2, '0') + d.getMinutes().toString().padStart(2, '0') + d.getSeconds().toString().padStart(2, '0');
             document.getElementById('field-txnid').value = `TXN-${ts}`;
         }
 
@@ -440,6 +557,11 @@
                 b.classList.add('text-slate-500');
             });
             document.getElementById(`tab-${id}`).classList.add('active', 'text-slate-900');
+            
+            // Auto-focus logic for speed
+            if (id === 'entry') {
+                document.getElementById('field-outlet').focus();
+            }
         }
 
         async function fetchData() {
@@ -451,7 +573,9 @@
                 outlets = result.outlets || [];
                 populateOutlets();
                 renderAll();
-            } catch (e) { showToast("Connection Error", "Check Web App URL", "error"); }
+            } catch (e) {
+                showToast("Connection Error", "Check Web App URL", "error");
+            }
             showLoader(false);
         }
 
@@ -466,7 +590,11 @@
                     opt.value = opt.textContent = o;
                     el.appendChild(opt);
                 });
-                if(prev) el.value = prev;
+                if (prev) el.value = prev;
+                // Speed optimization: if only one outlet exists, select it
+                if (!id.includes('filter') && outlets.length === 1) {
+                    el.selectedIndex = 1;
+                }
             });
         }
 
@@ -494,7 +622,7 @@
                 const o = parseFloat(i.OthersSale || i.ToingSale) || 0;
                 const n = parseFloat(i.TotalSale) || 0;
                 const ord = parseInt(i.Order) || 0;
-                
+
                 sums.p += p; sums.s += s; sums.o += o; sums.n += n; sums.ord += ord;
                 outletChartData[i.OutletName] = (outletChartData[i.OutletName] || 0) + n;
                 platformSales[i.Platform] = (platformSales[i.Platform] || 0) + n;
@@ -504,8 +632,8 @@
             document.getElementById('sum-sale').innerText = formatCurrency(sums.s);
             document.getElementById('sum-others').innerText = formatCurrency(sums.o);
             document.getElementById('sum-order').innerText = sums.ord.toLocaleString();
-            document.getElementById('sum-aov').innerText = formatCurrency(sums.ord > 0 ? sums.n/sums.ord : 0);
-            document.getElementById('sum-receive').innerText = (sums.n > 0 ? (sums.p/sums.n)*100 : 0).toFixed(1) + "%";
+            document.getElementById('sum-aov').innerText = formatCurrency(sums.ord > 0 ? sums.n / sums.ord : 0);
+            document.getElementById('sum-receive').innerText = Math.round(sums.n > 0 ? (sums.p / sums.n) * 100 : 0) + "%";
 
             updateCharts(outletChartData, platformSales);
             renderRankTable(data);
@@ -514,12 +642,12 @@
         function renderRankTable(data) {
             const grouped = {};
             data.forEach(i => {
-                if(!grouped[i.OutletName]) grouped[i.OutletName] = { s: 0, p: 0, ord: 0 };
+                if (!grouped[i.OutletName]) grouped[i.OutletName] = { s: 0, p: 0, ord: 0 };
                 grouped[i.OutletName].s += parseFloat(i.TotalSale) || 0;
                 grouped[i.OutletName].p += parseFloat(i.PayoutAmount) || 0;
                 grouped[i.OutletName].ord += parseInt(i.Order) || 0;
             });
-            const sorted = Object.entries(grouped).sort((a,b) => b[1].s - a[1].s);
+            const sorted = Object.entries(grouped).sort((a, b) => b[1].s - a[1].s);
             document.getElementById('performance-table-body').innerHTML = sorted.map(([name, v]) => {
                 const aov = v.ord > 0 ? v.s / v.ord : 0;
                 return `
@@ -529,25 +657,45 @@
                     <td class="px-8 py-5 text-indigo-600 font-bold">${v.ord.toLocaleString()}</td>
                     <td class="px-8 py-5 text-slate-500 font-medium">${formatCurrency(aov)}</td>
                     <td class="px-8 py-5 text-slate-500">${formatCurrency(v.p)}</td>
-                    <td class="px-8 py-5 text-right font-black text-indigo-600">${((v.p/v.s)*100 || 0).toFixed(1)}%</td>
+                    <td class="px-8 py-5 text-right font-black text-indigo-600">${Math.round((v.p/v.s)*100 || 0)}%</td>
                 </tr>
-            `}).join('') || `<tr><td colspan="6" class="p-10 text-center text-slate-400 italic">No records to rank</td></tr>`;
+            `
+            }).join('') || `<tr><td colspan="6" class="p-10 text-center text-slate-400 italic">No records to rank</td></tr>`;
         }
 
         function updateCharts(outlets, platforms) {
             const barCtx = document.getElementById('barChart').getContext('2d');
-            if(charts.bar) charts.bar.destroy();
+            if (charts.bar) charts.bar.destroy();
             charts.bar = new Chart(barCtx, {
                 type: 'bar',
-                data: { labels: Object.keys(outlets), datasets: [{ label: 'Sales', data: Object.values(outlets), backgroundColor: '#6366f1', borderRadius: 8 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                data: {
+                    labels: Object.keys(outlets),
+                    datasets: [{
+                        label: 'Sales',
+                        data: Object.values(outlets),
+                        backgroundColor: '#6366f1',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
             });
 
             const pieCtx = document.getElementById('pieChart').getContext('2d');
-            if(charts.pie) charts.pie.destroy();
+            if (charts.pie) charts.pie.destroy();
             charts.pie = new Chart(pieCtx, {
                 type: 'doughnut',
-                data: { labels: ['Swiggy', 'Zomato'], datasets: [{ data: [platforms.Swiggy, platforms.Zomato], backgroundColor: ['#fc8019', '#cb202d'], borderWidth: 0 }] },
+                data: {
+                    labels: ['Swiggy', 'Zomato'],
+                    datasets: [{
+                        data: [platforms.Swiggy, platforms.Zomato],
+                        backgroundColor: ['#fc8019', '#cb202d'],
+                        borderWidth: 0
+                    }]
+                },
                 options: { cutout: '70%', plugins: { legend: { position: 'bottom' } } }
             });
         }
@@ -564,7 +712,7 @@
                     <td class="px-4 py-4 text-right font-bold">${formatCurrency(i.PayoutAmount)}</td>
                     <td class="px-4 py-4 text-right">${formatCurrency(i.TotalSale)}</td>
                     <td class="px-4 py-4 text-right font-bold text-indigo-500">${i.Order || 0}</td>
-                    <td class="px-4 py-4 text-right font-black text-emerald-600">${(i['ReceivePercent'] || i['Receive%'] || 0)}%</td>
+                    <td class="px-4 py-4 text-right font-black text-emerald-600">${Math.round(parseFloat(i['ReceivePercent'] || i['Receive%'] || 0))}%</td>
                     <td class="px-4 py-4">
                         <div class="flex justify-center gap-1">
                             <button onclick="editTxn('${i.TransactionID}')" class="w-7 h-7 rounded-lg text-indigo-600 hover:bg-indigo-50"><i class="fas fa-pen text-[10px]"></i></button>
@@ -595,16 +743,26 @@
             };
             const isEdit = !document.getElementById('cancel-btn').classList.contains('hidden');
             try {
-                const res = await fetch(`${SCRIPT_URL}?action=${isEdit ? 'updateData' : 'saveData'}`, { method: 'POST', body: JSON.stringify(payload) });
+                const res = await fetch(`${SCRIPT_URL}?action=${isEdit ? 'updateData' : 'saveData'}`, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
                 const result = await res.json();
-                if(result.status === 'success') { showToast("Success", "Record Updated", "success"); cancelEdit(); fetchData(); switchTab('report'); }
-            } catch (err) { showToast("Error", "Check Connection", "error"); }
+                if (result.status === 'success') {
+                    showToast("Success", "Record Updated", "success");
+                    cancelEdit();
+                    fetchData();
+                    switchTab('report');
+                }
+            } catch (err) {
+                showToast("Error", "Check Connection", "error");
+            }
             showLoader(false);
         };
 
         function editTxn(id) {
             const i = allData.find(x => x.TransactionID === id);
-            if(!i) return;
+            if (!i) return;
             document.getElementById('field-txnid').value = i.TransactionID;
             document.getElementById('field-platform').value = i.Platform;
             document.getElementById('field-outlet').value = i.OutletName;
@@ -613,22 +771,23 @@
             document.getElementById('field-start').value = i.PayoutStartDate;
             document.getElementById('field-end').value = i.PayoutEndDate;
             document.getElementById('field-date').value = i.PayoutDate;
-            document.getElementById('field-payout').value = i.PayoutAmount;
-            document.getElementById('field-sale').value = i.SaleAmount;
-            document.getElementById('field-others').value = i.OthersSale || i.ToingSale || 0;
+            document.getElementById('field-payout').value = Math.round(parseFloat(i.PayoutAmount) || 0);
+            document.getElementById('field-sale').value = Math.round(parseFloat(i.SaleAmount) || 0);
+            document.getElementById('field-others').value = Math.round(parseFloat(i.OthersSale || i.ToingSale) || 0);
             document.getElementById('field-order').value = i.Order || 0;
             document.getElementById('cancel-btn').classList.remove('hidden');
-            calculateStats(); switchTab('entry');
+            calculateStats();
+            switchTab('entry');
         }
 
         async function downloadPDF() {
             showLoader(true);
-            await new Promise(resolve => setTimeout(resolve, 400)); // Simulate loading animation start
+            await new Promise(resolve => setTimeout(resolve, 400));
 
             try {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF('l', 'pt', 'a4'); 
-                
+
                 const fYearEl = document.getElementById('filter-year');
                 const fMonthEl = document.getElementById('filter-month');
                 const fPlatformEl = document.getElementById('filter-platform');
@@ -638,47 +797,120 @@
                 const fMonth = fMonthEl.options[fMonthEl.selectedIndex]?.text || 'All Months';
                 const fPlatform = fPlatformEl.options[fPlatformEl.selectedIndex]?.text || 'All Platforms';
                 const fOutlet = fOutletEl.options[fOutletEl.selectedIndex]?.text || 'All Registered Outlets';
-                
+
                 doc.setFontSize(22);
-                doc.setTextColor(99, 102, 241);
+                doc.setTextColor(79, 70, 229); 
                 doc.text("Restaurant Payout Pro - Detailed Report", 40, 45);
-                
-                doc.setFontSize(10);
+
+                doc.setFontSize(9);
                 doc.setTextColor(100);
                 doc.text(`Filters: ${fOutlet} | ${fPlatform} | ${fMonth} ${fYear}`, 40, 65);
                 doc.text(`Exported On: ${new Date().toLocaleString()}`, 40, 80);
 
                 const filtered = getFilteredData();
-                let totals = { payout: 0, sale: 0, others: 0, total: 0, order: 0 };
-                
-                const tableRows = filtered.map((i, idx) => {
-                    const payout = parseFloat(i.PayoutAmount) || 0;
-                    const sale = parseFloat(i.SaleAmount) || 0;
-                    const others = parseFloat(i.OthersSale || i.ToingSale) || 0;
-                    const total = parseFloat(i.TotalSale) || 0;
-                    const order = parseInt(i.Order) || 0;
-                    totals.payout += payout; totals.sale += sale; totals.others += others; totals.total += total; totals.order += order;
-
-                    return [idx + 1, i.TransactionID, i.Platform, i.OutletName, i.Month, i.Year, formatDateLabel(i.PayoutStartDate), formatDateLabel(i.PayoutEndDate), formatDateLabel(i.PayoutDate), formatCurrency(payout), formatCurrency(sale), formatCurrency(others), formatCurrency(total), (i['ReceivePercent'] || i['Receive%'] || 0) + "%", order];
+                const groupedData = {};
+                filtered.forEach(i => {
+                    if (!groupedData[i.OutletName]) groupedData[i.OutletName] = [];
+                    groupedData[i.OutletName].push(i);
                 });
 
-                tableRows.push(['', '', '', 'SUMMARY TOTALS', '', '', '', '', '', formatCurrency(totals.payout), formatCurrency(totals.sale), formatCurrency(totals.others), formatCurrency(totals.total), (totals.total > 0 ? (totals.payout / totals.total * 100).toFixed(2) : '0.00') + "%", totals.order]);
+                const tableRows = [];
+                let grandTotals = { payout: 0, sale: 0, others: 0, total: 0, order: 0 };
+                let globalIdx = 1;
+
+                const sortedOutlets = Object.keys(groupedData).sort();
+
+                sortedOutlets.forEach(outletName => {
+                    let subTotals = { payout: 0, sale: 0, others: 0, total: 0, order: 0 };
+                    tableRows.push([{ 
+                        content: `Restaurant: ${outletName}`, 
+                        colSpan: 15, 
+                        styles: { fillColor: [240, 245, 255], fontStyle: 'bold', textColor: [79, 70, 229], halign: 'left' } 
+                    }]);
+
+                    groupedData[outletName].forEach(i => {
+                        const payout = Math.round(parseFloat(i.PayoutAmount) || 0);
+                        const sale = Math.round(parseFloat(i.SaleAmount) || 0);
+                        const others = Math.round(parseFloat(i.OthersSale || i.ToingSale) || 0);
+                        const total = Math.round(parseFloat(i.TotalSale) || 0);
+                        const order = parseInt(i.Order) || 0;
+
+                        subTotals.payout += payout; subTotals.sale += sale; subTotals.others += others; subTotals.total += total; subTotals.order += order;
+                        grandTotals.payout += payout; grandTotals.sale += sale; grandTotals.others += others; grandTotals.total += total; grandTotals.order += order;
+
+                        tableRows.push([
+                            globalIdx++, i.TransactionID, i.Platform, i.OutletName, i.Month, i.Year, 
+                            formatDateLabel(i.PayoutStartDate), formatDateLabel(i.PayoutEndDate), formatDateLabel(i.PayoutDate), 
+                            formatCurrency(payout), formatCurrency(sale), formatCurrency(others), formatCurrency(total), 
+                            Math.round(parseFloat(i['ReceivePercent'] || i['Receive%'] || 0)) + "%", order
+                        ]);
+                    });
+
+                    tableRows.push([{ 
+                        content: `Subtotal - ${outletName}`, colSpan: 9, styles: { fontStyle: 'bold', fillColor: [248, 250, 252], halign: 'left' } 
+                    }, 
+                    { content: formatCurrency(subTotals.payout), styles: { fontStyle: 'bold', fillColor: [248, 250, 252], halign: 'left' } },
+                    { content: formatCurrency(subTotals.sale), styles: { fontStyle: 'bold', fillColor: [248, 250, 252], halign: 'left' } },
+                    { content: formatCurrency(subTotals.others), styles: { fontStyle: 'bold', fillColor: [248, 250, 252], halign: 'left' } },
+                    { content: formatCurrency(subTotals.total), styles: { fontStyle: 'bold', fillColor: [248, 250, 252], halign: 'left' } },
+                    { content: Math.round(subTotals.total > 0 ? (subTotals.payout / subTotals.total * 100) : 0) + "%", styles: { fontStyle: 'bold', fillColor: [248, 250, 252], halign: 'left' } },
+                    { content: subTotals.order, styles: { fontStyle: 'bold', fillColor: [248, 250, 252], halign: 'left' } }
+                    ]);
+                });
+
+                tableRows.push([{ 
+                    content: 'TOTAL SUMMARY', colSpan: 9, styles: { fillColor: [99, 102, 241], textColor: 255, fontStyle: 'bold', halign: 'left' } 
+                }, 
+                { content: formatCurrency(grandTotals.payout), styles: { fillColor: [99, 102, 241], textColor: 255, fontStyle: 'bold', halign: 'left' } },
+                { content: formatCurrency(grandTotals.sale), styles: { fillColor: [99, 102, 241], textColor: 255, fontStyle: 'bold', halign: 'left' } },
+                { content: formatCurrency(grandTotals.others), styles: { fillColor: [99, 102, 241], textColor: 255, fontStyle: 'bold', halign: 'left' } },
+                { content: formatCurrency(grandTotals.total), styles: { fillColor: [99, 102, 241], textColor: 255, fontStyle: 'bold', halign: 'left' } },
+                { content: Math.round(grandTotals.total > 0 ? (grandTotals.payout / grandTotals.total * 100) : 0) + "%", styles: { fillColor: [99, 102, 241], textColor: 255, fontStyle: 'bold', halign: 'left' } },
+                { content: grandTotals.order, styles: { fillColor: [99, 102, 241], textColor: 255, fontStyle: 'bold', halign: 'left' } }
+                ]);
 
                 doc.autoTable({
                     startY: 100,
-                    head: [['#', 'TXN ID', 'Partner', 'Outlet', 'Mon', 'Yr', 'Start', 'End', 'Date', 'Payout', 'Sale', 'Others', 'Total Sale', 'Rec %', 'Orders']],
+                    head: [['#', 'TXN ID', 'Partner', 'Outlet', 'Month', 'Year', 'Start', 'End', 'Date', 'Payout', 'Sale', 'Others', 'Total Sale', 'Recovery %', 'Orders']],
                     body: tableRows,
                     theme: 'grid',
-                    headStyles: { fillColor: [99, 102, 241], fontSize: 7, halign: 'center' },
-                    bodyStyles: { fontSize: 6.5, cellPadding: 4 },
-                    columnStyles: { 9: { halign: 'right' }, 10: { halign: 'right' }, 11: { halign: 'right' }, 12: { halign: 'right' }, 13: { halign: 'right' }, 14: { halign: 'right' } },
-                    didParseCell: function (data) { if (data.row.index === tableRows.length - 1) { data.cell.styles.fontStyle = 'bold'; data.cell.styles.fillColor = [240, 242, 245]; } }
+                    tableWidth: 'auto', 
+                    showHead: 'everyPage', 
+                    headStyles: { fillColor: [79, 70, 229], fontSize: 7, halign: 'left', fontStyle: 'bold' },
+                    bodyStyles: { fontSize: 6.2, cellPadding: 3, halign: 'left', textColor: [40, 40, 40] },
+                    alternateRowStyles: { fillColor: [252, 252, 255] },
+                    styles: { halign: 'left', cellWidth: 'auto' },
+                    columnStyles: {
+                        0: { cellWidth: 20 }, // #
+                        1: { cellWidth: 'wrap' }, // TXN ID
+                        3: { cellWidth: 'auto' }, // Outlet
+                        9: { cellWidth: 'wrap' }, // Payout
+                        10: { cellWidth: 50 }, // Widen Sale Column
+                        11: { cellWidth: 'wrap' }, // Others
+                        12: { cellWidth: 'wrap' }, // Total Sale
+                        13: { cellWidth: 40 }, // %
+                        14: { cellWidth: 35 } // Orders
+                    },
+                    didDrawPage: function (data) {
+                        const str = "Page " + doc.internal.getNumberOfPages();
+                        doc.setFontSize(8);
+                        doc.setTextColor(150);
+                        const pageSize = doc.internal.pageSize;
+                        const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
+                        doc.text(str, data.settings.margin.left, pageHeight - 10);
+                        doc.text("Restaurant Payout Pro System Report", pageSize.width - 160, pageHeight - 10);
+                    }
                 });
 
                 const safeName = fOutlet.substring(0, 15).replace(/\s+/g, '_');
-                doc.save(`Payout_Report_${safeName}_${Date.now()}.pdf`);
-                showToast("Success", "PDF Report Exported", "success");
-            } catch (err) { showToast("Error", "PDF generation failed", "error"); } finally { showLoader(false); }
+                doc.save(`Payout_Autofit_Report_${safeName}_${Date.now()}.pdf`);
+                showToast("Success", "Professional PDF Exported", "success");
+            } catch (err) { 
+                console.error(err);
+                showToast("Error", "PDF generation failed", "error"); 
+            } finally { 
+                showLoader(false); 
+            }
         }
 
         async function downloadCSV() {
@@ -686,32 +918,37 @@
             await new Promise(resolve => setTimeout(resolve, 400));
             try {
                 const filtered = getFilteredData();
-                const headers = "Transaction ID,Platform,Outlet Name,Month,Year,Payout Start Date,Payout End Date,Payout Date,Payout Amount,Sale Amount,Others Sale,Total Sale,Receive %,Order\n";
-                const csv = headers + filtered.map(i => `"${i.TransactionID}","${i.Platform}","${i.OutletName}","${i.Month}","${i.Year}","${i.PayoutStartDate}","${i.PayoutEndDate}","${i.PayoutDate}","${i.PayoutAmount}","${i.SaleAmount}","${i.OthersSale || 0}","${i.TotalSale}","${i['ReceivePercent'] || i['Receive%'] || 0}%","${i.Order || 0}"`).join('\n');
+                const headers = "Transaction ID,Platform,Outlet Name,Month,Year,Payout Start Date,Payout End Date,Payout Date,Payout Amount,Sale Amount,Others Sale,Total Sale,Recovery %,Order\n";
+                const csv = headers + filtered.map(i => `"${i.TransactionID}","${i.Platform}","${i.OutletName}","${i.Month}","${i.Year}","${i.PayoutStartDate}","${i.PayoutEndDate}","${i.PayoutDate}","${Math.round(i.PayoutAmount)}","${Math.round(i.SaleAmount)}","${Math.round(i.OthersSale || 0)}","${Math.round(i.TotalSale)}","${Math.round(i['ReceivePercent'] || i['Receive%'] || 0)}%","${i.Order || 0}"`).join('\n');
                 const blob = new Blob([csv], { type: 'text/csv' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a'); a.href = url; a.download = 'Payout_Data.csv'; a.click();
                 showToast("Success", "CSV Exported", "success");
-            } catch (err) { showToast("Error", "CSV Export failed", "error"); } finally { showLoader(false); }
+            } catch (err) {
+                showToast("Error", "CSV Export failed", "error");
+            } finally {
+                showLoader(false);
+            }
         }
 
         function calculateStats() {
-            const p = parseFloat(document.getElementById('field-payout').value) || 0;
-            const s = parseFloat(document.getElementById('field-sale').value) || 0;
-            const o = parseFloat(document.getElementById('field-others').value) || 0;
+            const p = Math.round(parseFloat(document.getElementById('field-payout').value) || 0);
+            const s = Math.round(parseFloat(document.getElementById('field-sale').value) || 0);
+            const o = Math.round(parseFloat(document.getElementById('field-others').value) || 0);
             const total = s + o;
-            document.getElementById('calc-total').innerText = formatCurrency(total);
-            document.getElementById('calc-percent').innerText = (total > 0 ? (p/total)*100 : 0).toFixed(2) + "%";
+            
+            document.getElementById('calc-total').innerText = "₹" + total;
+            document.getElementById('calc-percent').innerText = Math.round(total > 0 ? (p / total) * 100 : 0) + "%";
         }
 
         function showLoader(s) {
             const topBar = document.getElementById('top-loader');
             const overlay = document.getElementById('loader-overlay');
-            if(s) {
+            if (s) {
                 overlay.style.display = 'block';
                 topBar.style.opacity = '1';
                 topBar.style.width = '30%';
-                setTimeout(() => { if(topBar.style.width === '30%') topBar.style.width = '70%'; }, 200);
+                setTimeout(() => { if (topBar.style.width === '30%') topBar.style.width = '70%'; }, 200);
             } else {
                 topBar.style.width = '100%';
                 setTimeout(() => {
@@ -722,23 +959,58 @@
             }
         }
 
-        function cancelEdit() { document.getElementById('payout-form').reset(); document.getElementById('cancel-btn').classList.add('hidden'); generateTxnId(); calculateStats(); }
-        function openDelete(id) { deletingId = id; document.getElementById('modal-delete').classList.remove('hidden'); }
+        function cancelEdit() {
+            document.getElementById('payout-form').reset();
+            document.getElementById('cancel-btn').classList.add('hidden');
+            generateTxnId();
+            initDateDefaults(); 
+            calculateStats();
+        }
+
+        function openDelete(id) {
+            deletingId = id;
+            document.getElementById('modal-delete').classList.remove('hidden');
+        }
+
         function closeDeleteModal() { document.getElementById('modal-delete').classList.add('hidden'); }
+        
         document.getElementById('confirm-delete-btn').onclick = async () => {
-            showLoader(true); closeDeleteModal();
-            try { await fetch(`${SCRIPT_URL}?action=deleteData&id=${deletingId}`, { method: 'POST' }); fetchData(); } catch (e) {}
+            showLoader(true);
+            closeDeleteModal();
+            try {
+                await fetch(`${SCRIPT_URL}?action=deleteData&id=${deletingId}`, { method: 'POST' });
+                fetchData();
+            } catch (e) {}
             showLoader(false);
         };
+
         function applyFilters() { renderAll(); }
-        function resetFilters() { document.querySelectorAll('.filter-sync').forEach(el => el.value = el.id.includes('year') ? 2025 : ""); renderAll(); }
-        function formatCurrency(n) { return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(n || 0); }
-        function formatDateLabel(val) { if(!val) return "-"; const p = val.split('-'); return p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : val; }
+        
+        function resetFilters() {
+            document.querySelectorAll('.filter-sync').forEach(el => el.value = el.id.includes('year') ? new Date().getFullYear() : "");
+            renderAll();
+        }
+
+        function formatCurrency(n) {
+            return new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                maximumFractionDigits: 0,
+                useGrouping: false 
+            }).format(Math.round(n || 0));
+        }
+
+        function formatDateLabel(val) {
+            if (!val) return "-";
+            const p = val.split('-');
+            return p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : val;
+        }
+
         function showToast(t, m, type) {
             const el = document.getElementById('toast');
             document.getElementById('toast-title').innerText = t;
             document.getElementById('toast-msg').innerText = m;
-            if(type === 'success') {
+            if (type === 'success') {
                 document.getElementById('toast-icon-wrapper').className = "w-10 h-10 rounded-full flex items-center justify-center bg-emerald-50 text-emerald-500";
                 document.getElementById('toast-icon-wrapper').innerHTML = '<i class="fas fa-check"></i>';
                 document.getElementById('toast-content').className = "bg-white shadow-2xl rounded-xl border-l-4 border-emerald-500 p-4 flex items-center gap-4 min-w-[300px]";
@@ -752,4 +1024,5 @@
         }
     </script>
 </body>
+
 </html>
