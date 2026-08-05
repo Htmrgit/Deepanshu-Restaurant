@@ -634,7 +634,7 @@
 
             // 3. Multi-Select Dish Chips Logic
             const dishChips = document.querySelectorAll('#dishChips .dish-chip-btn');
-            const selectedDishes = new Set(['Butter Chicken', 'Bhatti Da Murg']);
+            const selectedDishes = new Set(); // Empty by default (No automatic selection)
 
             dishChips.forEach(chip => {
                 const val = chip.getAttribute('data-value');
