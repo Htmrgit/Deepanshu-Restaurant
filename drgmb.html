@@ -374,32 +374,29 @@
                 </span>
             </div>
 
-            <!-- Question 1: Favorite Dish / Highlights (Multi-select Chips) -->
+            <!-- Question 1: What did you enjoy the most? (Multi-select Chips) -->
             <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
-                    1. What did you enjoy most? <span class="text-slate-400 font-normal">(Tap multiple)</span>
+                    1. What did you enjoy the most? <span class="text-slate-400 font-normal">(Tap multiple)</span>
                 </label>
                 <div id="enjoyChips" class="flex flex-wrap gap-2">
-                    <button type="button" data-value="Bhatti Da Murg" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
-                        <span>🍗</span> Bhatti Da Murg
+                    <button type="button" data-value="Food" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
+                        <span>🍔</span> Food
                     </button>
-                    <button type="button" data-value="Butter Chicken" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
-                        <span>🍲</span> Butter Chicken
+                    <button type="button" data-value="Service" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
+                        <span>🤝</span> Service
                     </button>
-                    <button type="button" data-value="Dal Makhani & Naan" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
-                        <span>🫓</span> Dal Makhani
+                    <button type="button" data-value="Ambience" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
+                        <span>✨</span> Ambience
                     </button>
-                    <button type="button" data-value="Paneer Akbari" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
-                        <span>🧀</span> Paneer Akbari
+                    <button type="button" data-value="Cleanliness" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
+                        <span>🧼</span> Cleanliness
                     </button>
-                    <button type="button" data-value="Quick Service" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
-                        <span>⚡</span> Fast Service
+                    <button type="button" data-value="Value / Pricing" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
+                        <span>💰</span> Value / Pricing
                     </button>
-                    <button type="button" data-value="Value for Money" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
-                        <span>💰</span> Budget Friendly
-                    </button>
-                    <button type="button" data-value="Family Ambience" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
-                        <span>👨‍👩‍👧‍👦</span> Family Vibe
+                    <button type="button" data-value="Overall Experience" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
+                        <span>❤️</span> Overall Experience
                     </button>
                 </div>
             </div>
@@ -477,12 +474,17 @@
                         <span id="copyBtnText">1. Copy Review</span>
                     </button>
 
-                    <!-- Google Direct Destination Button -->
-                    <a id="googleRedirectBtn" href="https://g.page/r/CWrP17NXSvjvEBM/review" target="_blank" rel="noopener noreferrer" class="w-full py-3 px-4 bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs rounded-18 shadow-glow active:scale-[0.98] transition flex items-center justify-center gap-2 text-center group">
-                        <i class="fa-brands fa-google text-white text-sm group-hover:scale-110 transition-transform"></i>
-                        <span>2. Post on Google</span>
-                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px] opacity-80"></i>
-                    </a>
+                    <!-- Google Direct Destination Button (Locked until copied) -->
+                    <div class="relative">
+                        <a id="googleRedirectBtn" href="https://g.page/r/CWrP17NXSvjvEBM/review" target="_blank" rel="noopener noreferrer" class="w-full py-3 px-4 bg-amber-600 text-white font-extrabold text-xs rounded-18 shadow-glow transition flex items-center justify-center gap-2 text-center group pointer-events-none opacity-40 grayscale cursor-not-allowed">
+                            <i id="googleBtnIcon" class="fa-solid fa-lock text-amber-200 text-sm"></i>
+                            <span id="googleBtnText">2. Post on Google</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] opacity-80"></i>
+                        </a>
+                        <p id="lockHint" class="text-[10px] text-amber-600 dark:text-amber-400 text-center mt-1 font-semibold flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-lock"></i> Click '1. Copy Review' first
+                        </p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -516,8 +518,28 @@
             // Direct Google Review link supplied
             const GOOGLE_REVIEW_URL = "https://g.page/r/CWrP17NXSvjvEBM/review";
             const googleRedirectBtn = document.getElementById('googleRedirectBtn');
+            const googleBtnIcon = document.getElementById('googleBtnIcon');
+            const lockHint = document.getElementById('lockHint');
+
             if (googleRedirectBtn) {
                 googleRedirectBtn.href = GOOGLE_REVIEW_URL;
+            }
+
+            // Lock / Unlock Google Button Logic
+            function lockGoogleButton() {
+                if (!googleRedirectBtn) return;
+                googleRedirectBtn.classList.add('pointer-events-none', 'opacity-40', 'grayscale', 'cursor-not-allowed');
+                googleRedirectBtn.classList.remove('bg-amber-600', 'hover:bg-amber-700');
+                if (googleBtnIcon) googleBtnIcon.className = 'fa-solid fa-lock text-amber-200 text-sm';
+                if (lockHint) lockHint.classList.remove('hidden');
+            }
+
+            function unlockGoogleButton() {
+                if (!googleRedirectBtn) return;
+                googleRedirectBtn.classList.remove('pointer-events-none', 'opacity-40', 'grayscale', 'cursor-not-allowed');
+                googleRedirectBtn.classList.add('bg-amber-600', 'hover:bg-amber-700');
+                if (googleBtnIcon) googleBtnIcon.className = 'fa-brands fa-google text-white text-sm group-hover:scale-110 transition-transform';
+                if (lockHint) lockHint.classList.add('hidden');
             }
 
             // Theme Management
@@ -588,7 +610,7 @@
 
             // Feature Chip Selection
             const enjoyChips = document.querySelectorAll('#enjoyChips .chip-btn');
-            const selectedAspects = new Set(['Bhatti Da Murg', 'Butter Chicken']);
+            const selectedAspects = new Set(['Food', 'Service']);
 
             enjoyChips.forEach(chip => {
                 const val = chip.getAttribute('data-value');
@@ -700,11 +722,14 @@
                 generateBtnText.textContent = "AI is Writing...";
                 generateBtn.disabled = true;
 
+                // Lock google button whenever a new review is generated
+                lockGoogleButton();
+
                 setTimeout(() => {
                     reviewTextarea.value = text;
                     generateBtnText.textContent = "Generate Review with AI";
                     generateBtn.disabled = false;
-                    showToast("AI Review Generated for Deepanshu Restaurant! ✨");
+                    showToast("AI Review Generated! Click 'Copy Review' to proceed ✨");
                 }, 400);
             }
 
@@ -734,6 +759,9 @@
                 if (navigator.vibrate) {
                     navigator.vibrate([40, 60, 40]);
                 }
+
+                // Unlock the Post on Google button after copying!
+                unlockGoogleButton();
 
                 copyBtn.classList.remove('bg-slate-800', 'dark:bg-slate-700');
                 copyBtn.classList.add('bg-amber-600');
