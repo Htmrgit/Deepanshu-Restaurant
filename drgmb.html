@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Leave a Review | Deepanshu Restaurant Indirapuram - Instant Google Review</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Share your dining experience at Deepanshu Restaurant, Indirapuram! Use our AI review assistant to draft and post your Google review in under 30 seconds.">
+    <meta name="theme-color" content="#D97706">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Leave a Review - Deepanshu Restaurant Indirapuram">
+    <meta property="og:description" content="Rate your North Indian & Tandoori dining experience with 1-click AI review assistance.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=1200&q=80">
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Restaurant",
+      "name": "Deepanshu Restaurant",
+      "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=800&q=80",
+      "telephone": "+919910109626",
+      "servesCuisine": ["North Indian", "Tandoori", "Mughlai", "Chinese"],
+      "priceRange": "₹200–₹400",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "387/1, Sector 10, Shakti Khand I, Indirapuram",
+        "addressLocality": "Ghaziabad",
+        "addressRegion": "UP",
+        "postalCode": "201010",
+        "addressCountry": "IN"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.0",
+        "reviewCount": "3943"
+      }
+    }
+    </script>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: '#D97706',
+                            50: '#fffbe1',
+                            100: '#fef3c7',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309'
+                        },
+                        accent: {
+                            DEFAULT: '#16A34A',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a'
+                        },
+                        darkbg: '#0F172A'
+                    },
+                    borderRadius: {
+                        '18': '18px',
+                        '24': '24px'
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 12px -2px rgba(0, 0, 0, 0.02)',
+                        'glow': '0 0 25px -5px rgba(217, 119, 6, 0.35)',
+                        'amber-glow': '0 0 25px -5px rgba(245, 158, 11, 0.4)'
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 4s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .dark .glass-card {
+            background: rgba(30, 41, 59, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .star-btn {
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .star-btn:active {
+            transform: scale(1.3) rotate(12deg);
+        }
+        .star-active {
+            color: #F59E0B;
+            filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.6));
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 999px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155;
+        }
+    </style>
+</head>
+<body class="bg-[#F8FAFC] dark:bg-darkbg text-[#111827] dark:text-gray-100 min-h-screen transition-colors duration-300 pb-20 selection:bg-amber-100 selection:text-amber-800">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-40 w-full glass-card border-b border-slate-200/50 dark:border-slate-800/50 px-4 py-3 shadow-xs">
+        <div class="max-w-md mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold text-sm">
+                    <i class="fa-solid fa-utensils"></i>
+                </span>
+                <span class="text-xs font-bold tracking-wide uppercase text-slate-700 dark:text-slate-200">Deepanshu Restaurant</span>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <button id="themeToggle" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all text-sm flex items-center justify-center w-9 h-9" aria-label="Toggle Theme">
+                    <i id="themeIcon" class="fa-solid fa-moon"></i>
+                </button>
+
+                <button id="pwaInstallBtn" class="hidden px-3 py-1.5 rounded-xl bg-amber-600 text-white font-medium text-xs flex items-center gap-1.5 shadow-sm hover:bg-amber-700 transition">
+                    <i class="fa-solid fa-download"></i>
+                    <span>App</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Mobile First Layout -->
+    <main class="max-w-md mx-auto px-4 pt-5 space-y-6">
+
+        <!-- BRAND HEADER SECTION -->
+        <section class="text-center pt-2 pb-1">
+            <div class="relative inline-block mb-3">
+                <div class="w-24 h-24 rounded-2xl mx-auto shadow-md overflow-hidden bg-white dark:bg-slate-800 p-1.5 border-2 border-amber-500/40">
+                    <img id="restaurantLogo" 
+                         src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=200&h=200&q=80" 
+                         alt="Deepanshu Restaurant Logo" 
+                         class="w-full h-full object-cover rounded-xl"
+                         onerror="this.src='https://placehold.co/200x200/d97706/ffffff?text=DEEPANSHU'">
+                </div>
+                <span class="absolute -bottom-1 -right-1 bg-amber-600 text-white text-xs p-1.5 rounded-full shadow-lg flex items-center justify-center w-7 h-7 border-2 border-white dark:border-slate-900" title="Google Verified Restaurant">
+                    <i class="fa-solid fa-check"></i>
+                </span>
+            </div>
+
+            <h1 class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                Deepanshu Restaurant
+            </h1>
+            <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                Shakti Khand I, Indirapuram, Ghaziabad • North Indian & Tandoori
+            </p>
+
+            <!-- Google Rating Stats -->
+            <div class="flex items-center justify-center gap-2 mt-2.5">
+                <div class="flex text-amber-400 text-sm">
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-regular fa-star"></i>
+                </div>
+                <span class="text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-500/10 dark:bg-amber-500/20 px-2.5 py-0.5 rounded-full border border-amber-500/20">
+                    4.0 ★ (3,940+ Google Reviews)
+                </span>
+            </div>
+
+            <!-- Warm Greeting Message -->
+            <div class="mt-4 p-3.5 rounded-18 glass-card shadow-soft text-center border-l-4 border-l-amber-600">
+                <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center justify-center gap-1.5">
+                    Thank You for Dining With Us <span class="animate-pulse text-red-500 text-base">❤️</span>
+                </p>
+                <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                    Help us serve Indirapuram better! Leave a quick 1-click Google review below.
+                </p>
+            </div>
+        </section>
+
+        <!-- HERO ILLUSTRATION SECTION -->
+        <section class="relative rounded-24 overflow-hidden bg-gradient-to-br from-amber-500/10 via-amber-600/5 to-slate-100 dark:from-amber-950/40 dark:via-slate-900 dark:to-slate-900 p-5 border border-slate-200/60 dark:border-slate-800/80 shadow-soft">
+            <div class="flex flex-col items-center text-center relative z-10">
+                <div class="w-full max-w-[260px] h-48 relative my-1 flex items-center justify-center">
+                    <svg viewBox="0 0 320 220" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full drop-shadow-md">
+                        <circle cx="160" cy="110" r="85" fill="#D97706" fill-opacity="0.12"/>
+                        <circle cx="230" cy="60" r="45" fill="#22C55E" fill-opacity="0.15"/>
+                        
+                        <!-- Table Surface -->
+                        <path d="M40 180C40 170 80 165 160 165C240 165 280 170 280 180L290 210H30L40 180Z" fill="#CBD5E1" class="dark:fill-slate-700" opacity="0.6"/>
+                        
+                        <!-- Food Bowl / Platter -->
+                        <ellipse cx="85" cy="155" rx="18" ry="8" fill="#D97706"/>
+                        <path d="M70 155C70 164 100 164 100 155" fill="#F59E0B"/>
+
+                        <!-- Phone Frame -->
+                        <rect x="115" y="25" width="90" height="160" rx="16" fill="#0F172A" stroke="#334155" stroke-width="3"/>
+                        <rect x="120" y="35" width="80" height="140" rx="10" fill="#FFFFFF" class="dark:fill-slate-800"/>
+                        <rect x="145" y="28" width="30" height="4" rx="2" fill="#334155"/>
+
+                        <!-- Inside Phone Graphics -->
+                        <rect x="130" y="45" width="60" height="60" rx="8" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="3 3"/>
+                        <rect x="138" y="53" width="18" height="18" fill="#D97706" rx="2"/>
+                        <rect x="164" y="53" width="18" height="18" fill="#D97706" rx="2"/>
+                        <rect x="138" y="79" width="18" height="18" fill="#D97706" rx="2"/>
+                        <rect x="164" y="79" width="8" height="8" fill="#22C55E" rx="1"/>
+                        <rect x="174" y="89" width="8" height="8" fill="#D97706" rx="1"/>
+
+                        <!-- Floating Review Card -->
+                        <g class="animate-float">
+                            <rect x="155" y="105" width="140" height="60" rx="12" fill="#FFFFFF" class="shadow-lg"/>
+                            <path d="M172 125C172 120 176 117 181 117C183.5 117 185.5 118 187 119.5L184.5 122C183.8 121.3 182.6 120.5 181 120.5C178.2 120.5 176 122.8 176 125.5C176 128.2 178.2 130.5 181 130.5C184.2 130.5 185.5 128.2 185.7 126.8H181V123.8H189C189.1 124.3 189.2 125 189.2 125.8C189.2 129.8 186.5 133.5 181 133.5C176 133.5 172 129.5 172 125Z" fill="#4285F4"/>
+                            <text x="193" y="127" font-family="sans-serif" font-weight="bold" font-size="8.5" fill="#111827">Deepanshu Visitor</text>
+                            <text x="172" y="142" font-family="sans-serif" font-size="12" fill="#F59E0B">★★★★★</text>
+                            <rect x="172" y="148" width="95" height="4" rx="2" fill="#FEF3C7"/>
+                            <rect x="172" y="148" width="70" height="4" rx="2" fill="#D97706"/>
+                        </g>
+
+                        <!-- Sparkles -->
+                        <path d="M60 50L63 40L66 50L76 53L66 56L63 66L60 56L50 53L60 50Z" fill="#F59E0B"/>
+                        <path d="M260 30L261.5 25L263 30L268 31.5L263 33L261.5 38L260 33L255 31.5L260 30Z" fill="#22C55E"/>
+                    </svg>
+                </div>
+
+                <div class="mt-2">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 text-xs font-bold tracking-wide uppercase">
+                        <i class="fa-solid fa-bolt text-amber-500 animate-pulse"></i> 30-Second Express Review
+                    </span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                        Rate us, select your favorite dishes, generate AI text & post on Google!
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP SECTION -->
+        <section class="space-y-3">
+            <h2 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">3 Simple Steps</h2>
+            
+            <div class="grid grid-cols-3 gap-2.5">
+                <!-- STEP 1 -->
+                <div class="glass-card rounded-18 p-3 text-center border border-slate-200/80 dark:border-slate-800 shadow-soft relative overflow-hidden">
+                    <div class="absolute -top-2 -right-2 bg-amber-600 text-white font-extrabold text-[10px] w-6 h-6 rounded-full flex items-center justify-center shadow-xs">
+                        1
+                    </div>
+                    <div class="w-9 h-9 mx-auto rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center mb-2 text-base">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200">Rate Stars</h3>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">Tap rating</p>
+                </div>
+
+                <!-- STEP 2 -->
+                <div class="glass-card rounded-18 p-3 text-center border border-slate-200/80 dark:border-slate-800 shadow-soft relative overflow-hidden">
+                    <div class="absolute -top-2 -right-2 bg-amber-600 text-white font-extrabold text-[10px] w-6 h-6 rounded-full flex items-center justify-center shadow-xs">
+                        2
+                    </div>
+                    <div class="w-9 h-9 mx-auto rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-2 text-base">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200">AI Draft</h3>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">1-Click Text</p>
+                </div>
+
+                <!-- STEP 3 -->
+                <div class="glass-card rounded-18 p-3 text-center border border-slate-200/80 dark:border-slate-800 shadow-soft relative overflow-hidden">
+                    <div class="absolute -top-2 -right-2 bg-amber-600 text-white font-extrabold text-[10px] w-6 h-6 rounded-full flex items-center justify-center shadow-xs">
+                        3
+                    </div>
+                    <div class="w-9 h-9 mx-auto rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-2 text-base">
+                        <i class="fa-brands fa-google"></i>
+                    </div>
+                    <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200">Copy & Post</h3>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">Paste on Google</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- RATING SECTION -->
+        <section id="ratingSection" class="glass-card rounded-24 p-5 text-center shadow-soft border border-slate-200/80 dark:border-slate-800 relative">
+            <span class="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider bg-amber-500/10 dark:bg-amber-950/60 px-3 py-1 rounded-full">
+                Step 1 of 2
+            </span>
+            <h2 class="text-lg font-extrabold text-slate-900 dark:text-white mt-2">
+                Rate Your Meal & Service
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Tap a star rating for Deepanshu Restaurant
+            </p>
+
+            <!-- 5 Interactive Stars -->
+            <div id="starsContainer" class="flex justify-center items-center gap-2 sm:gap-3 my-5 py-2">
+                <button data-star="1" class="star-btn text-3xl sm:text-4xl text-slate-300 dark:text-slate-700 focus:outline-none" aria-label="1 Star">
+                    <i class="fa-solid fa-star"></i>
+                </button>
+                <button data-star="2" class="star-btn text-3xl sm:text-4xl text-slate-300 dark:text-slate-700 focus:outline-none" aria-label="2 Stars">
+                    <i class="fa-solid fa-star"></i>
+                </button>
+                <button data-star="3" class="star-btn text-3xl sm:text-4xl text-slate-300 dark:text-slate-700 focus:outline-none" aria-label="3 Stars">
+                    <i class="fa-solid fa-star"></i>
+                </button>
+                <button data-star="4" class="star-btn text-3xl sm:text-4xl text-slate-300 dark:text-slate-700 focus:outline-none" aria-label="4 Stars">
+                    <i class="fa-solid fa-star"></i>
+                </button>
+                <button data-star="5" class="star-btn text-3xl sm:text-4xl text-slate-300 dark:text-slate-700 focus:outline-none" aria-label="5 Stars">
+                    <i class="fa-solid fa-star"></i>
+                </button>
+            </div>
+
+            <!-- Dynamic Rating Badge -->
+            <div id="ratingFeedback" class="h-8 flex items-center justify-center">
+                <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 italic">Tap a star to select...</span>
+            </div>
+        </section>
+
+        <!-- AI REVIEW GENERATOR SECTION -->
+        <section id="aiSection" class="glass-card rounded-24 p-5 shadow-soft border border-slate-200/80 dark:border-slate-800 space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-500 text-white flex items-center justify-center text-sm shadow-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-extrabold text-slate-900 dark:text-white leading-tight">
+                            AI Review Assistant
+                        </h2>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Customized for Deepanshu Restaurant</p>
+                    </div>
+                </div>
+                <span class="bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-500/20">
+                    Smart AI
+                </span>
+            </div>
+
+            <!-- Question 1: Favorite Dish / Highlights (Multi-select Chips) -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
+                    1. What did you enjoy most? <span class="text-slate-400 font-normal">(Tap multiple)</span>
+                </label>
+                <div id="enjoyChips" class="flex flex-wrap gap-2">
+                    <button type="button" data-value="Bhatti Da Murg" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
+                        <span>🍗</span> Bhatti Da Murg
+                    </button>
+                    <button type="button" data-value="Butter Chicken" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
+                        <span>🍲</span> Butter Chicken
+                    </button>
+                    <button type="button" data-value="Dal Makhani & Naan" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
+                        <span>🫓</span> Dal Makhani
+                    </button>
+                    <button type="button" data-value="Paneer Akbari" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
+                        <span>🧀</span> Paneer Akbari
+                    </button>
+                    <button type="button" data-value="Quick Service" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
+                        <span>⚡</span> Fast Service
+                    </button>
+                    <button type="button" data-value="Value for Money" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
+                        <span>💰</span> Budget Friendly
+                    </button>
+                    <button type="button" data-value="Family Ambience" class="chip-btn px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition flex items-center gap-1.5 shadow-2xs">
+                        <span>👨‍👩‍👧‍👦</span> Family Vibe
+                    </button>
+                </div>
+            </div>
+
+            <!-- Language & Tone Dropdowns -->
+            <div class="grid grid-cols-2 gap-3">
+                <!-- Question 2: Language -->
+                <div>
+                    <label for="langSelect" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                        2. Language
+                    </label>
+                    <div class="relative">
+                        <select id="langSelect" class="w-full appearance-none bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-xl px-3 py-2.5 pr-8 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 font-medium transition">
+                            <option value="English" selected>🇬🇧 English</option>
+                            <option value="Hindi">🇮🇳 Hindi (हिंदी)</option>
+                            <option value="Hinglish">🇮🇳 Hinglish</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400 text-xs">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 3: Tone -->
+                <div>
+                    <label for="toneSelect" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                        3. Tone
+                    </label>
+                    <div class="relative">
+                        <select id="toneSelect" class="w-full appearance-none bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-xl px-3 py-2.5 pr-8 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 font-medium transition">
+                            <option value="Short" selected>⚡ Short & Crisp</option>
+                            <option value="Friendly">😊 Friendly & Warm</option>
+                            <option value="Foodie">🍖 Foodie Review</option>
+                            <option value="Family">👨‍👩‍👧 Family Outing</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400 text-xs">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generate Button -->
+            <div>
+                <button id="generateBtn" class="w-full py-3.5 px-4 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-white font-extrabold text-sm rounded-18 shadow-glow hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2 relative overflow-hidden group">
+                    <span class="absolute inset-0 w-1/2 h-full bg-white/20 skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-out"></span>
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-200 animate-spin-slow"></i>
+                    <span id="generateBtnText">Generate Review with AI</span>
+                </button>
+            </div>
+
+            <!-- AI GENERATED OUTPUT TEXTAREA -->
+            <div id="outputContainer" class="space-y-3 pt-2">
+                <div class="flex items-center justify-between">
+                    <label for="reviewTextarea" class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                        <i class="fa-regular fa-pen-to-square text-amber-600"></i>
+                        Generated Review:
+                    </label>
+                    <span class="text-[10px] text-slate-400">Editable text</span>
+                </div>
+
+                <div class="relative">
+                    <textarea id="reviewTextarea" rows="4" class="w-full p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-18 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition leading-relaxed shadow-inner" placeholder="Your review will appear here..."></textarea>
+                    
+                    <div id="copyToast" class="hidden absolute top-3 right-3 bg-slate-900/90 text-white text-[11px] px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-md animate-fade">
+                        <i class="fa-solid fa-check text-green-400"></i> Copied!
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                    <!-- Copy Button -->
+                    <button id="copyBtn" class="w-full py-3 px-4 bg-slate-800 dark:bg-slate-700 text-white font-bold text-xs rounded-18 shadow-md hover:bg-slate-900 dark:hover:bg-slate-600 active:scale-[0.98] transition flex items-center justify-center gap-2">
+                        <i class="fa-regular fa-copy text-amber-400 text-sm"></i>
+                        <span id="copyBtnText">1. Copy Review</span>
+                    </button>
+
+                    <!-- Google Direct Destination Button -->
+                    <a id="googleRedirectBtn" href="https://g.page/r/CWrP17NXSvjvEBM/review" target="_blank" rel="noopener noreferrer" class="w-full py-3 px-4 bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs rounded-18 shadow-glow active:scale-[0.98] transition flex items-center justify-center gap-2 text-center group">
+                        <i class="fa-brands fa-google text-white text-sm group-hover:scale-110 transition-transform"></i>
+                        <span>2. Post on Google</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px] opacity-80"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER SECTION -->
+        <footer class="text-center py-6 space-y-2">
+            <p class="text-xs font-semibold text-slate-600 dark:text-slate-400 flex items-center justify-center gap-1">
+                <span class="text-red-500 animate-pulse">❤️</span> Thank you for visiting Deepanshu Restaurant!
+            </p>
+            <p class="text-[11px] text-slate-400 dark:text-slate-500">
+                387/1, Shakti Khand 1, Indirapuram, Ghaziabad • Tel: 099101 09626
+            </p>
+        </footer>
+    </main>
+
+    <!-- Floating WhatsApp Direct Contact -->
+    <a id="whatsappBtn" href="https://wa.me/919910109626?text=Hi%20Deepanshu%20Restaurant,%20I%20visited%20recently!" target="_blank" class="fixed bottom-5 right-5 z-40 bg-emerald-500 text-white p-3.5 rounded-full shadow-lg hover:bg-emerald-600 active:scale-95 transition-all flex items-center justify-center text-xl w-13 h-13 border-2 border-white dark:border-slate-900" aria-label="Contact Deepanshu Restaurant on WhatsApp">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
+
+    <!-- Global Toast Container -->
+    <div id="globalToast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 opacity-0 transform -translate-y-4">
+        <div class="bg-slate-900/90 backdrop-blur-md text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2 border border-white/10">
+            <i id="toastIcon" class="fa-solid fa-circle-check text-green-400 text-sm"></i>
+            <span id="toastMessage">Action completed</span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Direct Google Review link supplied
+            const GOOGLE_REVIEW_URL = "https://g.page/r/CWrP17NXSvjvEBM/review";
+            const googleRedirectBtn = document.getElementById('googleRedirectBtn');
+            if (googleRedirectBtn) {
+                googleRedirectBtn.href = GOOGLE_REVIEW_URL;
+            }
+
+            // Theme Management
+            const themeToggleBtn = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                themeIcon.className = 'fa-solid fa-sun text-amber-400';
+            } else {
+                document.documentElement.classList.remove('dark');
+                themeIcon.className = 'fa-solid fa-moon text-slate-600';
+            }
+
+            themeToggleBtn.addEventListener('click', () => {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.theme = 'light';
+                    themeIcon.className = 'fa-solid fa-moon text-slate-600';
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.theme = 'dark';
+                    themeIcon.className = 'fa-solid fa-sun text-amber-400';
+                }
+            });
+
+            // Interactive Star Rating System
+            let currentRating = 5;
+            const starBtns = document.querySelectorAll('.star-btn');
+            const ratingFeedback = document.getElementById('ratingFeedback');
+
+            const feedbackTexts = {
+                1: { text: "We're sorry to hear that! 😕", color: "text-red-500" },
+                2: { text: "Fair Experience 😐", color: "text-amber-500" },
+                3: { text: "Good North Indian Food 🙂", color: "text-amber-600" },
+                4: { text: "Very Delicious & Enjoyed! 😊", color: "text-amber-600 font-bold" },
+                5: { text: "Outstanding Food & Loved It! ❤️", color: "text-amber-600 font-bold" }
+            };
+
+            function updateStars(rating) {
+                currentRating = rating;
+                starBtns.forEach((btn, idx) => {
+                    if (idx < rating) {
+                        btn.classList.add('star-active', 'text-amber-400');
+                        btn.classList.remove('text-slate-300', 'dark:text-slate-700');
+                    } else {
+                        btn.classList.remove('star-active', 'text-amber-400');
+                        btn.classList.add('text-slate-300', 'dark:text-slate-700');
+                    }
+                });
+
+                if (ratingFeedback) {
+                    const info = feedbackTexts[rating] || feedbackTexts[5];
+                    ratingFeedback.innerHTML = `<span class="text-xs ${info.color}">${info.text}</span>`;
+                }
+            }
+
+            updateStars(5);
+
+            starBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const starVal = parseInt(btn.getAttribute('data-star'));
+                    updateStars(starVal);
+                    if (navigator.vibrate) navigator.vibrate(30);
+                    generateAIReview();
+                });
+            });
+
+            // Feature Chip Selection
+            const enjoyChips = document.querySelectorAll('#enjoyChips .chip-btn');
+            const selectedAspects = new Set(['Bhatti Da Murg', 'Butter Chicken']);
+
+            enjoyChips.forEach(chip => {
+                const val = chip.getAttribute('data-value');
+                if (selectedAspects.has(val)) {
+                    chip.classList.add('border-amber-500', 'bg-amber-50', 'dark:bg-amber-950/50', 'text-amber-700', 'dark:text-amber-300', 'font-bold');
+                }
+
+                chip.addEventListener('click', () => {
+                    if (selectedAspects.has(val)) {
+                        if (selectedAspects.size > 1) {
+                            selectedAspects.delete(val);
+                            chip.classList.remove('border-amber-500', 'bg-amber-50', 'dark:bg-amber-950/50', 'text-amber-700', 'dark:text-amber-300', 'font-bold');
+                            chip.classList.add('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-300');
+                        }
+                    } else {
+                        selectedAspects.add(val);
+                        chip.classList.add('border-amber-500', 'bg-amber-50', 'dark:bg-amber-950/50', 'text-amber-700', 'dark:text-amber-300', 'font-bold');
+                        chip.classList.remove('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-300');
+                    }
+                    if (navigator.vibrate) navigator.vibrate(15);
+                });
+            });
+
+            // AI Generator Logic specifically for Deepanshu Restaurant
+            const langSelect = document.getElementById('langSelect');
+            const toneSelect = document.getElementById('toneSelect');
+            const generateBtn = document.getElementById('generateBtn');
+            const generateBtnText = document.getElementById('generateBtnText');
+            const reviewTextarea = document.getElementById('reviewTextarea');
+
+            const reviewTemplates = {
+                English: {
+                    Short: [
+                        "★★★★★ Authentic North Indian taste in Indirapuram! Quick service and very reasonably priced food. Highly recommended!",
+                        "★★★★★ Amazing food quality! The tandoori dishes were fresh and flavor packed. Deepanshu Restaurant never disappoints.",
+                        "★★★★★ Excellent hospitality and budget-friendly pricing. One of the best family restaurants in Ghaziabad!"
+                    ],
+                    Friendly: [
+                        "★★★★★ Had an amazing meal at Deepanshu Restaurant! The staff was attentive and courteous. The curries and tandoori breads were served hot and fresh. Definitely visiting again! ❤️",
+                        "★★★★★ What a delicious dining experience! Very generous portions, great authentic flavors, and clean seating area. Highly recommended to everyone in Shakti Khand & Indirapuram!",
+                        "★★★★★ Had a fantastic dinner with family! Food tasted super rich and authentic. Excellent value for money."
+                    ],
+                    Foodie: [
+                        "★★★★★ If you love real North Indian & Tandoori, Deepanshu Restaurant is a must-try! Juicy chicken, flavorful Dal Makhani, and soft Naans cooked to perfection.",
+                        "★★★★★ 5-Stars for the mouthwatering flavor profile! Rich gravy, authentic spice blend, and fresh tandoori items. Truly a paradise for foodies in Indirapuram."
+                    ],
+                    Family: [
+                        "★★★★★ Great place for family dining in Indirapuram. Clean atmosphere, prompt service, and delicious food at very pocket-friendly rates.",
+                        "★★★★★ Wonderful family experience at Deepanshu Restaurant! Everyone loved the meal. Polite staff and quick turnaround."
+                    ]
+                },
+                Hindi: {
+                    Short: [
+                        "★★★★★ इंदिरापुरम में सबसे स्वादिष्ट उत्तर भारतीय भोजन! सर्विस बहुत तेज़ और रेट्स बहुत ही किफायती हैं। जरूर आएं!",
+                        "★★★★★ दीपांशु रेस्टोरेंट का खाना बहुत ही लज़ीज़ है। तंदूरी डिश्ज़ और दाल मखनी एकदम फ्रेश और लाजवाब थी।",
+                        "★★★★★ शानदार फैमिली रेस्टोरेंट! बजट-फ्रेंडली दाम और बेहतरीन ज़ायका। 5 स्टार!"
+                    ],
+                    Friendly: [
+                        "★★★★★ दीपांशु रेस्टोरेंट में खाना खाकर मज़ा आ गया! स्टाफ का व्यवहार बहुत विनम्र था और खाना बिल्कुल गरमा-गरम परोसा गया। फिर ज़रूर आएँगे! ❤️",
+                        "★★★★★ बहुत ही शानदार और टेस्टी खाना! यहाँ का स्वाद और साफ़-सफ़ाई दोनों ही 10/10 हैं।"
+                    ],
+                    Foodie: [
+                        "★★★★★ अगर आपको असली उत्तर भारतीय और तंदूरी स्वाद पसंद है तो दीपांशु रेस्टोरेंट बेस्ट है! भट्टी दा मुर्ग और बटर चिकन बहुत ही ज़बरदस्त था।",
+                        "★★★★★ लाजवाब ज़ायका और मसालेदार स्वाद! खाने की क्वांटिटी और क्वालिटी दोनों ही बेहतरीन हैं।"
+                    ],
+                    Family: [
+                        "★★★★★ परिवार के साथ डिनर के लिए बेहतरीन जगह। वातावरण साफ़ है और खाना बहुत ही किफायती और स्वादिष्ट है।"
+                    ]
+                },
+                Hinglish: {
+                    Short: [
+                        "★★★★★ Food was super delicious and service fast thi! Pocket-friendly prices and top North Indian taste in Indirapuram. 10/10 recommended!",
+                        "★★★★★ Best place for North Indian food in Ghaziabad. Deepanshu Restaurant ka taste humesha 5-star rehta hai!"
+                    ],
+                    Friendly: [
+                        "★★★★★ Amazing experience at Deepanshu Restaurant! Food ka taste lajawab tha and staff bohot polite hai. Family ke saath aane ke liye best spot. ❤️",
+                        "★★★★★ Kitna badhiya khana tha! Tandoori items aur curries ekdam fresh serve kiye gaye. Will visit again soon!"
+                    ],
+                    Foodie: [
+                        "★★★★★ Bhatti Da Murg, Butter Chicken aur Paneer Akbari ka taste ekdam next level tha! Pure foodie bliss in Indirapuram.",
+                        "★★★★★ Tandoori Naan and rich gravy curries were so good! Generous quantity at super reasonable prices."
+                    ],
+                    Family: [
+                        "★★★★★ Family ke saath dinner ke liye perfect spot! Clean environment, polite service and very reasonable pricing. 5 Stars!"
+                    ]
+                }
+            };
+
+            function generateAIReview() {
+                const lang = langSelect.value || 'English';
+                const tone = toneSelect.value || 'Short';
+                const aspects = Array.from(selectedAspects).join(', ');
+
+                const langGroup = reviewTemplates[lang] || reviewTemplates['English'];
+                const toneGroup = langGroup[tone] || langGroup['Short'];
+                
+                let text = toneGroup[Math.floor(Math.random() * toneGroup.length)];
+
+                if (aspects && !text.includes(aspects)) {
+                    if (lang === 'English') {
+                        text += ` Special mention for the ${aspects}.`;
+                    } else if (lang === 'Hindi') {
+                        text += ` विशेष रूप से यहाँ की ${aspects} बहुत पसंद आई।`;
+                    } else {
+                        text += ` Special mention for ${aspects}!`;
+                    }
+                }
+
+                generateBtnText.textContent = "AI is Writing...";
+                generateBtn.disabled = true;
+
+                setTimeout(() => {
+                    reviewTextarea.value = text;
+                    generateBtnText.textContent = "Generate Review with AI";
+                    generateBtn.disabled = false;
+                    showToast("AI Review Generated for Deepanshu Restaurant! ✨");
+                }, 400);
+            }
+
+            generateAIReview();
+
+            generateBtn.addEventListener('click', () => {
+                if (navigator.vibrate) navigator.vibrate(25);
+                generateAIReview();
+            });
+
+            // Copy & Confetti Trigger
+            const copyBtn = document.getElementById('copyBtn');
+            const copyBtnText = document.getElementById('copyBtnText');
+            const copyToast = document.getElementById('copyToast');
+
+            copyBtn.addEventListener('click', () => {
+                const reviewContent = reviewTextarea.value;
+                if (!reviewContent) return;
+
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(reviewContent);
+                } else {
+                    reviewTextarea.select();
+                    document.execCommand('copy');
+                }
+
+                if (navigator.vibrate) {
+                    navigator.vibrate([40, 60, 40]);
+                }
+
+                copyBtn.classList.remove('bg-slate-800', 'dark:bg-slate-700');
+                copyBtn.classList.add('bg-amber-600');
+                copyBtnText.textContent = "Copied! Now Post Below";
+
+                if (copyToast) {
+                    copyToast.classList.remove('hidden');
+                    setTimeout(() => copyToast.classList.add('hidden'), 2500);
+                }
+
+                if (window.confetti) {
+                    confetti({
+                        particleCount: 70,
+                        spread: 60,
+                        origin: { y: 0.8 },
+                        colors: ['#D97706', '#F59E0B', '#22C55E']
+                    });
+                }
+
+                showToast("Review copied! Tap 'Post on Google'");
+
+                setTimeout(() => {
+                    if (googleRedirectBtn) {
+                        googleRedirectBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        googleRedirectBtn.classList.add('ring-4', 'ring-amber-500/50');
+                        setTimeout(() => googleRedirectBtn.classList.remove('ring-4', 'ring-amber-500/50'), 2000);
+                    }
+                }, 600);
+
+                setTimeout(() => {
+                    copyBtn.classList.remove('bg-amber-600');
+                    copyBtn.classList.add('bg-slate-800', 'dark:bg-slate-700');
+                    copyBtnText.textContent = "1. Copy Review";
+                }, 3000);
+            });
+
+            // Toast helper
+            function showToast(msg) {
+                const toast = document.getElementById('globalToast');
+                const toastMessage = document.getElementById('toastMessage');
+                if (!toast || !toastMessage) return;
+
+                toastMessage.textContent = msg;
+                toast.classList.remove('opacity-0', '-translate-y-4');
+                toast.classList.add('opacity-100', 'translate-y-0');
+
+                setTimeout(() => {
+                    toast.classList.remove('opacity-100', 'translate-y-0');
+                    toast.classList.add('opacity-0', '-translate-y-4');
+                }, 2800);
+            }
+
+            // PWA prompt handler
+            let deferredPrompt;
+            const pwaInstallBtn = document.getElementById('pwaInstallBtn');
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                if (pwaInstallBtn) {
+                    pwaInstallBtn.classList.remove('hidden');
+                }
+            });
+
+            if (pwaInstallBtn) {
+                pwaInstallBtn.addEventListener('click', async () => {
+                    if (!deferredPrompt) return;
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        pwaInstallBtn.classList.add('hidden');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
