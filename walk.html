@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WalkTrack – Activity & Step Tracker</title>
+    
+    <!-- Inline Manifest for PWA Support -->
+    <link rel="manifest" href='data:application/manifest+json,{"name":"WalkTrack","short_name":"WalkTrack","description":"Every Step Counts - Activity & Step Tracker","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#10b981","icons":[{"src":"https://img.icons8.com/emoji/192/running-shoe.png","sizes":"192x192","type":"image/png"}]}'>
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom CSS Styles & Theme Tokens -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Smooth scroll and dynamic theme transitions */
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Pulse animation for active tracking */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 0.4; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        .pulse-active {
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.4);
+            border-radius: 3px;
+        }
+
+        /* Progress ring calculation styles */
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.5s ease-in-out;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* Bottom Nav Safe Area for Mobile Notch */
+        .safe-pb {
+            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col justify-between pb-20 md:pb-0">
+
+    <header class="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+                <i data-lucide="footprints" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="font-extrabold text-lg tracking-tight leading-none bg-gradient-to-r from-brand-600 to-emerald-400 bg-clip-text text-transparent">WalkTrack</h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Every Step Counts</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-2">
+            <!-- Active Tracking Status Pill -->
+            <div id="header-status-pill" class="hidden items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-active"></span>
+                <span id="header-live-steps">0 steps</span>
+            </div>
+
+            <!-- Dark / Light Mode Toggle Button -->
+            <button id="btn-theme-toggle" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition" aria-label="Toggle Theme">
+                <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
+                <i data-lucide="sun" class="w-5 h-5 block dark:hidden"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- TAB 1: DASHBOARD PAGE -->
+        <section id="tab-dashboard" class="tab-content space-y-6">
+            
+            <!-- Sensor Warning Banner (Hidden if sensors active/supported) -->
+            <div id="sensor-warning" class="hidden p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-start space-x-3">
+                <i data-lucide="alert-triangle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                <div class="text-sm flex-1">
+                    <p class="font-semibold">Motion Sensor Unavailable</p>
+                    <p class="text-xs opacity-90 mt-0.5">Motion sensors are either restricted or not supported on this browser/device. You can still track activities using <strong>Manual Activity Mode</strong>.</p>
+                </div>
+            </div>
+
+            <!-- Main Activity Hero Card -->
+            <div class="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xl shadow-slate-200/50 dark:shadow-none flex flex-col md:flex-row items-center justify-between gap-6">
+                
+                <!-- Left Details -->
+                <div class="flex-1 text-center md:text-left space-y-4">
+                    <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800">
+                        <span id="hero-date-label">Today</span>
+                    </div>
+
+                    <div>
+                        <div class="text-sm text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider">Today's Steps</div>
+                        <div class="text-5xl sm:text-6xl font-black tracking-tight text-slate-900 dark:text-white mt-1" id="dash-total-steps">0</div>
+                    </div>
+
+                    <!-- Metrics Grid -->
+                    <div class="grid grid-cols-2 gap-3 pt-2">
+                        <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl border border-slate-100 dark:border-slate-800">
+                            <div class="text-xs text-slate-500 dark:text-slate-400">Distance</div>
+                            <div class="text-lg font-bold text-slate-800 dark:text-slate-200 mt-0.5" id="dash-total-distance">0.00 KM</div>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl border border-slate-100 dark:border-slate-800">
+                            <div class="text-xs text-slate-500 dark:text-slate-400">Active Duration</div>
+                            <div class="text-lg font-bold text-slate-800 dark:text-slate-200 mt-0.5" id="dash-total-duration">0m</div>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
+                        <button id="btn-toggle-activity" class="flex-1 sm:flex-none px-6 py-3.5 rounded-2xl bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-bold shadow-lg shadow-brand-600/30 transition flex items-center justify-center space-x-2">
+                            <i data-lucide="play" id="icon-toggle-activity" class="w-5 h-5 fill-current"></i>
+                            <span id="text-toggle-activity">START ACTIVITY</span>
+                        </button>
+
+                        <button id="btn-manual-add" class="px-4 py-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold transition flex items-center justify-center space-x-2" title="Add Steps Manually">
+                            <i data-lucide="plus" class="w-5 h-5"></i>
+                            <span class="hidden sm:inline">Manual Steps</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Circular Progress SVG Bar -->
+                <div class="relative flex items-center justify-center flex-shrink-0">
+                    <svg class="w-48 h-48 transform -rotate-90" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="50" class="text-slate-100 dark:text-slate-800" stroke-width="10" stroke="currentColor" fill="transparent"/>
+                        <circle id="goal-progress-circle" cx="60" cy="60" r="50" class="text-brand-500 progress-ring__circle" stroke-width="10" stroke-dasharray="314.159" stroke-dashoffset="314.159" stroke-linecap="round" stroke="currentColor" fill="transparent"/>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                        <i data-lucide="trophy" class="w-6 h-6 text-brand-500 mb-1"></i>
+                        <span class="text-2xl font-black" id="dash-goal-percent">0%</span>
+                        <span class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5" id="dash-goal-text">Goal: 10,000</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LIVE SESSION ACTIVE CARD (Shows when activity active) -->
+            <div id="live-session-card" class="hidden rounded-3xl bg-gradient-to-br from-brand-600 to-emerald-700 text-white p-6 shadow-2xl space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-white pulse-active"></span>
+                        <span class="text-xs font-bold tracking-widest uppercase opacity-90">Live Activity Session</span>
+                    </div>
+                    <span class="text-xs bg-white/20 px-2.5 py-1 rounded-full font-mono font-medium" id="live-timer">00:00:00</span>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 text-center pt-2">
+                    <div>
+                        <div class="text-xs opacity-80">Session Steps</div>
+                        <div class="text-2xl font-black mt-0.5" id="live-session-steps">0</div>
+                    </div>
+                    <div>
+                        <div class="text-xs opacity-80">Distance</div>
+                        <div class="text-2xl font-black mt-0.5" id="live-session-distance">0.00 KM</div>
+                    </div>
+                    <div>
+                        <div class="text-xs opacity-80">Sensor</div>
+                        <div class="text-xs font-semibold mt-2 px-2 py-0.5 rounded bg-white/20 inline-block" id="live-sensor-mode">Active</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm">
+                    <div class="flex items-center justify-between text-slate-400 mb-2">
+                        <span class="text-xs font-medium uppercase">Best Day</span>
+                        <i data-lucide="award" class="w-4 h-4 text-amber-500"></i>
+                    </div>
+                    <div class="text-xl font-black" id="stat-best-day-steps">0</div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-1" id="stat-best-day-date">No data</div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm">
+                    <div class="flex items-center justify-between text-slate-400 mb-2">
+                        <span class="text-xs font-medium uppercase">Daily Avg</span>
+                        <i data-lucide="line-chart" class="w-4 h-4 text-blue-500"></i>
+                    </div>
+                    <div class="text-xl font-black" id="stat-avg-steps">0</div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Steps per active day</div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm">
+                    <div class="flex items-center justify-between text-slate-400 mb-2">
+                        <span class="text-xs font-medium uppercase">Lifetime Steps</span>
+                        <i data-lucide="activity" class="w-4 h-4 text-brand-500"></i>
+                    </div>
+                    <div class="text-xl font-black" id="stat-lifetime-steps">0</div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Total recorded</div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm">
+                    <div class="flex items-center justify-between text-slate-400 mb-2">
+                        <span class="text-xs font-medium uppercase">Total Distance</span>
+                        <i data-lucide="map-pin" class="w-4 h-4 text-rose-500"></i>
+                    </div>
+                    <div class="text-xl font-black" id="stat-lifetime-distance">0 KM</div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Lifetime total</div>
+                </div>
+            </div>
+
+            <!-- Weekly Overview Card on Dashboard -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">This Week's Activity</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Steps overview for current week</p>
+                    </div>
+                    <button id="btn-goto-reports" class="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center space-x-1">
+                        <span>Full Report</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <!-- Interactive Mini Bar Chart Container -->
+                <div id="dash-mini-chart" class="h-32 flex items-end justify-between gap-2 pt-4"></div>
+            </div>
+        </section>
+
+        <!-- TAB 2: REPORTS PAGE -->
+        <section id="tab-reports" class="tab-content hidden space-y-6">
+            <!-- Report Type Switcher Buttons -->
+            <div class="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-2xl">
+                <button data-report="daily" class="report-tab-btn flex-1 py-2 text-xs font-bold rounded-xl text-slate-700 dark:text-slate-300 transition bg-white dark:bg-slate-900 shadow-sm">Daily</button>
+                <button data-report="weekly" class="report-tab-btn flex-1 py-2 text-xs font-bold rounded-xl text-slate-500 dark:text-slate-400 transition">Weekly</button>
+                <button data-report="monthly" class="report-tab-btn flex-1 py-2 text-xs font-bold rounded-xl text-slate-500 dark:text-slate-400 transition">Monthly</button>
+            </div>
+
+            <!-- DAILY REPORT VIEW -->
+            <div id="report-view-daily" class="space-y-6">
+                <!-- Date Selector Header -->
+                <div class="flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-2xl">
+                    <button id="btn-daily-prev" class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                    <input type="date" id="daily-date-picker" class="bg-transparent font-bold text-center text-sm text-slate-800 dark:text-slate-200 focus:outline-none">
+                    <button id="btn-daily-next" class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+                </div>
+
+                <!-- Daily Summary Metrics -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-2xl">
+                        <div class="text-xs text-slate-400">Total Steps</div>
+                        <div class="text-xl font-bold mt-1" id="rep-daily-steps">0</div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-2xl">
+                        <div class="text-xs text-slate-400">Distance</div>
+                        <div class="text-xl font-bold mt-1" id="rep-daily-km">0 KM</div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-2xl">
+                        <div class="text-xs text-slate-400">Sessions</div>
+                        <div class="text-xl font-bold mt-1" id="rep-daily-sessions">0</div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-2xl">
+                        <div class="text-xs text-slate-400">Avg Steps / Hr</div>
+                        <div class="text-xl font-bold mt-1" id="rep-daily-avg-hr">0</div>
+                    </div>
+                </div>
+
+                <!-- Hourly Activity Chart Card -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl shadow-sm space-y-4">
+                    <h3 class="font-bold text-slate-900 dark:text-white text-sm">Hourly Distribution (00:00 - 23:00)</h3>
+                    <div id="daily-hourly-chart" class="h-48 flex items-end justify-between gap-1 pt-6 overflow-x-auto pb-2"></div>
+                </div>
+            </div>
+
+            <!-- WEEKLY REPORT VIEW -->
+            <div id="report-view-weekly" class="hidden space-y-6">
+                <!-- Week Selector Header -->
+                <div class="flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-2xl">
+                    <button id="btn-weekly-prev" class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                    <span id="weekly-range-label" class="font-bold text-sm text-slate-800 dark:text-slate-200">Current Week</span>
+                    <button id="btn-weekly-next" class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+                </div>
+
+                <!-- Weekly Metrics Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-2xl">
+                        <div class="text-xs text-slate-400">Weekly Total</div>
+                        <div class="text-xl font-bold mt-1" id="rep-weekly-steps">0</div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-2xl">
+                        <div class="text-xs text-slate-400">Weekly KM</div>
+                        <div class="text-xl font-bold mt-1" id="rep-weekly-km">0 KM</div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-2xl">
+                        <div class="text-xs text-slate-400">Daily Average</div>
+                        <div class="text-xl font-bold mt-1" id="rep-weekly-avg">0</div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-2xl">
+                        <div class="text-xs text-slate-400">Best / Worst</div>
+                        <div class="text-xs font-bold mt-1 text-emerald-500" id="rep-weekly-best">Best: -</div>
+                        <div class="text-xs font-bold text-slate-400" id="rep-weekly-worst">Worst: -</div>
+                    </div>
+                </div>
+
+                <!-- Bar Chart for 7 Days -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl shadow-sm space-y-4">
+                    <h3 class="font-bold text-slate-900 dark:text-white text-sm">Weekly Activity Bar Chart</h3>
+                    <div id="weekly-bar-chart" class="h-48 flex items-end justify-between gap-3 pt-6"></div>
+                </div>
+            </div>
+
+            <!-- MONTHLY REPORT VIEW -->
+            <div id="report-view-monthly" class="hidden space-y-6">
+                <!-- Month Selector Header -->
+                <div class="flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-2xl">
+                    <button id="btn-monthly-prev" class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                    <span id="monthly-range-label" class="font-bold text-sm text-slate-800 dark:text-slate-200">Current Month</span>
+                    <button id="btn-monthly-next" class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+                </div>
+
+                <!-- Monthly Metrics Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-2xl">
+                        <div class="text-xs text-slate-400">Monthly Total</div>
+                        <div class="text-xl font-bold mt-1" id="rep-monthly-steps">0</div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-2xl">
+                        <div class="text-xs text-slate-400">Total KM</div>
+                        <div class="text-xl font-bold mt-1" id="rep-monthly-km">0 KM</div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-2xl">
+                        <div class="text-xs text-slate-400">Active Days</div>
+                        <div class="text-xl font-bold mt-1" id="rep-monthly-active-days">0</div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-2xl">
+                        <div class="text-xs text-slate-400">Daily Average</div>
+                        <div class="text-xl font-bold mt-1" id="rep-monthly-avg">0</div>
+                    </div>
+                </div>
+
+                <!-- Calendar Heatmap Overview -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-slate-900 dark:text-white text-sm">Monthly Calendar Grid</h3>
+                        <div class="flex items-center space-x-1 text-xs text-slate-400">
+                            <span>Low</span>
+                            <span class="w-2.5 h-2.5 rounded bg-brand-200 dark:bg-brand-950 inline-block"></span>
+                            <span class="w-2.5 h-2.5 rounded bg-brand-400 dark:bg-brand-700 inline-block"></span>
+                            <span class="w-2.5 h-2.5 rounded bg-brand-600 dark:bg-brand-500 inline-block"></span>
+                            <span>High</span>
+                        </div>
+                    </div>
+
+                    <!-- Calendar Grid Header Days -->
+                    <div class="grid grid-cols-7 text-center text-xs font-semibold text-slate-400 pb-1">
+                        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+                    </div>
+                    
+                    <!-- Calendar Grid Cells -->
+                    <div id="monthly-calendar-grid" class="grid grid-cols-7 gap-1.5 text-center"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: HISTORY PAGE -->
+        <section id="tab-history" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-xl font-bold">Session History</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Detailed logs of all recorded activities</p>
+                </div>
+
+                <!-- Search Input -->
+                <div class="relative">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="history-search" placeholder="Search sessions..." class="w-full sm:w-64 pl-9 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs focus:outline-none focus:border-brand-500">
+                </div>
+            </div>
+
+            <!-- Sessions Card List -->
+            <div id="history-list-container" class="space-y-3">
+                <!-- Dynamic Session Cards will render here -->
+            </div>
+        </section>
+
+        <!-- TAB 4: SETTINGS PAGE -->
+        <section id="tab-settings" class="tab-content hidden space-y-6">
+            <div>
+                <h2 class="text-xl font-bold">App Settings</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Configure preferences, algorithm thresholds & data backup</p>
+            </div>
+
+            <!-- Profile & Goals Section -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 space-y-4 shadow-sm">
+                <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center space-x-2">
+                    <i data-lucide="user" class="w-4 h-4 text-brand-500"></i>
+                    <span>User Profile & Goals</span>
+                </h3>
+
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Your Name</label>
+                        <input type="text" id="setting-user-name" class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium focus:outline-none focus:border-brand-500">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Daily Step Goal</label>
+                            <input type="number" id="setting-daily-goal" step="500" min="1000" max="100000" class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium focus:outline-none focus:border-brand-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Average Step Length (Meters)</label>
+                            <input type="number" id="setting-step-length" step="0.01" min="0.3" max="2.0" class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium focus:outline-none focus:border-brand-500">
+                        </div>
+                    </div>
+
+                    <button id="btn-save-profile" class="w-full py-3 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm shadow-md transition">Save Profile Changes</button>
+                </div>
+            </div>
+
+            <!-- Sensor Algorithm Calibration -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 space-y-4 shadow-sm">
+                <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center space-x-2">
+                    <i data-lucide="sliders" class="w-4 h-4 text-brand-500"></i>
+                    <span>Step Sensor Sensitivity</span>
+                </h3>
+
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                            <span>Acceleration Threshold</span>
+                            <span id="label-threshold-val">11.8</span>
+                        </div>
+                        <input type="range" id="setting-sensor-threshold" min="9.8" max="18.0" step="0.2" value="11.8" class="w-full accent-brand-500">
+                        <p class="text-[10px] text-slate-400 mt-0.5">Higher values reduce false steps; lower values increase sensitivity.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Management & Backup -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 space-y-4 shadow-sm">
+                <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center space-x-2">
+                    <i data-lucide="database" class="w-4 h-4 text-brand-500"></i>
+                    <span>Data Backup & Management</span>
+                </h3>
+
+                <p class="text-xs text-slate-500 dark:text-slate-400">All activity records are stored locally on your device in browser IndexedDB database.</p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button id="btn-export-data" class="px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs flex items-center justify-center space-x-2 border border-slate-200 dark:border-slate-700">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span>EXPORT JSON BACKUP</span>
+                    </button>
+
+                    <label class="px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs flex items-center justify-center space-x-2 border border-slate-200 dark:border-slate-700 cursor-pointer">
+                        <i data-lucide="upload" class="w-4 h-4"></i>
+                        <span>IMPORT JSON DATA</span>
+                        <input type="file" id="input-import-file" accept=".json" class="hidden">
+                    </label>
+                </div>
+
+                <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <button id="btn-reset-data" class="w-full py-3 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center justify-center space-x-2 border border-rose-500/20">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <span>RESET ALL TRACKING DATA</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 safe-pb">
+        <div class="max-w-md mx-auto flex items-center justify-around py-2">
+            <button data-tab="dashboard" class="nav-tab-btn flex flex-col items-center space-y-1 text-brand-600 dark:text-brand-400">
+                <i data-lucide="home" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold">Home</span>
+            </button>
+
+            <button data-tab="reports" class="nav-tab-btn flex flex-col items-center space-y-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold">Reports</span>
+            </button>
+
+            <button data-tab="history" class="nav-tab-btn flex flex-col items-center space-y-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                <i data-lucide="calendar" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold">History</span>
+            </button>
+
+            <button data-tab="settings" class="nav-tab-btn flex flex-col items-center space-y-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold">Settings</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- MODAL 1: ONBOARDING -->
+    <div id="modal-onboarding" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-sm w-full space-y-5 shadow-2xl text-center">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center text-white mx-auto shadow-lg shadow-brand-500/30">
+                <i data-lucide="footprints" class="w-8 h-8"></i>
+            </div>
+
+            <div>
+                <h2 class="text-2xl font-black">Welcome to WalkTrack 👋</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Let's set up your personal fitness targets</p>
+            </div>
+
+            <div class="space-y-3 text-left">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Your Name</label>
+                    <input type="text" id="onboard-name" value="Walker" class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Daily Step Goal</label>
+                    <input type="number" id="onboard-goal" value="10000" step="500" class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Average Step Length (Meters)</label>
+                    <input type="number" id="onboard-steplen" value="0.75" step="0.01" class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium focus:outline-none">
+                </div>
+            </div>
+
+            <button id="btn-finish-onboarding" class="w-full py-3.5 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-sm shadow-lg shadow-brand-600/30 transition">
+                START WALKING
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 2: MANUAL STEPS ENTRY -->
+    <div id="modal-manual-steps" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-base">Add Steps Manually</h3>
+                <button class="btn-close-modal text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Number of Steps</label>
+                <input type="number" id="manual-input-steps" placeholder="e.g. 2500" class="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-lg font-bold focus:outline-none">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Date</label>
+                <input type="date" id="manual-input-date" class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium focus:outline-none">
+            </div>
+
+            <button id="btn-submit-manual-steps" class="w-full py-3 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm shadow-md transition">
+                Save Activity Record
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 3: CONFIRM RESET MODAL -->
+    <div id="modal-confirm-reset" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl text-center">
+            <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto">
+                <i data-lucide="alert-octagon" class="w-6 h-6"></i>
+            </div>
+
+            <h3 class="font-bold text-lg">Reset All Activity Data?</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Are you sure? This will permanently delete all stored sessions, statistics and custom settings. This action cannot be undone.</p>
+
+            <div class="flex space-x-3 pt-2">
+                <button class="btn-close-modal flex-1 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs">Cancel</button>
+                <button id="btn-confirm-reset-now" class="flex-1 py-3 rounded-2xl bg-rose-600 text-white font-bold text-xs shadow-md">Yes, Delete All</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * WalkTrack App Architecture
+         * Local-first, Mobile-First PWA Step & Activity Tracker
+         */
+
+        /* Global Application State */
+        const APP = {
+            db: null,
+            settings: {
+                userName: 'Walker',
+                dailyGoal: 10000,
+                stepLength: 0.75, // meters
+                sensorThreshold: 11.8,
+                theme: 'dark'
+            },
+            tracking: {
+                active: false,
+                startTime: null,
+                timerInterval: null,
+                sessionSteps: 0,
+                sessionDistance: 0,
+                sessionId: null
+            },
+            sensor: {
+                supported: false,
+                permitted: false,
+                lastStepTime: 0,
+                minStepInterval: 320, // ms cooldown
+                smoothingFactor: 0.25,
+                lastAccelMag: 9.8,
+                filteredMag: 9.8
+            },
+            currentTab: 'dashboard',
+            currentReportType: 'daily',
+            reportDates: {
+                daily: new Date().toISOString().split('T')[0],
+                weeklyOffset: 0,
+                monthlyOffset: 0
+            }
+        };
+
+        const DB_NAME = 'WalkTrackDB';
+        const DB_VERSION = 1;
+
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    
+                    // Stores: settings, sessions, dailyStats
+                    if (!db.objectStoreNames.contains('settings')) {
+                        db.createObjectStore('settings', { keyPath: 'id' });
+                    }
+                    if (!db.objectStoreNames.contains('sessions')) {
+                        const sessionStore = db.createObjectStore('sessions', { keyPath: 'id' });
+                        sessionStore.createIndex('date', 'date', { unique: false });
+                    }
+                    if (!db.objectStoreNames.contains('dailyStats')) {
+                        db.createObjectStore('dailyStats', { keyPath: 'date' });
+                    }
+                };
+
+                request.onsuccess = (e) => {
+                    APP.db = e.target.result;
+                    resolve(APP.db);
+                };
+
+                request.onerror = (e) => {
+                    console.error('IndexedDB error:', e);
+                    reject(e);
+                };
+            });
+        }
+
+        /* Generic IndexedDB Helper CRUD Operations */
+        async function dbGet(storeName, key) {
+            if (!APP.db) return null;
+            return new Promise((resolve) => {
+                const tx = APP.db.transaction(storeName, 'readonly');
+                const store = tx.objectStore(storeName);
+                const req = store.get(key);
+                req.onsuccess = () => resolve(req.result || null);
+                req.onerror = () => resolve(null);
+            });
+        }
+
+        async function dbPut(storeName, data) {
+            if (!APP.db) return;
+            return new Promise((resolve, reject) => {
+                const tx = APP.db.transaction(storeName, 'readwrite');
+                const store = tx.objectStore(storeName);
+                const req = store.put(data);
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = (e) => reject(e);
+            });
+        }
+
+        async function dbGetAll(storeName) {
+            if (!APP.db) return [];
+            return new Promise((resolve) => {
+                const tx = APP.db.transaction(storeName, 'readonly');
+                const store = tx.objectStore(storeName);
+                const req = store.getAll();
+                req.onsuccess = () => resolve(req.result || []);
+                req.onerror = () => resolve([]);
+            });
+        }
+
+        async function dbDelete(storeName, key) {
+            if (!APP.db) return;
+            return new Promise((resolve) => {
+                const tx = APP.db.transaction(storeName, 'readwrite');
+                const store = tx.objectStore(storeName);
+                const req = store.delete(key);
+                req.onsuccess = () => resolve(true);
+                req.onerror = () => resolve(false);
+            });
+        }
+
+        function setupSensorAlgorithm() {
+            if (typeof DeviceMotionEvent !== 'undefined') {
+                APP.sensor.supported = true;
+            } else {
+                APP.sensor.supported = false;
+                document.getElementById('sensor-warning').classList.remove('hidden');
+            }
+        }
+
+        async function requestSensorPermission() {
+            if (!APP.sensor.supported) return false;
+
+            // iOS 13+ permission request
+            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                try {
+                    const permission = await DeviceMotionEvent.requestPermission();
+                    if (permission === 'granted') {
+                        APP.sensor.permitted = true;
+                        startMotionEventListener();
+                        return true;
+                    } else {
+                        APP.sensor.permitted = false;
+                        document.getElementById('sensor-warning').classList.remove('hidden');
+                        return false;
+                    }
+                } catch (err) {
+                    console.error('Motion permission error:', err);
+                    return false;
+                }
+            } else {
+                // Non-iOS or standard motion sensor API
+                APP.sensor.permitted = true;
+                startMotionEventListener();
+                return true;
+            }
+        }
+
+        function startMotionEventListener() {
+            window.removeEventListener('devicemotion', handleDeviceMotion);
+            window.addEventListener('devicemotion', handleDeviceMotion, true);
+        }
+
+        function stopMotionEventListener() {
+            window.removeEventListener('devicemotion', handleDeviceMotion, true);
+        }
+
+        /**
+         * Acceleration Magnitude Step Detection Logic
+         * Magnitude = sqrt(ax^2 + ay^2 + az^2)
+         * Exponential Moving Average Filter + Threshold Peak Detection
+         */
+        function handleDeviceMotion(event) {
+            if (!APP.tracking.active) return;
+
+            let accel = event.accelerationIncludingGravity || event.acceleration;
+            if (!accel || accel.x === null) return;
+
+            const x = accel.x || 0;
+            const y = accel.y || 0;
+            const z = accel.z || 0;
+
+            // Compute total vector magnitude
+            const magnitude = Math.sqrt(x * x + y * y + z * z);
+
+            // Apply Exponential Smoothing Low-Pass Filter
+            APP.sensor.filteredMag = (APP.sensor.smoothingFactor * magnitude) + ((1 - APP.sensor.smoothingFactor) * APP.sensor.filteredMag);
+
+            const now = Date.now();
+            const threshold = parseFloat(APP.settings.sensorThreshold) || 11.8;
+
+            // Detect peak crossing threshold after cooldown
+            if (APP.sensor.filteredMag > threshold && (now - APP.sensor.lastStepTime) > APP.sensor.minStepInterval) {
+                APP.sensor.lastStepTime = now;
+                registerDetectedStep(1);
+            }
+        }
+
+        function registerDetectedStep(count = 1) {
+            if (!APP.tracking.active) return;
+
+            APP.tracking.sessionSteps += count;
+            APP.tracking.sessionDistance = calculateDistance(APP.tracking.sessionSteps, APP.settings.stepLength);
+
+            updateLiveTrackingUI();
+            autoSaveActiveSession();
+        }
+
+        async function startTrackingSession() {
+            // Check permission if mobile
+            if (APP.sensor.supported && !APP.sensor.permitted) {
+                await requestSensorPermission();
+            }
+
+            APP.tracking.active = true;
+            APP.tracking.startTime = Date.now();
+            APP.tracking.sessionSteps = 0;
+            APP.tracking.sessionDistance = 0;
+            APP.tracking.sessionId = 'session_' + Date.now();
+
+            if (APP.sensor.permitted) {
+                startMotionEventListener();
+            }
+
+            // Start Live UI Timer
+            APP.tracking.timerInterval = setInterval(() => {
+                updateLiveTrackingUI();
+            }, 1000);
+
+            // Update UI State
+            document.getElementById('live-session-card').classList.remove('hidden');
+            document.getElementById('header-status-pill').classList.remove('hidden');
+            document.getElementById('header-status-pill').classList.add('flex');
+            document.getElementById('text-toggle-activity').innerText = 'STOP ACTIVITY';
+            document.getElementById('icon-toggle-activity').setAttribute('data-lucide', 'square');
+            lucide.createIcons();
+
+            notifyUser('Activity Started', 'WalkTrack is now recording your steps.');
+            autoSaveActiveSession();
+        }
+
+        async function stopTrackingSession() {
+            if (!APP.tracking.active) return;
+
+            APP.tracking.active = false;
+            clearInterval(APP.tracking.timerInterval);
+            stopMotionEventListener();
+
+            const endTime = Date.now();
+            const durationSec = Math.floor((endTime - APP.tracking.startTime) / 1000);
+
+            // Only save if duration > 3 seconds or steps > 0
+            if (APP.tracking.sessionSteps > 0 || durationSec > 3) {
+                const todayStr = new Date().toISOString().split('T')[0];
+                
+                const sessionRecord = {
+                    id: APP.tracking.sessionId,
+                    date: todayStr,
+                    startTime: APP.tracking.startTime,
+                    endTime: endTime,
+                    duration: durationSec,
+                    steps: APP.tracking.sessionSteps,
+                    distance: parseFloat(APP.tracking.sessionDistance)
+                };
+
+                await dbPut('sessions', sessionRecord);
+                await updateDailyStatsForDate(todayStr);
+            }
+
+            // Reset UI
+            document.getElementById('live-session-card').classList.add('hidden');
+            document.getElementById('header-status-pill').classList.add('hidden');
+            document.getElementById('header-status-pill').classList.remove('flex');
+            document.getElementById('text-toggle-activity').innerText = 'START ACTIVITY';
+            document.getElementById('icon-toggle-activity').setAttribute('data-lucide', 'play');
+            lucide.createIcons();
+
+            localStorage.removeItem('walktrack_active_session');
+            notifyUser('Activity Stopped', `Recorded ${APP.tracking.sessionSteps} steps.`);
+            
+            await refreshAllDashboardViews();
+        }
+
+        function autoSaveActiveSession() {
+            if (!APP.tracking.active) return;
+            const state = {
+                active: true,
+                sessionId: APP.tracking.sessionId,
+                startTime: APP.tracking.startTime,
+                sessionSteps: APP.tracking.sessionSteps,
+                sessionDistance: APP.tracking.sessionDistance
+            };
+            localStorage.setItem('walktrack_active_session', JSON.stringify(state));
+        }
+
+        async function restoreActiveSessionIfAny() {
+            const saved = localStorage.getItem('walktrack_active_session');
+            if (saved) {
+                try {
+                    const state = JSON.parse(saved);
+                    if (state && state.active) {
+                        APP.tracking.active = true;
+                        APP.tracking.sessionId = state.sessionId;
+                        APP.tracking.startTime = state.startTime;
+                        APP.tracking.sessionSteps = state.sessionSteps || 0;
+                        APP.tracking.sessionDistance = state.sessionDistance || 0;
+
+                        APP.tracking.timerInterval = setInterval(() => {
+                            updateLiveTrackingUI();
+                        }, 1000);
+
+                        if (APP.sensor.supported) {
+                            startMotionEventListener();
+                        }
+
+                        document.getElementById('live-session-card').classList.remove('hidden');
+                        document.getElementById('header-status-pill').classList.remove('hidden');
+                        document.getElementById('header-status-pill').classList.add('flex');
+                        document.getElementById('text-toggle-activity').innerText = 'STOP ACTIVITY';
+                        document.getElementById('icon-toggle-activity').setAttribute('data-lucide', 'square');
+                        lucide.createIcons();
+                    }
+                } catch(e) {
+                    console.error('Error restoring session:', e);
+                }
+            }
+        }
+
+        function calculateDistance(steps, stepLengthMeters) {
+            return ((steps * stepLengthMeters) / 1000).toFixed(2);
+        }
+
+        function formatDuration(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+
+            if (h > 0) {
+                return `${h}h ${m}m`;
+            }
+            if (m > 0) {
+                return `${m}m ${s}s`;
+            }
+            return `${s}s`;
+        }
+
+        function formatDurationDigital(seconds) {
+            const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+            const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            return `${h}:${m}:${s}`;
+        }
+
+        async function updateDailyStatsForDate(dateStr) {
+            const allSessions = await dbGetAll('sessions');
+            const daySessions = allSessions.filter(s => s.date === dateStr);
+
+            const totalSteps = daySessions.reduce((acc, s) => acc + s.steps, 0);
+            const totalKM = daySessions.reduce((acc, s) => acc + (parseFloat(s.distance) || 0), 0);
+            const totalDuration = daySessions.reduce((acc, s) => acc + s.duration, 0);
+
+            const statRecord = {
+                date: dateStr,
+                steps: totalSteps,
+                distance: parseFloat(totalKM.toFixed(2)),
+                duration: totalDuration,
+                sessionsCount: daySessions.length,
+                goalAchieved: totalSteps >= APP.settings.dailyGoal
+            };
+
+            await dbPut('dailyStats', statRecord);
+
+            // Trigger notification if goal achieved today
+            if (statRecord.goalAchieved) {
+                notifyUser('🎉 Daily Goal Achieved!', `Great job! You reached ${totalSteps.toLocaleString()} steps today!`);
+            }
+        }
+
+        async function refreshAllDashboardViews() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            const allStats = await dbGetAll('dailyStats');
+            const allSessions = await dbGetAll('sessions');
+
+            // Find Today's Stats
+            const todayStat = allStats.find(s => s.date === todayStr) || { steps: 0, distance: 0, duration: 0 };
+            
+            // Calculate Active Session Addition if tracking right now
+            const totalTodaySteps = todayStat.steps + (APP.tracking.active ? APP.tracking.sessionSteps : 0);
+            const totalTodayKM = (parseFloat(todayStat.distance) + (APP.tracking.active ? parseFloat(APP.tracking.sessionDistance) : 0)).toFixed(2);
+            const totalTodayDur = todayStat.duration + (APP.tracking.active ? Math.floor((Date.now() - APP.tracking.startTime) / 1000) : 0);
+
+            // Update Hero Card
+            document.getElementById('dash-total-steps').innerText = totalTodaySteps.toLocaleString();
+            document.getElementById('dash-total-distance').innerText = `${totalTodayKM} KM`;
+            document.getElementById('dash-total-duration').innerText = formatDuration(totalTodayDur);
+
+            // Update Progress Ring
+            const goal = APP.settings.dailyGoal || 10000;
+            const percent = Math.min(100, Math.round((totalTodaySteps / goal) * 100));
+            document.getElementById('dash-goal-percent').innerText = `${percent}%`;
+            document.getElementById('dash-goal-text').innerText = `Goal: ${goal.toLocaleString()}`;
+
+            const circle = document.getElementById('goal-progress-circle');
+            const circumference = 2 * Math.PI * 50; // r=50 -> 314.159
+            const offset = circumference - (percent / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+
+            // Calculate Best Day & Lifetime Stats
+            let bestSteps = 0;
+            let bestDate = 'No data';
+            let lifetimeSteps = 0;
+            let lifetimeKM = 0;
+
+            allStats.forEach(s => {
+                if (s.steps > bestSteps) {
+                    bestSteps = s.steps;
+                    bestDate = s.date;
+                }
+                lifetimeSteps += s.steps;
+                lifetimeKM += s.distance;
+            });
+
+            // Factor in today's active session for lifetime
+            if (APP.tracking.active) {
+                lifetimeSteps += APP.tracking.sessionSteps;
+                lifetimeKM += parseFloat(APP.tracking.sessionDistance);
+            }
+
+            const activeDaysCount = allStats.filter(s => s.steps > 0).length || 1;
+            const avgSteps = Math.round(lifetimeSteps / activeDaysCount);
+
+            document.getElementById('stat-best-day-steps').innerText = bestSteps.toLocaleString();
+            document.getElementById('stat-best-day-date').innerText = bestDate;
+            document.getElementById('stat-avg-steps').innerText = avgSteps.toLocaleString();
+            document.getElementById('stat-lifetime-steps').innerText = lifetimeSteps.toLocaleString();
+            document.getElementById('stat-lifetime-distance').innerText = `${lifetimeKM.toFixed(2)} KM`;
+
+            // Render Mini Weekly Bar Chart on Dashboard
+            renderMiniWeeklyChart(allStats);
+
+            // Render Active Reports Tab if open
+            if (APP.currentTab === 'reports') {
+                renderReportsView();
+            } else if (APP.currentTab === 'history') {
+                renderHistoryView();
+            }
+        }
+
+        function updateLiveTrackingUI() {
+            if (!APP.tracking.active) return;
+
+            const now = Date.now();
+            const elapsedSec = Math.floor((now - APP.tracking.startTime) / 1000);
+
+            document.getElementById('live-timer').innerText = formatDurationDigital(elapsedSec);
+            document.getElementById('live-session-steps').innerText = APP.tracking.sessionSteps.toLocaleString();
+            document.getElementById('live-session-distance').innerText = `${APP.tracking.sessionDistance} KM`;
+            document.getElementById('header-live-steps').innerText = `${APP.tracking.sessionSteps} steps`;
+            document.getElementById('live-sensor-mode').innerText = APP.sensor.permitted ? 'Sensor' : 'Manual';
+
+            refreshAllDashboardViews();
+        }
+
+        function renderMiniWeeklyChart(allStats) {
+            const chartContainer = document.getElementById('dash-mini-chart');
+            chartContainer.innerHTML = '';
+
+            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const today = new Date();
+            const past7Days = [];
+
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(today.getDate() - i);
+                const dateStr = d.toISOString().split('T')[0];
+                const dayName = daysOfWeek[d.getDay()];
+                const stat = allStats.find(s => s.date === dateStr) || { steps: 0 };
+                past7Days.push({ dateStr, dayName, steps: stat.steps });
+            }
+
+            const maxSteps = Math.max(...past7Days.map(d => d.steps), APP.settings.dailyGoal);
+
+            past7Days.forEach(d => {
+                const barHeightPercent = Math.max(8, Math.round((d.steps / maxSteps) * 100));
+                const isToday = d.dateStr === today.toISOString().split('T')[0];
+
+                const col = document.createElement('div');
+                col.className = 'flex-1 flex flex-col items-center h-full justify-end group relative';
+                col.innerHTML = `
+                    <div class="absolute -top-7 opacity-0 group-hover:opacity-100 bg-slate-800 text-white text-[10px] py-1 px-2 rounded font-bold pointer-events-none transition z-10 whitespace-nowrap">
+                        ${d.steps.toLocaleString()} steps
+                    </div>
+                    <div class="w-full max-w-[28px] rounded-t-lg transition-all duration-500 ${isToday ? 'bg-gradient-to-t from-brand-600 to-emerald-400' : 'bg-slate-200 dark:bg-slate-800'}" style="height: ${barHeightPercent}%;"></div>
+                    <span class="text-[10px] font-bold mt-2 ${isToday ? 'text-brand-600 dark:text-brand-400' : 'text-slate-400'}">${d.dayName}</span>
+                `;
+                chartContainer.appendChild(col);
+            });
+        }
+
+        async function renderReportsView() {
+            const allStats = await dbGetAll('dailyStats');
+            const allSessions = await dbGetAll('sessions');
+
+            if (APP.currentReportType === 'daily') {
+                renderDailyReport(allSessions);
+            } else if (APP.currentReportType === 'weekly') {
+                renderWeeklyReport(allStats);
+            } else if (APP.currentReportType === 'monthly') {
+                renderMonthlyReport(allStats);
+            }
+        }
+
+        function renderDailyReport(allSessions) {
+            const dateStr = APP.reportDates.daily;
+            document.getElementById('daily-date-picker').value = dateStr;
+
+            const daySessions = allSessions.filter(s => s.date === dateStr);
+            const totalSteps = daySessions.reduce((acc, s) => acc + s.steps, 0);
+            const totalKM = daySessions.reduce((acc, s) => acc + (parseFloat(s.distance) || 0), 0);
+            const avgHr = Math.round(totalSteps / 24);
+
+            document.getElementById('rep-daily-steps').innerText = totalSteps.toLocaleString();
+            document.getElementById('rep-daily-km').innerText = `${totalKM.toFixed(2)} KM`;
+            document.getElementById('rep-daily-sessions').innerText = daySessions.length;
+            document.getElementById('rep-daily-avg-hr').innerText = avgHr.toLocaleString();
+
+            // Hourly Distribution Bar Chart (00 - 23)
+            const hourlySteps = new Array(24).fill(0);
+            daySessions.forEach(s => {
+                if (s.startTime) {
+                    const hour = new Date(s.startTime).getHours();
+                    hourlySteps[hour] += s.steps;
+                }
+            });
+
+            const maxHourly = Math.max(...hourlySteps, 100);
+            const chartContainer = document.getElementById('daily-hourly-chart');
+            chartContainer.innerHTML = '';
+
+            for (let h = 0; h < 24; h++) {
+                const steps = hourlySteps[h];
+                const heightPercent = Math.max(6, Math.round((steps / maxHourly) * 100));
+                
+                const col = document.createElement('div');
+                col.className = 'flex flex-col items-center h-full justify-end min-w-[20px] group relative';
+                col.innerHTML = `
+                    <div class="absolute -top-7 opacity-0 group-hover:opacity-100 bg-slate-800 text-white text-[9px] py-0.5 px-1.5 rounded font-bold pointer-events-none transition z-10">
+                        ${h}:00 - ${steps} steps
+                    </div>
+                    <div class="w-3 rounded-t-sm transition-all duration-300 ${steps > 0 ? 'bg-brand-500' : 'bg-slate-200 dark:bg-slate-800'}" style="height: ${heightPercent}%;"></div>
+                    <span class="text-[8px] font-mono text-slate-400 mt-1">${h.toString().padStart(2, '0')}</span>
+                `;
+                chartContainer.appendChild(col);
+            }
+        }
+
+        function renderWeeklyReport(allStats) {
+            // Compute Monday-Sunday date range based on weeklyOffset
+            const curr = new Date();
+            curr.setDate(curr.getDate() + (APP.reportDates.weeklyOffset * 7));
+            
+            const first = curr.getDate() - curr.getDay() + (curr.getDay() === 0 ? -6 : 1); // Monday
+            const monday = new Date(curr.setDate(first));
+            
+            const weekDays = [];
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(monday);
+                d.setDate(monday.getDate() + i);
+                weekDays.push(d.toISOString().split('T')[0]);
+            }
+
+            document.getElementById('weekly-range-label').innerText = `${weekDays[0]} to ${weekDays[6]}`;
+
+            const weekStats = weekDays.map(dateStr => {
+                const found = allStats.find(s => s.date === dateStr);
+                return { dateStr, steps: found ? found.steps : 0, km: found ? found.distance : 0 };
+            });
+
+            const totalSteps = weekStats.reduce((acc, w) => acc + w.steps, 0);
+            const totalKM = weekStats.reduce((acc, w) => acc + w.km, 0);
+            const avgSteps = Math.round(totalSteps / 7);
+
+            // Best & Worst Day
+            let sorted = [...weekStats].sort((a, b) => b.steps - a.steps);
+            const best = sorted[0];
+            const worst = sorted[sorted.length - 1];
+
+            document.getElementById('rep-weekly-steps').innerText = totalSteps.toLocaleString();
+            document.getElementById('rep-weekly-km').innerText = `${totalKM.toFixed(2)} KM`;
+            document.getElementById('rep-weekly-avg').innerText = avgSteps.toLocaleString();
+            document.getElementById('rep-weekly-best').innerText = `Best: ${best.dateStr} (${best.steps})`;
+            document.getElementById('rep-weekly-worst').innerText = `Worst: ${worst.dateStr} (${worst.steps})`;
+
+            // Render Weekly Bar Chart
+            const maxSteps = Math.max(...weekStats.map(w => w.steps), APP.settings.dailyGoal);
+            const chartContainer = document.getElementById('weekly-bar-chart');
+            chartContainer.innerHTML = '';
+
+            const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+            weekStats.forEach((w, idx) => {
+                const heightPercent = Math.max(8, Math.round((w.steps / maxSteps) * 100));
+                
+                const col = document.createElement('div');
+                col.className = 'flex-1 flex flex-col items-center h-full justify-end group relative';
+                col.innerHTML = `
+                    <div class="absolute -top-7 opacity-0 group-hover:opacity-100 bg-slate-800 text-white text-[10px] py-1 px-2 rounded font-bold pointer-events-none transition z-10 whitespace-nowrap">
+                        ${w.steps.toLocaleString()} steps
+                    </div>
+                    <div class="w-full max-w-[32px] rounded-t-xl transition-all duration-500 bg-gradient-to-t from-brand-600 to-emerald-400" style="height: ${heightPercent}%;"></div>
+                    <span class="text-[10px] font-bold mt-2 text-slate-400">${dayLabels[idx]}</span>
+                `;
+                chartContainer.appendChild(col);
+            });
+        }
+
+        function renderMonthlyReport(allStats) {
+            const now = new Date();
+            now.setMonth(now.getMonth() + APP.reportDates.monthlyOffset);
+            
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            document.getElementById('monthly-range-label').innerText = `${monthNames[month]} ${year}`;
+
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const firstDayIndex = new Date(year, month, 1).getDay();
+
+            let totalSteps = 0;
+            let totalKM = 0;
+            let activeDays = 0;
+
+            const gridContainer = document.getElementById('monthly-calendar-grid');
+            gridContainer.innerHTML = '';
+
+            // Empty padded cells for offset
+            for (let i = 0; i < firstDayIndex; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'h-10 rounded-xl bg-transparent';
+                gridContainer.appendChild(emptyCell);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                const stat = allStats.find(s => s.date === dateStr) || { steps: 0, distance: 0 };
+
+                totalSteps += stat.steps;
+                totalKM += stat.distance;
+                if (stat.steps > 0) activeDays++;
+
+                // Color Intensity Level based on Goal
+                let bgClass = 'bg-slate-100 dark:bg-slate-800/50 text-slate-400';
+                if (stat.steps >= APP.settings.dailyGoal) {
+                    bgClass = 'bg-brand-500 text-white font-bold shadow-sm';
+                } else if (stat.steps >= APP.settings.dailyGoal * 0.5) {
+                    bgClass = 'bg-brand-400/60 dark:bg-brand-700/60 text-slate-900 dark:text-slate-100';
+                } else if (stat.steps > 0) {
+                    bgClass = 'bg-brand-200/50 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300';
+                }
+
+                const cell = document.createElement('div');
+                cell.className = `h-11 rounded-2xl flex flex-col items-center justify-center p-1 text-[10px] transition ${bgClass} group relative cursor-pointer`;
+                cell.innerHTML = `
+                    <span class="font-bold">${day}</span>
+                    <span class="text-[8px] opacity-80">${stat.steps > 0 ? (stat.steps >= 1000 ? (stat.steps/1000).toFixed(1) + 'k' : stat.steps) : '-'}</span>
+                    <div class="absolute -top-8 opacity-0 group-hover:opacity-100 bg-slate-800 text-white text-[10px] py-1 px-2 rounded font-bold pointer-events-none transition z-20 whitespace-nowrap">
+                        ${dateStr}: ${stat.steps.toLocaleString()} steps
+                    </div>
+                `;
+                gridContainer.appendChild(cell);
+            }
+
+            document.getElementById('rep-monthly-steps').innerText = totalSteps.toLocaleString();
+            document.getElementById('rep-monthly-km').innerText = `${totalKM.toFixed(2)} KM`;
+            document.getElementById('rep-monthly-active-days').innerText = activeDays;
+            document.getElementById('rep-monthly-avg').innerText = Math.round(totalSteps / (activeDays || 1)).toLocaleString();
+        }
+
+        async function renderHistoryView() {
+            const allSessions = await dbGetAll('sessions');
+            const searchVal = document.getElementById('history-search').value.toLowerCase();
+
+            // Sort descending by start time
+            allSessions.sort((a, b) => b.startTime - a.startTime);
+
+            const filtered = allSessions.filter(s => {
+                const dateMatch = s.date.toLowerCase().includes(searchVal);
+                const stepMatch = s.steps.toString().includes(searchVal);
+                return dateMatch || stepMatch;
+            });
+
+            const container = document.getElementById('history-list-container');
+            container.innerHTML = '';
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-400 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800">
+                        <i data-lucide="footprints" class="w-10 h-10 mx-auto opacity-30 mb-2"></i>
+                        <p class="text-sm font-semibold">No activity sessions found</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            filtered.forEach(session => {
+                const startTimeStr = new Date(session.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const endTimeStr = new Date(session.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                const card = document.createElement('div');
+                card.className = 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm hover:shadow-md transition';
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3.5">
+                        <div class="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="footprints" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white">${session.steps.toLocaleString()} steps</div>
+                            <div class="text-xs text-slate-400 font-medium">${session.date} • ${startTimeStr} - ${endTimeStr} (${formatDuration(session.duration)})</div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <div class="text-right">
+                            <div class="text-sm font-bold text-slate-800 dark:text-slate-200">${session.distance} KM</div>
+                        </div>
+                        <button data-id="${session.id}" class="btn-delete-session p-2 rounded-xl hover:bg-rose-500/10 text-slate-400 hover:text-rose-500 transition">
+                            <i data-lucide="trash" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            lucide.createIcons();
+
+            // Bind Delete Session Handlers
+            document.querySelectorAll('.btn-delete-session').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.currentTarget.getAttribute('data-id');
+                    const session = allSessions.find(s => s.id === id);
+                    if (session) {
+                        await dbDelete('sessions', id);
+                        await updateDailyStatsForDate(session.date);
+                        await refreshAllDashboardViews();
+                    }
+                });
+            });
+        }
+
+        async function loadSettings() {
+            const saved = await dbGet('settings', 'user_settings');
+            if (saved) {
+                APP.settings = { ...APP.settings, ...saved };
+            }
+
+            document.getElementById('setting-user-name').value = APP.settings.userName;
+            document.getElementById('setting-daily-goal').value = APP.settings.dailyGoal;
+            document.getElementById('setting-step-length').value = APP.settings.stepLength;
+            document.getElementById('setting-sensor-threshold').value = APP.settings.sensorThreshold;
+            document.getElementById('label-threshold-val').innerText = APP.settings.sensorThreshold;
+
+            if (APP.settings.theme === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
+        }
+
+        async function saveSettings() {
+            APP.settings.userName = document.getElementById('setting-user-name').value || 'Walker';
+            APP.settings.dailyGoal = parseInt(document.getElementById('setting-daily-goal').value) || 10000;
+            APP.settings.stepLength = parseFloat(document.getElementById('setting-step-length').value) || 0.75;
+            APP.settings.sensorThreshold = parseFloat(document.getElementById('setting-sensor-threshold').value) || 11.8;
+
+            await dbPut('settings', { id: 'user_settings', ...APP.settings });
+            await refreshAllDashboardViews();
+            
+            notifyUser('Settings Saved', 'Your goals and sensor parameters have been updated.');
+        }
+
+        async function exportDataAsJSON() {
+            const settings = await dbGet('settings', 'user_settings');
+            const sessions = await dbGetAll('sessions');
+            const dailyStats = await dbGetAll('dailyStats');
+
+            const backupObj = {
+                version: 1,
+                exportedAt: new Date().toISOString(),
+                settings,
+                sessions,
+                dailyStats
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `walktrack-backup-${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(dlAnchorElem);
+            dlAnchorElem.click();
+            dlAnchorElem.remove();
+        }
+
+        function importDataFromJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data && data.sessions && Array.isArray(data.sessions)) {
+                        for (const s of data.sessions) {
+                            await dbPut('sessions', s);
+                        }
+                        if (data.dailyStats) {
+                            for (const ds of data.dailyStats) {
+                                await dbPut('dailyStats', ds);
+                            }
+                        }
+                        if (data.settings) {
+                            await dbPut('settings', { id: 'user_settings', ...data.settings });
+                            await loadSettings();
+                        }
+                        await refreshAllDashboardViews();
+                        notifyUser('Import Successful', 'Activity backup imported successfully!');
+                    } else {
+                        notifyUser('Import Error', 'Invalid backup JSON file structure.');
+                    }
+                } catch(err) {
+                    console.error(err);
+                    notifyUser('Import Failed', 'Could not parse JSON backup file.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        async function resetAllData() {
+            if (!APP.db) return;
+            const stores = ['settings', 'sessions', 'dailyStats'];
+            for (const store of stores) {
+                const tx = APP.db.transaction(store, 'readwrite');
+                tx.objectStore(store).clear();
+            }
+            localStorage.clear();
+            location.reload();
+        }
+
+        function notifyUser(title, body) {
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification(title, { body, icon: 'https://img.icons8.com/emoji/192/running-shoe.png' });
+            } else {
+                console.log(`[Notification] ${title}: ${body}`);
+            }
+        }
+
+        function setupUIEventListeners() {
+            // Navigation Tab Switcher
+            document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const targetTab = e.currentTarget.getAttribute('data-tab');
+                    switchTab(targetTab);
+                });
+            });
+
+            // Reports Sub-tab Switcher
+            document.querySelectorAll('.report-tab-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.report-tab-btn').forEach(b => {
+                        b.classList.remove('bg-white', 'dark:bg-slate-900', 'shadow-sm', 'text-slate-700', 'dark:text-slate-300');
+                        b.classList.add('text-slate-500', 'dark:text-slate-400');
+                    });
+                    e.currentTarget.classList.add('bg-white', 'dark:bg-slate-900', 'shadow-sm', 'text-slate-700', 'dark:text-slate-300');
+                    e.currentTarget.classList.remove('text-slate-500', 'dark:text-slate-400');
+
+                    APP.currentReportType = e.currentTarget.getAttribute('data-report');
+                    document.getElementById('report-view-daily').classList.toggle('hidden', APP.currentReportType !== 'daily');
+                    document.getElementById('report-view-weekly').classList.toggle('hidden', APP.currentReportType !== 'weekly');
+                    document.getElementById('report-view-monthly').classList.toggle('hidden', APP.currentReportType !== 'monthly');
+
+                    renderReportsView();
+                });
+            });
+
+            // Toggle Theme Button
+            document.getElementById('btn-theme-toggle').addEventListener('click', () => {
+                const isDark = document.documentElement.classList.toggle('dark');
+                APP.settings.theme = isDark ? 'dark' : 'light';
+                dbPut('settings', { id: 'user_settings', ...APP.settings });
+            });
+
+            // Start / Stop Activity Button
+            document.getElementById('btn-toggle-activity').addEventListener('click', async () => {
+                if (APP.tracking.active) {
+                    await stopTrackingSession();
+                } else {
+                    await startTrackingSession();
+                }
+            });
+
+            // Goto Reports Button on Dashboard
+            document.getElementById('btn-goto-reports').addEventListener('click', () => switchTab('reports'));
+
+            // Manual Steps Entry Trigger
+            document.getElementById('btn-manual-add').addEventListener('click', () => {
+                document.getElementById('manual-input-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('modal-manual-steps').classList.remove('hidden');
+            });
+
+            // Modal Close Buttons
+            document.querySelectorAll('.btn-close-modal').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.currentTarget.closest('.fixed').classList.add('hidden');
+                });
+            });
+
+            // Submit Manual Steps
+            document.getElementById('btn-submit-manual-steps').addEventListener('click', async () => {
+                const stepsInput = parseInt(document.getElementById('manual-input-steps').value);
+                const dateInput = document.getElementById('manual-input-date').value;
+
+                if (stepsInput > 0 && dateInput) {
+                    const distance = parseFloat(calculateDistance(stepsInput, APP.settings.stepLength));
+                    const sessionRecord = {
+                        id: 'manual_' + Date.now(),
+                        date: dateInput,
+                        startTime: new Date(dateInput).getTime(),
+                        endTime: new Date(dateInput).getTime() + 1800000, // 30m dummy
+                        duration: 1800,
+                        steps: stepsInput,
+                        distance: distance
+                    };
+
+                    await dbPut('sessions', sessionRecord);
+                    await updateDailyStatsForDate(dateInput);
+                    await refreshAllDashboardViews();
+
+                    document.getElementById('modal-manual-steps').classList.add('hidden');
+                    document.getElementById('manual-input-steps').value = '';
+                    notifyUser('Manual Entry Added', `Added ${stepsInput.toLocaleString()} steps.`);
+                }
+            });
+
+            // Daily Date Picker Handlers
+            document.getElementById('daily-date-picker').addEventListener('change', (e) => {
+                APP.reportDates.daily = e.target.value;
+                renderReportsView();
+            });
+
+            document.getElementById('btn-daily-prev').addEventListener('click', () => {
+                const d = new Date(APP.reportDates.daily);
+                d.setDate(d.getDate() - 1);
+                APP.reportDates.daily = d.toISOString().split('T')[0];
+                renderReportsView();
+            });
+
+            document.getElementById('btn-daily-next').addEventListener('click', () => {
+                const d = new Date(APP.reportDates.daily);
+                d.setDate(d.getDate() + 1);
+                APP.reportDates.daily = d.toISOString().split('T')[0];
+                renderReportsView();
+            });
+
+            // Weekly Prev/Next Handlers
+            document.getElementById('btn-weekly-prev').addEventListener('click', () => {
+                APP.reportDates.weeklyOffset--;
+                renderReportsView();
+            });
+            document.getElementById('btn-weekly-next').addEventListener('click', () => {
+                APP.reportDates.weeklyOffset++;
+                renderReportsView();
+            });
+
+            // Monthly Prev/Next Handlers
+            document.getElementById('btn-monthly-prev').addEventListener('click', () => {
+                APP.reportDates.monthlyOffset--;
+                renderReportsView();
+            });
+            document.getElementById('btn-monthly-next').addEventListener('click', () => {
+                APP.reportDates.monthlyOffset++;
+                renderReportsView();
+            });
+
+            // Search History Listener
+            document.getElementById('history-search').addEventListener('input', () => {
+                renderHistoryView();
+            });
+
+            // Save Settings
+            document.getElementById('btn-save-profile').addEventListener('click', saveSettings);
+
+            // Sensor Threshold Slider
+            document.getElementById('setting-sensor-threshold').addEventListener('input', (e) => {
+                document.getElementById('label-threshold-val').innerText = e.target.value;
+            });
+
+            // Export Data Button
+            document.getElementById('btn-export-data').addEventListener('click', exportDataAsJSON);
+
+            // Import File Listener
+            document.getElementById('input-import-file').addEventListener('change', importDataFromJSON);
+
+            // Reset Data Trigger Modal
+            document.getElementById('btn-reset-data').addEventListener('click', () => {
+                document.getElementById('modal-confirm-reset').classList.remove('hidden');
+            });
+
+            document.getElementById('btn-confirm-reset-now').addEventListener('click', resetAllData);
+
+            // Onboarding Finish
+            document.getElementById('btn-finish-onboarding').addEventListener('click', async () => {
+                APP.settings.userName = document.getElementById('onboard-name').value || 'Walker';
+                APP.settings.dailyGoal = parseInt(document.getElementById('onboard-goal').value) || 10000;
+                APP.settings.stepLength = parseFloat(document.getElementById('onboard-steplen').value) || 0.75;
+                
+                await dbPut('settings', { id: 'user_settings', ...APP.settings });
+                document.getElementById('modal-onboarding').classList.add('hidden');
+                await refreshAllDashboardViews();
+            });
+        }
+
+        function switchTab(tabName) {
+            APP.currentTab = tabName;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+
+            // Update Nav Button Colors
+            document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+                const isTarget = btn.getAttribute('data-tab') === tabName;
+                btn.className = `nav-tab-btn flex flex-col items-center space-y-1 ${isTarget ? 'text-brand-600 dark:text-brand-400' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`;
+            });
+
+            refreshAllDashboardViews();
+        }
+
+        function registerPWA() {
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    const CACHE = 'walktrack-cache-v1';
+                    self.addEventListener('install', e => self.skipWaiting());
+                    self.addEventListener('activate', e => e.waitUntil(clients.claim()));
+                    self.addEventListener('fetch', e => {
+                        e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(err => console.log('PWA Registration:', err));
+            }
+
+            // Notification Permission
+            if ("Notification" in window && Notification.permission === "default") {
+                Notification.requestPermission();
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            lucide.createIcons();
+            
+            await initDB();
+            await loadSettings();
+            
+            setupSensorAlgorithm();
+            setupUIEventListeners();
+            registerPWA();
+
+            // Check if Onboarding Needed
+            const savedSettings = await dbGet('settings', 'user_settings');
+            if (!savedSettings) {
+                document.getElementById('modal-onboarding').classList.remove('hidden');
+            }
+
+            // Restore Active Tracking Session if browser refreshed during activity
+            await restoreActiveSessionIfAny();
+
+            // Initial Dashboard Render
+            await refreshAllDashboardViews();
+        });
+    </script>
+</body>
+</html>
